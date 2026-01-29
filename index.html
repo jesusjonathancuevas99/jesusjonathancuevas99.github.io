@@ -2,114 +2,129 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Elite English Pro · Professional Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Elite English Pro</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Source+Serif+4:wght@700&display=swap" rel="stylesheet">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
+/* ================= MOBILE PREMIUM THEME ================= */
 :root{
---bg:#f5f7fb;
+--bg:#f8fafc;
 --card:#ffffff;
 --accent:#2563eb;
---accent-soft:#e8f0ff;
---text:#0f172a;
+--accent-soft:#eff6ff;
+--text:#020617;
 --muted:#64748b;
+--border:#e5e7eb;
 --ok:#16a34a;
 --bad:#dc2626;
---border:#e2e8f0;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
 margin:0;
 font-family:Inter;
-background:linear-gradient(180deg,#f8fafc,#eef2ff);
+background:var(--bg);
 color:var(--text);
-padding-bottom:110px;
+padding-bottom:92px;
 }
+
+/* ================= HEADER ================= */
 header{
-font-family:Source Serif 4;
-font-size:1.9rem;
-padding:26px;
-text-align:center;
+height:64px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:800;
+font-size:1.2rem;
 background:white;
 border-bottom:1px solid var(--border);
-position:sticky;top:0;z-index:100;
+position:sticky;
+top:0;
+z-index:10;
 }
-.container{max-width:1180px;margin:auto;padding:30px}
 
-/* CARDS */
+/* ================= CONTENT ================= */
+.container{
+padding:20px;
+}
+
+/* ================= CARDS ================= */
 .card{
 background:var(--card);
-border-radius:18px;
-padding:32px;
-margin-bottom:34px;
-border:1px solid var(--border);
+border-radius:22px;
+padding:24px;
+margin-bottom:22px;
+box-shadow:0 10px 25px rgba(0,0,0,.06);
 }
 .badge{
-font-size:.7rem;
+font-size:.65rem;
 font-weight:800;
 letter-spacing:.18em;
 color:var(--accent);
-margin-bottom:16px;
+margin-bottom:14px;
 }
 .text-en{
-font-size:2.05rem;
+font-size:1.8rem;
 font-weight:700;
-line-height:1.4;
+line-height:1.35;
 }
 .text-fig{
 background:var(--accent-soft);
-padding:16px;
-border-radius:12px;
+padding:14px;
+border-radius:14px;
 margin-top:14px;
 font-family:monospace;
 }
 .text-es{
-color:var(--muted);
 margin-top:10px;
+color:var(--muted);
 }
 
-/* BUTTONS */
+/* ================= CONTROLS ================= */
 .controls{
 display:flex;
 gap:14px;
-margin-top:20px;
-flex-wrap:wrap;
+margin-top:18px;
 }
 .btn-icon{
-width:52px;height:52px;border-radius:50%;
-border:1px solid var(--border);
-background:white;
-color:var(--accent);
-font-size:1.2rem;
-cursor:pointer;
+width:50px;height:50px;
+border-radius:50%;
+border:none;
+background:var(--accent);
+color:white;
+font-size:1.1rem;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 .btn-main{
+margin-top:22px;
 width:100%;
-margin-top:24px;
-padding:18px;
-border-radius:14px;
+padding:16px;
+border-radius:18px;
 border:none;
 background:var(--accent);
 color:white;
 font-weight:800;
-cursor:pointer;
+font-size:1rem;
 }
 
-/* SPEAK */
+/* ================= SPEAK ================= */
 .word-ok{color:var(--ok);font-weight:700}
 .word-bad{color:var(--bad);font-weight:700}
 
-/* EXERCISES */
+/* ================= EXERCISES ================= */
 .option{
 padding:16px;
-border-radius:12px;
-background:#fff;
-margin-top:12px;
-cursor:pointer;
+border-radius:16px;
+background:white;
 border:1px solid var(--border);
+margin-top:12px;
 }
 .correct{background:#ecfdf5;color:var(--ok)}
 .wrong{background:#fef2f2;color:var(--bad)}
@@ -117,22 +132,21 @@ border:1px solid var(--border);
 input,textarea,select{
 width:100%;
 padding:14px;
-border-radius:10px;
+border-radius:14px;
 border:1px solid var(--border);
-background:white;
-margin-top:10px;
+margin-top:12px;
 font-family:Inter;
 }
-textarea{min-height:140px}
 
+/* ================= TABS ================= */
 .tab{display:none}
 .tab.active{display:block}
 
-/* NAV */
+/* ================= BOTTOM NAV ================= */
 nav{
 position:fixed;
 bottom:0;left:0;right:0;
-height:88px;
+height:82px;
 background:white;
 border-top:1px solid var(--border);
 display:flex;
@@ -140,17 +154,16 @@ justify-content:space-around;
 align-items:center;
 }
 nav div{
-font-size:.65rem;
-font-weight:800;
-color:var(--muted);
-cursor:pointer;
 display:flex;
 flex-direction:column;
 align-items:center;
 gap:6px;
+font-size:.65rem;
+font-weight:700;
+color:var(--muted);
 }
-nav i{font-size:1.5rem}
 nav .active{color:var(--accent)}
+nav i{font-size:1.6rem}
 </style>
 </head>
 
@@ -163,15 +176,15 @@ nav .active{color:var(--accent)}
 <!-- PHRASES -->
 <section id="phrases" class="tab active">
 <div class="card">
-<div class="badge">PHRASES</div>
+<div class="badge">PHRASE</div>
 <div id="phEn" class="text-en"></div>
 <div id="phFig" class="text-fig"></div>
 <div id="phEs" class="text-es"></div>
 <div class="controls">
 <button class="btn-icon" onclick="tts(phEn.innerText,1)"><i class="fas fa-play"></i></button>
-<button class="btn-icon" onclick="tts(phEn.innerText,0.6)"><i class="fas fa-snail"></i></button>
+<button class="btn-icon" onclick="tts(phEn.innerText,.6)"><i class="fas fa-snail"></i></button>
 </div>
-<button class="btn-main" onclick="loadPhrase()">NEW PHRASE</button>
+<button class="btn-main" onclick="loadPhrase()">New Phrase</button>
 </div>
 </section>
 
@@ -182,22 +195,22 @@ nav .active{color:var(--accent)}
 <div id="spTarget" class="text-en"></div>
 <div id="spFig" class="text-fig"></div>
 <div id="spResult"></div>
-<div id="spScore" style="margin-top:14px;font-weight:700"></div>
+<div id="spScore" style="margin-top:12px;font-weight:700"></div>
 <div class="controls">
 <button class="btn-icon" onclick="tts(spTarget.innerText,1)"><i class="fas fa-play"></i></button>
 <button class="btn-icon" onclick="startSpeak()"><i class="fas fa-microphone"></i></button>
 </div>
-<button class="btn-main" onclick="generateSpeak()">NEW SPEAK</button>
+<button class="btn-main" onclick="generateSpeak()">New Speak</button>
 </div>
 </section>
 
 <!-- EXERCISES -->
 <section id="exercises" class="tab">
 <div class="card">
-<div class="badge">EXERCISES</div>
+<div class="badge">EXERCISE</div>
 <div id="exQ" class="text-en"></div>
 <div id="exOpts"></div>
-<button class="btn-main" onclick="loadExercise()">NEW EXERCISE</button>
+<button class="btn-main" onclick="loadExercise()">New Exercise</button>
 </div>
 </section>
 
@@ -210,106 +223,90 @@ nav .active{color:var(--accent)}
 <option value="es-en">Español → English</option>
 </select>
 <textarea id="trInput" placeholder="Enter text"></textarea>
-<button class="btn-main" onclick="doTranslate()">TRANSLATE</button>
+<button class="btn-main" onclick="doTranslate()">Translate</button>
 <div id="trOutput" class="text-es"></div>
 </div>
 </section>
 
-<!-- GLOBAL -->
+<!-- SETTINGS -->
 <section id="global" class="tab">
 <div class="card">
-<div class="badge">GLOBAL SETTINGS</div>
+<div class="badge">SETTINGS</div>
 <label>Gemini API Key</label>
 <input id="geminiKey">
-<button class="btn-main" onclick="saveGlobal()">SAVE SETTINGS</button>
+<button class="btn-main" onclick="saveGlobal()">Save</button>
 </div>
 </section>
 
 </div>
 
 <nav>
-<div class="active" onclick="tab('phrases',this)"><i class="fas fa-quote-left"></i>PHRASES</div>
-<div onclick="tab('speak',this)"><i class="fas fa-microphone"></i>SPEAK</div>
-<div onclick="tab('exercises',this)"><i class="fas fa-list"></i>EXERCISES</div>
-<div onclick="tab('translator',this)"><i class="fas fa-language"></i>TRANSLATOR</div>
-<div onclick="tab('global',this)"><i class="fas fa-gear"></i>GLOBAL</div>
+<div class="active" onclick="tab('phrases',this)"><i class="fas fa-quote-left"></i>Phrases</div>
+<div onclick="tab('speak',this)"><i class="fas fa-microphone"></i>Speak</div>
+<div onclick="tab('exercises',this)"><i class="fas fa-list"></i>Exercises</div>
+<div onclick="tab('translator',this)"><i class="fas fa-language"></i>Translate</div>
+<div onclick="tab('global',this)"><i class="fas fa-gear"></i>Settings</div>
 </nav>
 
 <script>
-/* ================= GLOBAL ================= */
-let TRANSLATION_ENABLED=true;
-geminiKey.value=localStorage.getItem("GEMINI_KEY")||"";
-function saveGlobal(){
-localStorage.setItem("GEMINI_KEY",geminiKey.value.trim());
-alert("✅ Settings saved");
-}
-
-/* ================= UTIL ================= */
-function tts(t,r){
-speechSynthesis.cancel();
-const u=new SpeechSynthesisUtterance(t);
-u.lang="en-US";u.rate=r;
-speechSynthesis.speak(u);
-}
+/* ================= NAV ================= */
 function tab(id,el){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
 document.getElementById(id).classList.add('active');
 document.querySelectorAll('nav div').forEach(n=>n.classList.remove('active'));
 el.classList.add('active');
 }
-function clean(s){return s.toLowerCase().replace(/[^a-z\s]/g,"").trim()}
+
+/* ================= GLOBAL ================= */
+geminiKey.value=localStorage.getItem("GEMINI_KEY")||"";
+function saveGlobal(){
+localStorage.setItem("GEMINI_KEY",geminiKey.value.trim());
+alert("✅ Saved");
+}
+
+/* ================= TTS ================= */
+function tts(text,rate){
+speechSynthesis.cancel();
+const u=new SpeechSynthesisUtterance(text);
+u.lang="en-US";
+u.rate=rate;
+speechSynthesis.speak(u);
+}
 
 /* ================= PHONETIC ================= */
-function englishToSpanishPhonetic(t){
-return t.toLowerCase()
+function englishToSpanishPhonetic(text){
+return text.toLowerCase()
 .replace(/th/g,"d")
 .replace(/ing\b/g,"in")
-.replace(/tion\b/g,"shon");
+.replace(/tion\b/g,"shon")
+.replace(/ph/g,"f");
 }
 
-/* ================= TRANSLATOR (FALLBACK) ================= */
+/* ================= TRANSLATOR ================= */
+async function doTranslate(){
+const [f,t]=trDir.value.split("-");
+trOutput.innerText="Translating...";
+trOutput.innerText=await translateSmart(trInput.value,f,t);
+}
 async function translateSmart(text,from,to){
-if(!TRANSLATION_ENABLED) return "Translation disabled";
-return (
-await viaApertium(text,from,to,"https://apertium.org/apy") ||
-await viaApertium(text,from,to,"https://beta.apertium.org/apy") ||
-await viaLibre(text,from,to) ||
-await viaArgos(text,from,to) ||
-"⚠️ Translation unavailable"
-);
-}
-async function viaApertium(t,f,to,b){
 try{
-const r=await fetch(`${b}/translate?langpair=${f}|${to}&q=${encodeURIComponent(t)}`);
+const r=await fetch(`https://apertium.org/apy/translate?langpair=${from}|${to}&q=${encodeURIComponent(text)}`);
 return (await r.json()).responseData.translatedText;
-}catch{return null}
+}catch{
+return "Translation unavailable";
 }
-async function viaLibre(t,f,to){
-try{
-const r=await fetch("https://libretranslate.com/translate",{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source:f,target:to})});
-return (await r.json()).translatedText;
-}catch{return null}
-}
-async function viaArgos(t,f,to){
-try{
-const r=await fetch("https://translate.argosopentech.com/translate",{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source:f,target:to})});
-return (await r.json()).translatedText;
-}catch{return null}
 }
 
 /* ================= PHRASES ================= */
 const subjects=["I","You","We","They","Learning English","Daily practice"];
-const verbs=["improves","changes","builds","creates","strengthens"];
+const verbs=["improves","builds","creates","strengthens"];
 const complements=["your confidence","your future","your skills","new opportunities"];
 
 async function loadPhrase(){
 let t;
 try{t=(await (await fetch("https://api.quotable.io/random")).json()).content}catch{}
 if(!t){
-const s=subjects[Math.floor(Math.random()*subjects.length)];
-const v=verbs[Math.floor(Math.random()*verbs.length)];
-const c=complements[Math.floor(Math.random()*complements.length)];
-t=`${s} ${v} ${c}.`;
+t=`${subjects[Math.floor(Math.random()*subjects.length)]} ${verbs[Math.floor(Math.random()*verbs.length)]} ${complements[Math.floor(Math.random()*complements.length)]}.`;
 }
 phEn.innerText=t;
 phFig.innerText=englishToSpanishPhonetic(t);
@@ -319,13 +316,15 @@ phEs.innerText=await translateSmart(t,"en","es");
 /* ================= SPEAK ================= */
 function startSpeak(){
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-const r=new SR();r.lang="en-US";
+if(!SR)return;
+const r=new SR();
+r.lang="en-US";
 r.onresult=e=>compareSpeech(e.results[0][0].transcript);
 r.start();
 }
 function compareSpeech(spoken){
-const t=clean(spTarget.innerText).split(" ");
-const s=clean(spoken).split(" ");
+const t=phEn.innerText.toLowerCase().split(" ");
+const s=spoken.toLowerCase().split(" ");
 let ok=0,html="";
 t.forEach((w,i)=>{
 if(s[i]===w){ok++;html+=`<span class="word-ok">${w}</span> `;}
@@ -338,7 +337,8 @@ function generateSpeak(){
 loadPhrase();
 spTarget.innerText=phEn.innerText;
 spFig.innerText=phFig.innerText;
-spResult.innerHTML="";spScore.innerHTML="";
+spResult.innerHTML="";
+spScore.innerHTML="";
 }
 
 /* ================= EXERCISES ================= */
