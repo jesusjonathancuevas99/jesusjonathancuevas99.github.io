@@ -1,412 +1,107 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Elite English Pro · Mega Definitivo</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
-
-<style>
-:root{
---bg:#050812;--card:#12183a;--card2:#0b0f2e;
---text:#f4f6ff;--muted:#aab3d9;
---brand:#7c8cff;--brand2:#b3c0ff;
---gold:#ffd479;--ok:#2bff88;--bad:#ff5a5a;
-}
-*{box-sizing:border-box}
-body{
-margin:0;font-family:Inter;
-background:radial-gradient(1200px 700px at 50% -300px,#1c2a70,#050812);
-color:var(--text);padding-bottom:140px;
-}
-header{
-padding:18px;font-family:Outfit;font-weight:900;
-text-align:center;background:#050812dd;
-backdrop-filter:blur(24px);
-position:sticky;top:0;z-index:100;
-}
-.container{max-width:980px;margin:auto;padding:24px}
-.card{
-background:linear-gradient(180deg,var(--card),var(--card2));
-border-radius:28px;padding:26px;margin-bottom:30px;
-box-shadow:0 40px 140px rgba(0,0,0,.7);
-}
-.badge{
-font-size:.7rem;font-weight:900;letter-spacing:.14em;
-color:#cdd3ff;margin-bottom:12px
-}
-.text-en{font-family:Outfit;font-size:1.6rem}
-.text-es{color:var(--muted);margin-top:10px}
-.text-fig{
-font-family:monospace;color:var(--gold);
-background:#0008;padding:14px;border-radius:14px;margin-top:12px
-}
-.controls{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap}
-.btn-icon{
-width:48px;height:48px;border-radius:50%;
-border:none;background:linear-gradient(135deg,var(--brand),var(--brand2));
-color:#fff;font-size:1.1rem;cursor:pointer
-}
-.btn-main{
-width:100%;padding:16px;border:none;border-radius:22px;
-background:linear-gradient(135deg,var(--brand),var(--brand2));
-font-family:Outfit;font-weight:900;color:#fff;margin-top:18px;cursor:pointer
-}
-.tab{display:none}.tab.active{display:block}
-.option{
-background:#0006;border-radius:16px;padding:14px;margin-top:10px;
-cursor:pointer
-}
-.correct{color:var(--ok)}.wrong{color:var(--bad)}
-input,textarea,select{
-width:100%;padding:14px;border-radius:14px;border:none;
-background:#0006;color:white;margin-top:10px
-}
-textarea{min-height:120px}
-nav{
-position:fixed;bottom:0;left:0;right:0;height:96px;
-background:#050812f3;display:flex;justify-content:space-around;align-items:center
-}
-nav div{font-size:.7rem;font-weight:900;color:#9aa3d0;cursor:pointer}
-nav .active{color:var(--brand2)}
-</style>
-</head>
-
-<body>
-
-<header>ELITE ENGLISH PRO · MEGA DEFINITIVO</header>
-
-<div class="container">
-
-<!-- PHRASES -->
-<section id="phrases" class="tab active">
-<div class="card">
-<div class="badge">PHRASES</div>
-<div id="phEn" class="text-en"></div>
-<div id="phFig" class="text-fig"></div>
-<div id="phEs" class="text-es"></div>
-<div class="controls">
-<button class="btn-icon" onclick="tts(phEn.innerText,1)"><i class="fas fa-play"></i></button>
-<button class="btn-icon" onclick="tts(phEn.innerText,0.6)"><i class="fas fa-snail"></i></button>
-</div>
-<button class="btn-main" onclick="loadPhrase()">NEW PHRASE</button>
-</div>
-</section>
-
-<!-- SPEAK -->
-<section id="speak" class="tab">
-<div class="card">
-<div class="badge">SPEAK</div>
-<div id="spTarget" class="text-en"></div>
-<div id="spFig" class="text-fig"></div>
-<div id="spEs" class="text-es"></div>
-<div class="controls">
-<button class="btn-icon" onclick="tts(spTarget.innerText,1)"><i class="fas fa-play"></i></button>
-<button class="btn-icon" onclick="tts(spTarget.innerText,0.6)"><i class="fas fa-snail"></i></button>
-<button class="btn-icon" onclick="startRecording()"><i class="fas fa-microphone"></i></button>
-<button class="btn-icon" onclick="playRecording()"><i class="fas fa-volume-up"></i></button>
-</div>
-<button class="btn-main" onclick="generateSpeak()">NEW SPEAK</button>
-</div>
-</section>
-
-<!-- EXERCISES -->
-<section id="exercises" class="tab">
-<div class="card">
-<div class="badge">EXERCISES</div>
-<div id="exQ" class="text-en"></div>
-<div id="exOpts"></div>
-<button class="btn-main" onclick="loadExercise()">NEW EXERCISE</button>
-</div>
-</section>
-
-<!-- TRANSLATOR -->
-<section id="translator" class="tab">
-<div class="card">
-<div class="badge">TRANSLATOR</div>
-
-<select id="trDir">
-<option value="en-es">English → Español</option>
-<option value="es-en">Español → English</option>
-</select>
-
-<textarea id="trInput" placeholder="Enter text"></textarea>
-<button class="btn-main" onclick="doTranslate()">TRANSLATE</button>
-<div id="trOutput" class="text-es"></div>
-</div>
-</section>
-
-<!-- GLOBAL -->
-<section id="global" class="tab">
-<div class="card">
-<div class="badge">GLOBAL SETTINGS</div>
-
-<label>🔑 Gemini API Key (solo generación)</label>
-<input id="geminiKey" placeholder="Optional">
-
-<label style="margin-top:14px">🌍 Traducción automática</label>
-<button class="btn-main" onclick="toggleTranslation()" id="translationBtn"></button>
-<div id="translationStatus" class="text-es"></div>
-
-<button class="btn-main" onclick="saveGlobal()">SAVE SETTINGS</button>
-</div>
-</section>
-
-</div>
-
-<nav>
-<div class="active" onclick="tab('phrases',this)">PHRASES</div>
-<div onclick="tab('speak',this)">SPEAK</div>
-<div onclick="tab('exercises',this)">EXERCISES</div>
-<div onclick="tab('translator',this)">TRANSLATOR</div>
-<div onclick="tab('global',this)">GLOBAL</div>
-</nav>
-
-<script>
-/* ========= GLOBAL ========= */
-let TRANSLATION_ENABLED = localStorage.getItem("TRANSLATION_ENABLED") !== "false";
-geminiKey.value = localStorage.getItem("GEMINI_KEY") || "";
-
-function saveGlobal(){
-localStorage.setItem("GEMINI_KEY",geminiKey.value.trim());
-localStorage.setItem("TRANSLATION_ENABLED",TRANSLATION_ENABLED);
-alert("✅ Settings saved");
-}
-
-/* ========= TRANSLATION TOGGLE ========= */
-function toggleTranslation(){
-TRANSLATION_ENABLED=!TRANSLATION_ENABLED;
-updateTranslationUI();
-}
-function updateTranslationUI(){
-translationBtn.innerText = TRANSLATION_ENABLED ? "DESACTIVAR TRADUCCIÓN" : "ACTIVAR TRADUCCIÓN";
-translationStatus.innerText = TRANSLATION_ENABLED ? "✅ Traducción activa" : "⛔ Traducción desactivada";
-}
-
-/* ========= TTS ========= */
-function tts(text,rate){
-if(!text)return;
-speechSynthesis.cancel();
-const u=new SpeechSynthesisUtterance(text);
-u.lang="en-US";u.rate=rate;
-speechSynthesis.speak(u);
-}
-
-/* ========= RECORD AUDIO (SPEAK) ========= */
-let mediaRecorder,recordedChunks=[],recordedAudio=null;
-async function startRecording(){
-const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-mediaRecorder=new MediaRecorder(stream);
-recordedChunks=[];
-mediaRecorder.ondataavailable=e=>recordedChunks.push(e.data);
-mediaRecorder.onstop=()=>recordedAudio=new Blob(recordedChunks,{type:"audio/webm"});
-mediaRecorder.start();
-setTimeout(()=>mediaRecorder.stop(),3000);
-}
-function playRecording(){
-if(!recordedAudio)return alert("No recording");
-new Audio(URL.createObjectURL(recordedAudio)).play();
-}
-
-/* ========= UTILS ========= */
-function fig(t){return t.toLowerCase().replace(/th/g,"d").replace(/ing\b/g,"in");}
-async function fetchSafe(u,o={},t=12000){
-const c=new AbortController();setTimeout(()=>c.abort(),t);
-try{return await fetch(u,{...o,signal:c.signal})}catch{return null}
-}
-
-/* ========= TRANSLATION SERVICES ========= */
-async function translateSmart(text,from,to){
-if(!TRANSLATION_ENABLED)return "🌍 Traducción desactivada";
-return (
-await viaApertium(text,from,to,"https://apertium.org/apy") ||
-await viaApertium(text,from,to,"https://beta.apertium.org/apy") ||
-await viaLibre(text,from,to) ||
-await viaArgos(text,from,to) ||
-"⚠️ Translation unavailable"
-);
-}
-async function viaApertium(t,f,to,b){
-const r=await fetchSafe(`${b}/translate?langpair=${f}|${to}&q=${encodeURIComponent(t)}`);
-if(!r)return null;try{return (await r.json()).responseData.translatedText}catch{return null}
-}
-async function viaLibre(t,f,to){
-const r=await fetchSafe("https://libretranslate.com/translate",{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source:f,target:to})});
-if(!r)return null;try{return (await r.json()).translatedText}catch{return null}
-}
-async function viaArgos(t,f,to){
-const r=await fetchSafe("https://translate.argosopentech.com/translate",{method:"POST",headers:{'Content-Type':'application/json'},body:JSON.stringify({q:t,source:f,target:to})});
-if(!r)return null;try{return (await r.json()).translatedText}catch{return null}
-}
-
-/* ========= GEMINI ========= */
-async function geminiGen(prompt){
-if(!geminiKey.value.trim())return null;
-try{
-const r=await fetchSafe(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey.value.trim()}`,
-{method:"POST",headers:{'Content-Type':'application/json'},
-body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})}
-);
-return (await r.json()).candidates[0].content.parts[0].text.trim();
-}catch{return null}
-}
-
-/* ========= CONTENT ========= */
-async function loadPhrase(){
-let t=await geminiGen("Give one short English sentence.");
-if(!t){
-try{t=(await (await fetchSafe("https://api.adviceslip.com/advice")).json()).slip.advice}catch{}
-}
-if(!t)t="Practice English every day.";
-phEn.innerText=t;
-phFig.innerText=fig(t);
-phEs.innerText=await translateSmart(t,"en","es");
-}
-
-async function generateSpeak(){
-await loadPhrase();
-spTarget.innerText=phEn.innerText;
-spFig.innerText=phFig.innerText;
-spEs.innerText=phEs.innerText;
-}
-
-async function loadExercise(){
-let ex=null;
-
-/* Gemini */
-const g=await geminiGen("Create an English exercise JSON {q,a,o[]}");
-try{ex=JSON.parse(g)}catch{}
-
-/* Internet */
-if(!ex){
-try{
-const s=(await (await fetchSafe("https://api.quotable.io/random")).json()).content;
-ex={
-q:s.replace(/[A-Za-z]+/,"___"),
-a:s.match(/[A-Za-z]+/)[0],
-o:[s.match(/[A-Za-z]+/)[0],"is","are"]
-};
-}catch{}
-}
-
-/* Local fallback */
-if(!ex)ex={q:"She ___ English every day.",a:"studies",o:["study","studies","studying"]};
-
-exQ.innerText=ex.q;
-exOpts.innerHTML="";
-ex.o.sort(()=>Math.random()-0.5).forEach(o=>{
-const d=document.createElement("div");
-d.className="option";d.innerText=o;
-d.onclick=()=>d.classList.add(o===ex.a?"correct":"wrong");
-exOpts.appendChild(d);
-});
-}
-
-/* ========= TRANSLATOR ========= */
-async function doTranslate(){
-const [f,to]=trDir.value.split("-");
-trOutput.innerText=await translateSmart(trInput.value.trim(),f,to);
-}
-
-/* ========= NAV ========= */
-function tab(id,el){
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-document.querySelectorAll('nav div').forEach(n=>n.classList.remove('active'));
-el.classList.add('active');
-}
-
-/* INIT */
-updateTranslationUI();
-loadPhrase();
-loadExercise();
-</script>
 <script>
 /* ============================================================
-   ENGLISH → SPANISH PHONETIC PRONUNCIATION
-   Super infalible · Educativo · Sin APIs
-   Author: Elite English Pro
+   ENGLISH → SPANISH PHONETIC PRONUNCIATION (PRO)
+   ------------------------------------------------------------
+   ✅ Educativo
+   ✅ Sin APIs
+   ✅ Sin dependencias
+   ✅ Pensado para hispanohablantes
+   ✅ Pronunciación figurada clara (NO IPA)
+   ------------------------------------------------------------
+   USO:
+   englishToSpanishPhonetic("Learning English is very important");
+   → "lérnin ínglish is véri importan"
 ============================================================ */
 
 /**
- * Convierte una frase en inglés a pronunciación figurada en español.
- * Ejemplo:
- *  "I think this is a good idea"
- *  → "ai dínk dis is a gud aidía"
+ * FUNCIÓN PRINCIPAL
+ * @param {string} text - Texto en inglés
+ * @returns {string} - Pronunciación figurada en español
  */
-
 function englishToSpanishPhonetic(text) {
+
+  /* ================= VALIDACIÓN ================= */
   if (!text || typeof text !== "string") return "";
 
-  let t = text.toLowerCase();
-
-  /* ---------- NORMALIZACIÓN ---------- */
-  t = t
+  /* ================= NORMALIZACIÓN ================= */
+  let t = text
+    .toLowerCase()
     .replace(/’/g, "'")
     .replace(/[^a-z0-9\s'.?,!]/g, "")
     .trim();
 
-  /* ---------- PALABRAS ESPECIALES ---------- */
+  /* ================= DICCIONARIO BASE =================
+     Palabras comunes que deben sonar NATURALES en español
+  ===================================================== */
   const dictionary = {
     "i": "ai",
-    "you": "iu",
-    "he": "ji",
-    "she": "shi",
+    "you": "iú",
+    "he": "jí",
+    "she": "shí",
     "we": "uí",
-    "they": "dei",
+    "they": "déi",
+
     "the": "da",
     "this": "dis",
     "that": "dat",
     "these": "dís",
     "those": "dóus",
+
     "is": "is",
     "are": "ar",
     "was": "uás",
     "were": "uér",
+
     "have": "jav",
     "has": "jas",
     "had": "jad",
-    "do": "du",
+
+    "do": "dú",
     "does": "das",
     "did": "did",
+
     "a": "a",
     "an": "an",
-    "to": "tu",
+    "to": "tú",
     "of": "ov",
     "for": "for",
     "with": "uid",
+
     "and": "and",
     "or": "or",
     "but": "bat",
     "not": "nat",
+
     "yes": "yés",
     "no": "nó"
   };
 
+  /* ================= APLICAR DICCIONARIO ================= */
   t = t
-    .split(" ")
+    .split(/\s+/)
     .map(word => dictionary[word] || word)
     .join(" ");
 
-  /* ---------- SONIDOS COMPUESTOS ---------- */
+  /* ================= SONIDOS COMPLEJOS =================
+     Grupos de letras con sonido específico en inglés
+  ===================================================== */
   t = t
     .replace(/tion\b/g, "shon")
     .replace(/sion\b/g, "shon")
     .replace(/cial/g, "shal")
     .replace(/tial/g, "shal")
+
     .replace(/ough/g, "of")
     .replace(/augh/g, "af")
     .replace(/igh/g, "ai")
     .replace(/eigh/g, "éi")
+
     .replace(/ph/g, "f")
     .replace(/gh/g, "")
     .replace(/ck/g, "k")
     .replace(/qu/g, "ku");
 
-  /* ---------- CONSONANTES CLAVE ---------- */
+  /* ================= CONSONANTES ================= */
   t = t
     .replace(/th/g, "d")
     .replace(/sh/g, "sh")
@@ -417,7 +112,7 @@ function englishToSpanishPhonetic(text) {
     .replace(/x/g, "ks")
     .replace(/r/g, "r");
 
-  /* ---------- VOCALES ---------- */
+  /* ================= VOCALES ================= */
   t = t
     .replace(/ee/g, "í")
     .replace(/oo/g, "ú")
@@ -431,26 +126,32 @@ function englishToSpanishPhonetic(text) {
     .replace(/i\b/g, "ai")
     .replace(/u\b/g, "iu");
 
-  /* ---------- TERMINACIONES ---------- */
+  /* ================= TERMINACIONES ================= */
   t = t
     .replace(/ing\b/g, "in")
     .replace(/ed\b/g, "d")
     .replace(/er\b/g, "er")
     .replace(/ly\b/g, "li");
 
-  /* ---------- LIMPIEZA FINAL ---------- */
+  /* ================= LIMPIEZA FINAL ================= */
   t = t
     .replace(/\s+/g, " ")
+    .replace(/\s([.,!?])/g, "$1")
     .trim();
 
   return t;
 }
 
 /* ============================================================
-   USO:
-   englishToSpanishPhonetic("Learning English is very important");
-   → "lernin ínglish is veri importan"
+   EJEMPLOS:
+   ------------------------------------------------------------
+   englishToSpanishPhonetic("I think this is easy");
+   → "ai dínk dis is ísi"
+
+   englishToSpanishPhonetic("She speaks English very well");
+   → "shí spíks ínglish véri uél"
+
+   englishToSpanishPhonetic("Learning English changes your life");
+   → "lérnin ínglish chéinyis yór láif"
 ============================================================ */
 </script>
-</body>
-</html>
