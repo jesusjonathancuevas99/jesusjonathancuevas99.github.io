@@ -408,76 +408,72 @@ loadExercise();
 </script>
 <script>
 /* =====================================================================
-   ELITE ENGLISH PRO · ULTIMATE INFINITE ENGINE
+   ELITE ENGLISH PRO · CORE ENGINE v3 (ULTRA STABLE)
    =====================================================================
-   OBJETIVO:
-   - Frases infinitas
-   - Pronunciación figurada infalible
-   - Speak estable
-   - Ejercicios ilimitados
-   - Gemini + Internet + Motor interno
-   ===================================================================== */
+   ✔ Multi‑fallback real (5 niveles)
+   ✔ Pronunciación figurada robusta
+   ✔ Frases / Speak / Ejercicios infinitos
+   ✔ Nunca devuelve vacío
+   ✔ Pensado para producción
+===================================================================== */
 
-/* =========================
-   CONFIGURACIÓN GLOBAL
-========================= */
-const EEP_ENGINE = {
-  levelRange: ["A1","A2","B1","B2"],
+/* =============================
+   CONFIGURACIÓN CENTRAL
+============================= */
+const CORE = {
+  levels: ["A1","A2","B1","B2"],
   topics: [
     "daily life","travel","business","technology","education",
     "work","social situations","health","motivation","finance",
     "relationships","culture","food","habits","time management"
   ],
-  internetSources: [
-    "https://api.quotable.io/random",
-    "https://api.adviceslip.com/advice"
-  ]
+  minSentence: "Learning English improves your life."
 };
 
-/* =========================
-   UTILIDADES BÁSICAS
-========================= */
-const rand = a => a[Math.floor(Math.random()*a.length)];
-const normalize = t =>
-  t.toLowerCase().replace(/[^a-z\s]/g," ").replace(/\s+/g," ").trim();
-
-/* =========================
-   PRONUNCIACIÓN FIGURADA
-   (VERSIÓN EXTREMA)
-========================= */
-function englishToSpanishPhonetic(text){
-  if(!text || typeof text!=="string") return "";
-
-  let t = text.toLowerCase()
-    .replace(/’/g,"'")
-    .replace(/[^a-z0-9\s'.?,!]/g,"")
+/* =============================
+   UTILIDADES CRÍTICAS
+============================= */
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const safeText = t =>
+  (t || "")
+    .toString()
+    .replace(/[^a-zA-Z0-9\s.,!?']/g,"")
+    .replace(/\s+/g," ")
     .trim();
 
-  /* ---- Diccionario crítico ---- */
+/* =============================
+   PRONUNCIACIÓN FIGURADA (v3)
+============================= */
+function englishToSpanishPhonetic(text){
+  if(!text) return "";
+
+  let t = safeText(text.toLowerCase());
+
+  /* Diccionario base (palabras críticas) */
   const dict = {
-    "i":"ai","you":"iú","he":"jí","she":"shí","we":"uí","they":"déi",
-    "the":"da","this":"dis","that":"dat","these":"dís","those":"dóus",
-    "is":"is","are":"ar","was":"uás","were":"uér",
-    "have":"jav","has":"jas","had":"jad",
-    "do":"dú","does":"das","did":"did",
-    "to":"tú","of":"ov","for":"for","with":"uid",
-    "and":"and","or":"or","but":"bat","not":"nat",
-    "very":"véri","people":"pípol","english":"ínglish",
-    "learning":"lérnin","important":"importan",
-    "business":"bísnes","work":"uórk","life":"láif"
+    i:"ai", you:"iú", he:"jí", she:"shí", we:"uí", they:"déi",
+    the:"da", this:"dis", that:"dat", these:"dís", those:"dóus",
+    is:"is", are:"ar", was:"uás", were:"uér",
+    have:"jav", has:"jas", had:"jad",
+    do:"dú", does:"das", did:"did",
+    to:"tú", of:"ov", for:"for", with:"uid",
+    and:"and", or:"or", but:"bat", not:"nat",
+    english:"ínglish", learning:"lérnin",
+    important:"importan", people:"pípol",
+    business:"bísnes", work:"uórk", life:"láif"
   };
 
-  t = t.split(/\s+/).map(w => dict[w] || w).join(" ");
+  t = t.split(" ").map(w => dict[w] || w).join(" ");
 
-  /* ---- Reglas fonéticas ---- */
+  /* Reglas fonéticas por prioridad */
   const rules = [
-    [/tion\b/g,"shon"],[/sion\b/g,"shon"],[/cial/g,"shal"],
-    [/ough/g,"of"],[/igh/g,"ai"],[/eigh/g,"éi"],
-    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
-    [/th/g,"d"],[/sh/g,"sh"],[/ch/g,"ch"],
-    [/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
-    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
-    [/ing\b/g,"in"],[/ed\b/g,"d"],[/er\b/g,"er"],[/ly\b/g,"li"]
+    [/tion\b/g,"shon"], [/sion\b/g,"shon"],
+    [/ough/g,"of"], [/eigh/g,"éi"], [/igh/g,"ai"],
+    [/ph/g,"f"], [/ck/g,"k"], [/qu/g,"ku"], [/gh/g,""],
+    [/th/g,"d"], [/sh/g,"sh"], [/ch/g,"ch"],
+    [/ee/g,"í"], [/ea/g,"í"], [/oo/g,"ú"],
+    [/ai/g,"ei"], [/ay/g,"ei"], [/ow/g,"au"], [/ou/g,"au"],
+    [/ing\b/g,"in"], [/ed\b/g,"d"], [/ly\b/g,"li"]
   ];
 
   rules.forEach(r => t = t.replace(r[0], r[1]));
@@ -485,90 +481,81 @@ function englishToSpanishPhonetic(text){
   return t.replace(/\s+/g," ").trim();
 }
 
-/* =========================
-   GEMINI
-========================= */
+/* =============================
+   GEMINI (PROTEGIDO)
+============================= */
 async function geminiGenerate(prompt){
   const key = localStorage.getItem("GEMINI_KEY");
   if(!key) return null;
 
   try{
+    const ctrl = new AbortController();
+    setTimeout(()=>ctrl.abort(),5000);
+
     const r = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
       {
         method:"POST",
         headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          contents:[{parts:[{text:prompt}]}]
-        })
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
+        signal:ctrl.signal
       }
     );
     const j = await r.json();
-    return j.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    return safeText(j?.candidates?.[0]?.content?.parts?.[0]?.text);
   }catch{
     return null;
   }
 }
 
-/* =========================
-   INTERNET
-========================= */
-async function internetSentence(){
-  for(const url of EEP_ENGINE.internetSources){
+/* =============================
+   INTERNET (MULTI‑API)
+============================= */
+async function internetGenerate(){
+  const apis = [
+    async()=> (await (await fetch("https://api.quotable.io/random")).json()).content,
+    async()=> (await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice
+  ];
+
+  for(const api of apis){
     try{
-      const r = await fetch(url);
-      const j = await r.json();
-      return j.content || j.slip?.advice || null;
+      const t = safeText(await api());
+      if(t) return t;
     }catch{}
   }
   return null;
 }
 
-/* =========================
-   MOTOR INTERNO AVANZADO
-========================= */
-function internalSentence(){
-  const topic = rand(EEP_ENGINE.topics);
-  const level = rand(EEP_ENGINE.levelRange);
-
-  const templates = {
-    A1:[
-      `I like learning English for ${topic}.`,
-      `English is useful in ${topic}.`
-    ],
-    A2:[
-      `Learning English helps me in ${topic}.`,
-      `English is important for ${topic}.`
-    ],
-    B1:[
-      `Learning English helps people communicate better in ${topic}.`,
-      `English skills are useful in many areas of ${topic}.`
-    ],
-    B2:[
-      `Improving your English allows you to succeed in ${topic}.`,
-      `Strong English skills create new opportunities in ${topic}.`
-    ]
-  };
-
-  return rand(templates[level]);
+/* =============================
+   GENERADOR SINTÁCTICO
+============================= */
+function grammarGenerate(){
+  const subjects = ["I","You","People","Learning English","Daily practice"];
+  const verbs = ["improves","helps","builds","creates","develops"];
+  const complements = [
+    "your confidence","your communication skills",
+    "better opportunities","your future","your career"
+  ];
+  return `${pick(subjects)} ${pick(verbs)} ${pick(complements)}.`;
 }
 
-/* =========================
-   GENERADOR MAESTRO
-========================= */
+/* =============================
+   GENERADOR MAESTRO (5 CAPAS)
+============================= */
 async function generateSentence(){
   return (
     await geminiGenerate(
-      "Generate ONE natural English sentence (A2–B2) about a real-life topic. No quotes."
+      "Generate one natural English sentence (A2–B2) about real life. No quotes."
     ) ||
-    await internetSentence() ||
-    internalSentence()
+    await internetGenerate() ||
+    grammarGenerate() ||
+    CORE.minSentence
   );
 }
 
-/* =========================
+/* =============================
    API PÚBLICA FINAL
-========================= */
+============================= */
 
 /* FRASES */
 async function getPhrase(){
@@ -585,33 +572,33 @@ async function getSpeak(){
   return {
     en,
     phonetic: englishToSpanishPhonetic(en),
-    clean: normalize(en)
+    clean: safeText(en.toLowerCase())
   };
 }
 
 /* EJERCICIOS */
 async function getExercise(){
   const en = await generateSentence();
-  const w = en.split(" ");
-  const i = Math.floor(Math.random()*w.length);
-  const answer = w[i];
-  w[i] = "___";
+  const words = en.split(" ");
+  const i = Math.floor(Math.random()*words.length);
+  const answer = words[i];
+  words[i] = "___";
 
   const options = [answer,"is","are","do","does","have"]
     .sort(()=>Math.random()-0.5)
     .slice(0,4);
 
   return {
-    question: w.join(" "),
+    question: words.join(" "),
     answer,
     options
   };
 }
 
-/* =========================
-   AUTO-TEST (OPCIONAL)
-========================= */
-console.log("✅ EEP Infinite Engine loaded");
+/* =============================
+   VERIFICACIÓN DE CARGA
+============================= */
+console.log("✅ Elite English Pro · Core Engine v3 loaded");
 </script>
 </body>
 </html>
