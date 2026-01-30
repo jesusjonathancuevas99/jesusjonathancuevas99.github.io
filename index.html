@@ -2,17 +2,17 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Elite English Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Elite English Pro · Ultimate Edition</title>
 
-<!-- Fonts -->
+<!-- ================= FONTS & ICONS ================= -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-/* ================= MOBILE PREMIUM THEME ================= */
+/* =====================================================
+   THEME · PREMIUM MOBILE APP
+===================================================== */
 :root{
 --bg:#f8fafc;
 --card:#ffffff;
@@ -23,6 +23,7 @@
 --border:#e5e7eb;
 --ok:#16a34a;
 --bad:#dc2626;
+--shadow:0 12px 30px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
@@ -30,7 +31,7 @@ margin:0;
 font-family:Inter;
 background:var(--bg);
 color:var(--text);
-padding-bottom:92px;
+padding-bottom:90px;
 }
 
 /* ================= HEADER ================= */
@@ -40,36 +41,31 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-weight:800;
-font-size:1.2rem;
 background:white;
 border-bottom:1px solid var(--border);
-position:sticky;
-top:0;
-z-index:10;
+position:sticky;top:0;z-index:10;
 }
 
-/* ================= CONTENT ================= */
-.container{
-padding:20px;
-}
+/* ================= CONTAINER ================= */
+.container{padding:20px}
 
-/* ================= CARDS ================= */
+/* ================= CARD ================= */
 .card{
 background:var(--card);
-border-radius:22px;
-padding:24px;
-margin-bottom:22px;
-box-shadow:0 10px 25px rgba(0,0,0,.06);
+border-radius:24px;
+padding:26px;
+margin-bottom:26px;
+box-shadow:var(--shadow);
 }
 .badge{
 font-size:.65rem;
 font-weight:800;
 letter-spacing:.18em;
 color:var(--accent);
-margin-bottom:14px;
+margin-bottom:12px;
 }
 .text-en{
-font-size:1.8rem;
+font-size:1.75rem;
 font-weight:700;
 line-height:1.35;
 }
@@ -83,14 +79,11 @@ font-family:monospace;
 .text-es{
 margin-top:10px;
 color:var(--muted);
+line-height:1.4;
 }
 
-/* ================= CONTROLS ================= */
-.controls{
-display:flex;
-gap:14px;
-margin-top:18px;
-}
+/* ================= BUTTONS ================= */
+.controls{display:flex;gap:12px;margin-top:18px}
 .btn-icon{
 width:50px;height:50px;
 border-radius:50%;
@@ -98,9 +91,6 @@ border:none;
 background:var(--accent);
 color:white;
 font-size:1.1rem;
-display:flex;
-align-items:center;
-justify-content:center;
 }
 .btn-main{
 margin-top:22px;
@@ -122,45 +112,55 @@ font-size:1rem;
 .option{
 padding:16px;
 border-radius:16px;
-background:white;
 border:1px solid var(--border);
 margin-top:12px;
+background:white;
+cursor:pointer;
 }
 .correct{background:#ecfdf5;color:var(--ok)}
 .wrong{background:#fef2f2;color:var(--bad)}
 
+/* ================= TRANSLATOR ================= */
+.trans-box{
+margin-top:14px;
+padding:16px;
+border-radius:16px;
+background:#f1f5f9;
+font-size:1.05rem;
+line-height:1.5;
+}
+.trans-meta{
+font-size:.7rem;
+color:var(--muted);
+margin-top:8px;
+}
+
+/* ================= FORMS ================= */
 input,textarea,select{
 width:100%;
 padding:14px;
 border-radius:14px;
 border:1px solid var(--border);
-margin-top:12px;
+margin-top:10px;
 font-family:Inter;
+font-size:1rem;
 }
+textarea{min-height:120px}
 
 /* ================= TABS ================= */
 .tab{display:none}
 .tab.active{display:block}
 
-/* ================= BOTTOM NAV ================= */
+/* ================= NAV ================= */
 nav{
-position:fixed;
-bottom:0;left:0;right:0;
-height:82px;
-background:white;
+position:fixed;bottom:0;left:0;right:0;
+height:82px;background:white;
 border-top:1px solid var(--border);
-display:flex;
-justify-content:space-around;
-align-items:center;
+display:flex;justify-content:space-around;align-items:center;
 }
 nav div{
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:6px;
-font-size:.65rem;
-font-weight:700;
-color:var(--muted);
+display:flex;flex-direction:column;align-items:center;
+font-size:.65rem;font-weight:700;color:var(--muted);
 }
 nav .active{color:var(--accent)}
 nav i{font-size:1.6rem}
@@ -173,68 +173,78 @@ nav i{font-size:1.6rem}
 
 <div class="container">
 
-<!-- PHRASES -->
+<!-- ================= PHRASES ================= -->
 <section id="phrases" class="tab active">
 <div class="card">
-<div class="badge">PHRASE</div>
+<div class="badge">PHRASES · REAL ENGLISH</div>
 <div id="phEn" class="text-en"></div>
 <div id="phFig" class="text-fig"></div>
 <div id="phEs" class="text-es"></div>
+
 <div class="controls">
 <button class="btn-icon" onclick="tts(phEn.innerText,1)"><i class="fas fa-play"></i></button>
 <button class="btn-icon" onclick="tts(phEn.innerText,.6)"><i class="fas fa-snail"></i></button>
 </div>
+
 <button class="btn-main" onclick="loadPhrase()">New Phrase</button>
 </div>
 </section>
 
-<!-- SPEAK -->
+<!-- ================= SPEAK ================= -->
 <section id="speak" class="tab">
 <div class="card">
-<div class="badge">SPEAK</div>
+<div class="badge">SPEAK · PRONUNCIATION ANALYSIS</div>
 <div id="spTarget" class="text-en"></div>
 <div id="spFig" class="text-fig"></div>
 <div id="spResult"></div>
-<div id="spScore" style="margin-top:12px;font-weight:700"></div>
+<div id="spScore" class="text-es"></div>
+
 <div class="controls">
 <button class="btn-icon" onclick="tts(spTarget.innerText,1)"><i class="fas fa-play"></i></button>
 <button class="btn-icon" onclick="startSpeak()"><i class="fas fa-microphone"></i></button>
 </div>
+
 <button class="btn-main" onclick="generateSpeak()">New Speak</button>
 </div>
 </section>
 
-<!-- EXERCISES -->
+<!-- ================= EXERCISES ================= -->
 <section id="exercises" class="tab">
 <div class="card">
-<div class="badge">EXERCISE</div>
+<div class="badge">EXERCISES · CONTEXT</div>
 <div id="exQ" class="text-en"></div>
 <div id="exOpts"></div>
 <button class="btn-main" onclick="loadExercise()">New Exercise</button>
 </div>
 </section>
 
-<!-- TRANSLATOR -->
+<!-- ================= TRANSLATOR ================= -->
 <section id="translator" class="tab">
 <div class="card">
-<div class="badge">TRANSLATOR</div>
+<div class="badge">TRANSLATOR · PROFESSIONAL</div>
+
 <select id="trDir">
 <option value="en-es">English → Español</option>
 <option value="es-en">Español → English</option>
 </select>
-<textarea id="trInput" placeholder="Enter text"></textarea>
+
+<textarea id="trInput" placeholder="Write your text here..."></textarea>
+
 <button class="btn-main" onclick="doTranslate()">Translate</button>
-<div id="trOutput" class="text-es"></div>
+
+<div id="trOutput" class="trans-box"></div>
+<div id="trMeta" class="trans-meta"></div>
+
 </div>
 </section>
 
-<!-- SETTINGS -->
-<section id="global" class="tab">
+<!-- ================= SETTINGS ================= -->
+<section id="settings" class="tab">
 <div class="card">
-<div class="badge">SETTINGS</div>
+<div class="badge">SETTINGS · AI</div>
 <label>Gemini API Key</label>
 <input id="geminiKey">
-<button class="btn-main" onclick="saveGlobal()">Save</button>
+<button class="btn-main" onclick="saveKey()">Save Settings</button>
 </div>
 </section>
 
@@ -245,10 +255,17 @@ nav i{font-size:1.6rem}
 <div onclick="tab('speak',this)"><i class="fas fa-microphone"></i>Speak</div>
 <div onclick="tab('exercises',this)"><i class="fas fa-list"></i>Exercises</div>
 <div onclick="tab('translator',this)"><i class="fas fa-language"></i>Translate</div>
-<div onclick="tab('global',this)"><i class="fas fa-gear"></i>Settings</div>
+<div onclick="tab('settings',this)"><i class="fas fa-gear"></i>Settings</div>
 </nav>
 
 <script>
+/* ================= SETTINGS ================= */
+geminiKey.value = localStorage.getItem("GEMINI_KEY") || "";
+function saveKey(){
+localStorage.setItem("GEMINI_KEY", geminiKey.value.trim());
+alert("✅ Gemini key saved");
+}
+
 /* ================= NAV ================= */
 function tab(id,el){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -257,63 +274,80 @@ document.querySelectorAll('nav div').forEach(n=>n.classList.remove('active'));
 el.classList.add('active');
 }
 
-/* ================= GLOBAL ================= */
-geminiKey.value=localStorage.getItem("GEMINI_KEY")||"";
-function saveGlobal(){
-localStorage.setItem("GEMINI_KEY",geminiKey.value.trim());
-alert("✅ Saved");
-}
-
 /* ================= TTS ================= */
 function tts(text,rate){
 speechSynthesis.cancel();
 const u=new SpeechSynthesisUtterance(text);
-u.lang="en-US";
-u.rate=rate;
+u.lang="en-US";u.rate=rate;
 speechSynthesis.speak(u);
 }
 
 /* ================= PHONETIC ================= */
-function englishToSpanishPhonetic(text){
-return text.toLowerCase()
+function englishToSpanishPhonetic(t){
+return t.toLowerCase()
 .replace(/th/g,"d")
 .replace(/ing\b/g,"in")
 .replace(/tion\b/g,"shon")
-.replace(/ph/g,"f");
+.replace(/ph/g,"f")
+.replace(/ee/g,"í")
+.replace(/oo/g,"ú");
 }
 
-/* ================= TRANSLATOR ================= */
-async function doTranslate(){
-const [f,t]=trDir.value.split("-");
-trOutput.innerText="Translating...";
-trOutput.innerText=await translateSmart(trInput.value,f,t);
-}
-async function translateSmart(text,from,to){
+/* ================= GEMINI ================= */
+async function gemini(prompt){
+const key=localStorage.getItem("GEMINI_KEY");
+if(!key) return null;
 try{
-const r=await fetch(`https://apertium.org/apy/translate?langpair=${from}|${to}&q=${encodeURIComponent(text)}`);
-return (await r.json()).responseData.translatedText;
-}catch{
-return "Translation unavailable";
+const r=await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
+{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+});
+const j=await r.json();
+return j.candidates?.[0]?.content?.parts?.[0]?.text || null;
+}catch{return null}
 }
+
+/* ================= INTERNET ================= */
+async function internetSentence(){
+try{
+const r=await fetch("https://api.quotable.io/random");
+return (await r.json()).content;
+}catch{return null}
+}
+
+/* ================= INTERNAL ================= */
+const internalTopics=[
+"business","travel","daily life","technology",
+"education","work","motivation","social situations"
+];
+function internalSentence(){
+const t=internalTopics[Math.floor(Math.random()*internalTopics.length)];
+return `Learning English helps you communicate better in ${t}.`;
 }
 
 /* ================= PHRASES ================= */
-const subjects=["I","You","We","They","Learning English","Daily practice"];
-const verbs=["improves","builds","creates","strengthens"];
-const complements=["your confidence","your future","your skills","new opportunities"];
-
 async function loadPhrase(){
-let t;
-try{t=(await (await fetch("https://api.quotable.io/random")).json()).content}catch{}
-if(!t){
-t=`${subjects[Math.floor(Math.random()*subjects.length)]} ${verbs[Math.floor(Math.random()*verbs.length)]} ${complements[Math.floor(Math.random()*complements.length)]}.`;
-}
-phEn.innerText=t;
-phFig.innerText=englishToSpanishPhonetic(t);
-phEs.innerText=await translateSmart(t,"en","es");
+const text =
+await gemini("Generate one natural English sentence (B1-B2) about a random real-life topic. No quotes.")
+|| await internetSentence()
+|| internalSentence();
+
+phEn.innerText=text;
+phFig.innerText=englishToSpanishPhonetic(text);
+phEs.innerText="";
 }
 
 /* ================= SPEAK ================= */
+function generateSpeak(){
+loadPhrase();
+spTarget.innerText=phEn.innerText;
+spFig.innerText=phFig.innerText;
+spResult.innerHTML="";
+spScore.innerHTML="";
+}
 function startSpeak(){
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR)return;
@@ -323,29 +357,20 @@ r.onresult=e=>compareSpeech(e.results[0][0].transcript);
 r.start();
 }
 function compareSpeech(spoken){
-const t=phEn.innerText.toLowerCase().split(" ");
+const t=spTarget.innerText.toLowerCase().split(" ");
 const s=spoken.toLowerCase().split(" ");
-let ok=0,html="";
+let ok=0,h="";
 t.forEach((w,i)=>{
-if(s[i]===w){ok++;html+=`<span class="word-ok">${w}</span> `;}
-else html+=`<span class="word-bad">${w}</span> `;
+if(s[i]===w){ok++;h+=`<span class="word-ok">${w}</span> `}
+else h+=`<span class="word-bad">${w}</span> `;
 });
-spResult.innerHTML=html;
+spResult.innerHTML=h;
 spScore.innerText=`Accuracy: ${Math.round(ok/t.length*100)}%`;
-}
-function generateSpeak(){
-loadPhrase();
-spTarget.innerText=phEn.innerText;
-spFig.innerText=phFig.innerText;
-spResult.innerHTML="";
-spScore.innerHTML="";
 }
 
 /* ================= EXERCISES ================= */
 async function loadExercise(){
-let s;
-try{s=(await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice}catch{}
-if(!s)s=phEn.innerText||"Learning English improves your confidence";
+let s=await internetSentence()||internalSentence();
 const w=s.split(" ");
 const i=Math.floor(Math.random()*w.length);
 const a=w[i];
@@ -361,166 +386,232 @@ exOpts.appendChild(d);
 });
 }
 
+/* ================= TRANSLATOR ================= */
+async function doTranslate(){
+const [f,t]=trDir.value.split("-");
+trOutput.innerText="Translating...";
+trMeta.innerText="";
+const start=Date.now();
+try{
+const r=await fetch(`https://apertium.org/apy/translate?langpair=${f}|${t}&q=${encodeURIComponent(trInput.value)}`);
+const j=await r.json();
+trOutput.innerText=j.responseData.translatedText;
+trMeta.innerText=`Translated in ${Date.now()-start} ms`;
+}catch{
+trOutput.innerText="Translation unavailable";
+}
+}
+
 /* INIT */
 loadPhrase();
 loadExercise();
 </script>
 <script>
-/* ============================================================
-   ENGLISH → SPANISH PHONETIC PRONUNCIATION (PRO)
-   ------------------------------------------------------------
-   ✅ Educativo
-   ✅ Sin APIs
-   ✅ Sin dependencias
-   ✅ Pensado para hispanohablantes
-   ✅ Pronunciación figurada clara (NO IPA)
-   ------------------------------------------------------------
-   USO:
-   englishToSpanishPhonetic("Learning English is very important");
-   → "lérnin ínglish is véri importan"
-============================================================ */
+/* =====================================================================
+   ELITE ENGLISH PRO · ULTIMATE INFINITE ENGINE
+   =====================================================================
+   OBJETIVO:
+   - Frases infinitas
+   - Pronunciación figurada infalible
+   - Speak estable
+   - Ejercicios ilimitados
+   - Gemini + Internet + Motor interno
+   ===================================================================== */
 
-/**
- * FUNCIÓN PRINCIPAL
- * @param {string} text - Texto en inglés
- * @returns {string} - Pronunciación figurada en español
- */
-function englishToSpanishPhonetic(text) {
+/* =========================
+   CONFIGURACIÓN GLOBAL
+========================= */
+const EEP_ENGINE = {
+  levelRange: ["A1","A2","B1","B2"],
+  topics: [
+    "daily life","travel","business","technology","education",
+    "work","social situations","health","motivation","finance",
+    "relationships","culture","food","habits","time management"
+  ],
+  internetSources: [
+    "https://api.quotable.io/random",
+    "https://api.adviceslip.com/advice"
+  ]
+};
 
-  /* ================= VALIDACIÓN ================= */
-  if (!text || typeof text !== "string") return "";
+/* =========================
+   UTILIDADES BÁSICAS
+========================= */
+const rand = a => a[Math.floor(Math.random()*a.length)];
+const normalize = t =>
+  t.toLowerCase().replace(/[^a-z\s]/g," ").replace(/\s+/g," ").trim();
 
-  /* ================= NORMALIZACIÓN ================= */
-  let t = text
-    .toLowerCase()
-    .replace(/’/g, "'")
-    .replace(/[^a-z0-9\s'.?,!]/g, "")
+/* =========================
+   PRONUNCIACIÓN FIGURADA
+   (VERSIÓN EXTREMA)
+========================= */
+function englishToSpanishPhonetic(text){
+  if(!text || typeof text!=="string") return "";
+
+  let t = text.toLowerCase()
+    .replace(/’/g,"'")
+    .replace(/[^a-z0-9\s'.?,!]/g,"")
     .trim();
 
-  /* ================= DICCIONARIO BASE =================
-     Palabras comunes que deben sonar NATURALES en español
-  ===================================================== */
-  const dictionary = {
-    "i": "ai",
-    "you": "iú",
-    "he": "jí",
-    "she": "shí",
-    "we": "uí",
-    "they": "déi",
-
-    "the": "da",
-    "this": "dis",
-    "that": "dat",
-    "these": "dís",
-    "those": "dóus",
-
-    "is": "is",
-    "are": "ar",
-    "was": "uás",
-    "were": "uér",
-
-    "have": "jav",
-    "has": "jas",
-    "had": "jad",
-
-    "do": "dú",
-    "does": "das",
-    "did": "did",
-
-    "a": "a",
-    "an": "an",
-    "to": "tú",
-    "of": "ov",
-    "for": "for",
-    "with": "uid",
-
-    "and": "and",
-    "or": "or",
-    "but": "bat",
-    "not": "nat",
-
-    "yes": "yés",
-    "no": "nó"
+  /* ---- Diccionario crítico ---- */
+  const dict = {
+    "i":"ai","you":"iú","he":"jí","she":"shí","we":"uí","they":"déi",
+    "the":"da","this":"dis","that":"dat","these":"dís","those":"dóus",
+    "is":"is","are":"ar","was":"uás","were":"uér",
+    "have":"jav","has":"jas","had":"jad",
+    "do":"dú","does":"das","did":"did",
+    "to":"tú","of":"ov","for":"for","with":"uid",
+    "and":"and","or":"or","but":"bat","not":"nat",
+    "very":"véri","people":"pípol","english":"ínglish",
+    "learning":"lérnin","important":"importan",
+    "business":"bísnes","work":"uórk","life":"láif"
   };
 
-  /* ================= APLICAR DICCIONARIO ================= */
-  t = t
-    .split(/\s+/)
-    .map(word => dictionary[word] || word)
-    .join(" ");
+  t = t.split(/\s+/).map(w => dict[w] || w).join(" ");
 
-  /* ================= SONIDOS COMPLEJOS =================
-     Grupos de letras con sonido específico en inglés
-  ===================================================== */
-  t = t
-    .replace(/tion\b/g, "shon")
-    .replace(/sion\b/g, "shon")
-    .replace(/cial/g, "shal")
-    .replace(/tial/g, "shal")
+  /* ---- Reglas fonéticas ---- */
+  const rules = [
+    [/tion\b/g,"shon"],[/sion\b/g,"shon"],[/cial/g,"shal"],
+    [/ough/g,"of"],[/igh/g,"ai"],[/eigh/g,"éi"],
+    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
+    [/th/g,"d"],[/sh/g,"sh"],[/ch/g,"ch"],
+    [/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
+    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
+    [/ing\b/g,"in"],[/ed\b/g,"d"],[/er\b/g,"er"],[/ly\b/g,"li"]
+  ];
 
-    .replace(/ough/g, "of")
-    .replace(/augh/g, "af")
-    .replace(/igh/g, "ai")
-    .replace(/eigh/g, "éi")
+  rules.forEach(r => t = t.replace(r[0], r[1]));
 
-    .replace(/ph/g, "f")
-    .replace(/gh/g, "")
-    .replace(/ck/g, "k")
-    .replace(/qu/g, "ku");
-
-  /* ================= CONSONANTES ================= */
-  t = t
-    .replace(/th/g, "d")
-    .replace(/sh/g, "sh")
-    .replace(/ch/g, "ch")
-    .replace(/j/g, "y")
-    .replace(/v/g, "v")
-    .replace(/z/g, "s")
-    .replace(/x/g, "ks")
-    .replace(/r/g, "r");
-
-  /* ================= VOCALES ================= */
-  t = t
-    .replace(/ee/g, "í")
-    .replace(/oo/g, "ú")
-    .replace(/ea/g, "í")
-    .replace(/ai/g, "ei")
-    .replace(/ay/g, "ei")
-    .replace(/oa/g, "ou")
-    .replace(/ou/g, "au")
-    .replace(/ow/g, "au")
-    .replace(/ie/g, "ai")
-    .replace(/i\b/g, "ai")
-    .replace(/u\b/g, "iu");
-
-  /* ================= TERMINACIONES ================= */
-  t = t
-    .replace(/ing\b/g, "in")
-    .replace(/ed\b/g, "d")
-    .replace(/er\b/g, "er")
-    .replace(/ly\b/g, "li");
-
-  /* ================= LIMPIEZA FINAL ================= */
-  t = t
-    .replace(/\s+/g, " ")
-    .replace(/\s([.,!?])/g, "$1")
-    .trim();
-
-  return t;
+  return t.replace(/\s+/g," ").trim();
 }
 
-/* ============================================================
-   EJEMPLOS:
-   ------------------------------------------------------------
-   englishToSpanishPhonetic("I think this is easy");
-   → "ai dínk dis is ísi"
+/* =========================
+   GEMINI
+========================= */
+async function geminiGenerate(prompt){
+  const key = localStorage.getItem("GEMINI_KEY");
+  if(!key) return null;
 
-   englishToSpanishPhonetic("She speaks English very well");
-   → "shí spíks ínglish véri uél"
+  try{
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
+      {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          contents:[{parts:[{text:prompt}]}]
+        })
+      }
+    );
+    const j = await r.json();
+    return j.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  }catch{
+    return null;
+  }
+}
 
-   englishToSpanishPhonetic("Learning English changes your life");
-   → "lérnin ínglish chéinyis yór láif"
-============================================================ */
+/* =========================
+   INTERNET
+========================= */
+async function internetSentence(){
+  for(const url of EEP_ENGINE.internetSources){
+    try{
+      const r = await fetch(url);
+      const j = await r.json();
+      return j.content || j.slip?.advice || null;
+    }catch{}
+  }
+  return null;
+}
+
+/* =========================
+   MOTOR INTERNO AVANZADO
+========================= */
+function internalSentence(){
+  const topic = rand(EEP_ENGINE.topics);
+  const level = rand(EEP_ENGINE.levelRange);
+
+  const templates = {
+    A1:[
+      `I like learning English for ${topic}.`,
+      `English is useful in ${topic}.`
+    ],
+    A2:[
+      `Learning English helps me in ${topic}.`,
+      `English is important for ${topic}.`
+    ],
+    B1:[
+      `Learning English helps people communicate better in ${topic}.`,
+      `English skills are useful in many areas of ${topic}.`
+    ],
+    B2:[
+      `Improving your English allows you to succeed in ${topic}.`,
+      `Strong English skills create new opportunities in ${topic}.`
+    ]
+  };
+
+  return rand(templates[level]);
+}
+
+/* =========================
+   GENERADOR MAESTRO
+========================= */
+async function generateSentence(){
+  return (
+    await geminiGenerate(
+      "Generate ONE natural English sentence (A2–B2) about a real-life topic. No quotes."
+    ) ||
+    await internetSentence() ||
+    internalSentence()
+  );
+}
+
+/* =========================
+   API PÚBLICA FINAL
+========================= */
+
+/* FRASES */
+async function getPhrase(){
+  const en = await generateSentence();
+  return {
+    en,
+    phonetic: englishToSpanishPhonetic(en)
+  };
+}
+
+/* SPEAK */
+async function getSpeak(){
+  const en = await generateSentence();
+  return {
+    en,
+    phonetic: englishToSpanishPhonetic(en),
+    clean: normalize(en)
+  };
+}
+
+/* EJERCICIOS */
+async function getExercise(){
+  const en = await generateSentence();
+  const w = en.split(" ");
+  const i = Math.floor(Math.random()*w.length);
+  const answer = w[i];
+  w[i] = "___";
+
+  const options = [answer,"is","are","do","does","have"]
+    .sort(()=>Math.random()-0.5)
+    .slice(0,4);
+
+  return {
+    question: w.join(" "),
+    answer,
+    options
+  };
+}
+
+/* =========================
+   AUTO-TEST (OPCIONAL)
+========================= */
+console.log("✅ EEP Infinite Engine loaded");
 </script>
 </body>
 </html>
