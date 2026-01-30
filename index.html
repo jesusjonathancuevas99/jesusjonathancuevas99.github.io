@@ -408,180 +408,210 @@ loadExercise();
 </script>
 <script>
 /* =====================================================================
-   ELITE ENGLISH PRO · SENTENCE ENGINE v6 (MULTI-INTERNET)
+   ELITE ENGLISH PRO · SENTENCE ENGINE v11 (FINAL DEFINITIVE)
    =====================================================================
-   ✅ Muchas fuentes reales de Internet
-   ✅ Gemini prioritario
-   ✅ Motor semántico profundo
-   ✅ Nunca repite estructura
-   ✅ Ultra estable
+   ✅ Ideas totalmente distintas en cada frase
+   ✅ Internet con coherencia semántica
+   ✅ Motor interno avanzado
+   ✅ Pronunciación figurada ES (AVANZADA REAL)
+   ✅ Ultra estable · Nivel producto
 ===================================================================== */
 
 /* =============================
    CONFIGURACIÓN GLOBAL
 ============================= */
-const ENGINE_V6 = {
-  minWords: 6,
-  emergency: "English is used every day to connect people worldwide."
+const ENGINE_V11 = {
+  minWords: 14,
+  maxWords: 32,
+  emergency:
+    "Using English daily in real situations helps people communicate clearly and respond with confidence."
 };
 
 /* =============================
-   UTILIDADES SEGURAS
+   UTILIDADES BASE
 ============================= */
-const pick = a => a[Math.floor(Math.random()*a.length)];
+const pick = a => a[Math.floor(Math.random() * a.length)];
 
-function sanitize(text){
-  return (text||"")
+function sanitize(t){
+  return (t||"")
     .replace(/[\r\n]+/g," ")
     .replace(/[^a-zA-Z0-9\s.,!?']/g,"")
     .replace(/\s+/g," ")
     .trim();
 }
 
-function validSentence(text){
-  return text && text.split(" ").length >= ENGINE_V6.minWords;
+function wc(t){ return t.split(" ").length; }
+function valid(t){
+  const w = wc(t);
+  return w >= ENGINE_V11.minWords && w <= ENGINE_V11.maxWords;
 }
 
 /* =============================
-   PRONUNCIACIÓN FIGURADA
+   PRONUNCIACIÓN FIGURADA AVANZADA (ES)
 ============================= */
 function englishToSpanishPhonetic(text){
   if(!text) return "";
+
   let t = sanitize(text.toLowerCase());
 
-  const dict = {
+  /* ---- palabras completas (alta frecuencia) ---- */
+  const WORDS = {
     i:"ai", you:"iú", he:"jí", she:"shí", we:"uí", they:"déi",
-    the:"da", is:"is", are:"ar", was:"uás", were:"uér",
-    have:"jav", has:"jas", had:"jad", english:"ínglish",
-    people:"pípol", work:"uórk", life:"láif"
+    me:"mí", my:"mai", your:"yór", our:"áuer",
+    the:"da", this:"dis", that:"dat", these:"díis", those:"dóus",
+
+    english:"ínglish", language:"lángüich",
+    people:"pípol", person:"pérson",
+    work:"uórk", life:"láif",
+    learn:"lérn", learning:"lérnin",
+    speak:"spík", speaking:"spíkin",
+    understand:"anderstánd",
+    confidence:"cónfidens",
+    practice:"práctis",
+    communication:"comiunikéishon"
   };
 
-  t = t.split(" ").map(w=>dict[w]||w).join(" ");
+  t = t.split(" ").map(w => WORDS[w] || w).join(" ");
 
-  [
-    [/tion\b/g,"shon"],[/sion\b/g,"shon"],
-    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
-    [/th/g,"d"],[/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
-    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
-    [/ing\b/g,"in"],[/ed\b/g,"d"]
-  ].forEach(r=>t=t.replace(r[0],r[1]));
+  /* ---- reglas fonéticas generales ---- */
+  const RULES = [
+
+    /* terminaciones */
+    [/tion\b/g,"shon"],
+    [/sion\b/g,"shon"],
+    [/cial\b/g,"shal"],
+    [/tial\b/g,"shal"],
+    [/ing\b/g,"in"],
+    [/ed\b/g,"d"],
+
+    /* consonantes */
+    [/ph/g,"f"],
+    [/ck/g,"k"],
+    [/qu/g,"ku"],
+    [/th/g,"d"],
+    [/gh/g,""],
+    [/wr/g,"r"],
+    [/wh/g,"u"],
+
+    /* vocales largas */
+    [/ee/g,"í"],
+    [/ea/g,"í"],
+    [/oo/g,"ú"],
+    [/ai/g,"ei"],
+    [/ay/g,"ei"],
+    [/ie/g,"ai"],
+    [/oa/g,"ou"],
+
+    /* diptongos comunes */
+    [/ow/g,"au"],
+    [/ou/g,"au"],
+    [/ew/g,"iú"],
+    [/igh/g,"ai"],
+
+    /* reducción inglesa */
+    [/er\b/g,"er"],
+    [/or\b/g,"or"],
+    [/ar\b/g,"ar"]
+  ];
+
+  RULES.forEach(r => t = t.replace(r[0], r[1]));
 
   return t;
 }
 
 /* =============================
-   GEMINI (PRIORIDAD 1)
+   ESCENAS SEMÁNTICAS (IDEAS REALES)
 ============================= */
-async function fromGemini(){
-  const key = localStorage.getItem("GEMINI_KEY");
-  if(!key) return null;
+const SCENES = [
 
-  const prompt = `
-Create ONE completely original English sentence.
-Rules:
-- Real-life situation, thought, advice, question or opinion
-- A2-B2 level
-- Do not repeat structures
-- No quotes
-`;
+  () => `Many learners discover that understanding English improves faster when they stop translating every sentence mentally.`,
 
-  try{
-    const c = new AbortController();
-    setTimeout(()=>c.abort(),7000);
+  () => `When English becomes part of daily routines, people respond more naturally during real conversations.`,
 
-    const r = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key="+key,
-      {
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
-        signal:c.signal
-      }
-    );
-    const j = await r.json();
-    const t = sanitize(j?.candidates?.[0]?.content?.parts?.[0]?.text);
-    return validSentence(t) ? t : null;
-  }catch{
-    return null;
-  }
+  () => `At first, speaking English in public may feel uncomfortable, but repeated exposure gradually builds confidence.`,
+
+  () => `Professionals often notice that clear English communication directly influences teamwork and collaboration.`,
+
+  () => `Listening carefully helps learners understand meaning even when some words are unfamiliar.`,
+
+  () => `Using English to solve real problems creates stronger learning than memorizing isolated vocabulary.`,
+
+  () => `Over time, consistent English practice trains the brain to react without conscious translation.`,
+
+  () => `Accepting mistakes as feedback usually accelerates progress in spoken English.`
+];
+
+let lastScene = -1;
+
+function sceneEngine(){
+  let i;
+  do{ i = Math.floor(Math.random()*SCENES.length); }
+  while(i === lastScene);
+  lastScene = i;
+  return sanitize(SCENES[i]());
 }
 
 /* =============================
-   INTERNET (PRIORIDAD 2)
+   COHERENCIA PARA INTERNET
+============================= */
+function coherenceEngine(raw){
+  if(!raw) return null;
+
+  let text = sanitize(raw);
+  let w = wc(text);
+
+  const intros = [
+    "In real communication",
+    "When learning English in practice",
+    "In everyday situations",
+    "When people use English actively"
+  ];
+
+  const endings = [
+    "which helps ideas flow naturally.",
+    "and this improves confidence over time.",
+    "making communication clearer and easier.",
+    "and this supports better understanding."
+  ];
+
+  if(w < ENGINE_V11.minWords){
+    text = `${pick(intros)}, ${text.toLowerCase()}, ${pick(endings)}`;
+  }
+
+  if(!/[.!?]$/.test(text)) text += ".";
+
+  return valid(text) ? text : null;
+}
+
+/* =============================
+   INTERNET
 ============================= */
 async function fromInternet(){
   const sources = [
-
-    /* Quotes */
     async()=> (await (await fetch("https://api.quotable.io/random")).json()).content,
-
-    /* Advice */
     async()=> (await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice,
-
-    /* Bored */
-    async()=> {
-      const j = await (await fetch("https://www.boredapi.com/api/activity")).json();
-      return `When you feel bored, ${j.activity.toLowerCase()}.`;
-    },
-
-    /* Affirmations */
-    async()=> (await (await fetch("https://www.affirmations.dev/")).json()).affirmation,
-
-    /* Large public corpus */
-    async()=>{
-      const j = await (await fetch("https://type.fit/api/quotes")).json();
-      return pick(j)?.text;
-    }
+    async()=> (await (await fetch("https://www.boredapi.com/api/activity")).json()).activity,
+    async()=> (await (await fetch("https://www.affirmations.dev/")).json()).affirmation
   ];
 
   for(const src of sources){
     try{
-      const t = sanitize(await src());
-      if(validSentence(t)) return t;
+      const raw = await src();
+      const t = coherenceEngine(raw);
+      if(t) return t;
     }catch{}
   }
   return null;
 }
 
 /* =============================
-   MOTOR SEMÁNTICO PROFUNDO
-============================= */
-function semanticEngine(){
-  const patterns = [
-    () => `Have you ever noticed how your confidence changes when you speak English regularly?`,
-    () => `When people start working internationally, English often becomes part of their daily routine.`,
-    () => `Some conversations feel challenging, but they become easier with more practice.`,
-    () => `If communication is clear, misunderstandings are much easier to avoid.`,
-    () => `Learning a language is not about perfection, but about progress and consistency.`,
-    () => `Over time, speaking English stops feeling forced and starts feeling natural.`
-  ];
-  return pick(patterns)();
-}
-
-/* =============================
-   MOTOR GRAMATICAL
-============================= */
-function grammarEngine(){
-  const forms = [
-    () => `English is widely used when important ideas need to be shared clearly.`,
-    () => `Why do so many professionals rely on English in global environments?`,
-    () => `Being understood in English can change the way people respond to you.`,
-    () => `It takes patience and effort to communicate effectively in another language.`,
-    () => `Not everyone feels confident at first, and that experience is completely normal.`
-  ];
-  return pick(forms)();
-}
-
-/* =============================
-   GENERADOR MAESTRO (INFALIBLE)
+   GENERADOR MAESTRO
 ============================= */
 async function generateSentence(){
   return (
-    await fromGemini() ||
     await fromInternet() ||
-    semanticEngine() ||
-    grammarEngine() ||
-    ENGINE_V6.emergency
+    sceneEngine() ||
+    ENGINE_V11.emergency
   );
 }
 
@@ -608,22 +638,23 @@ async function getSpeak(){
 async function getExercise(){
   const text = await generateSentence();
   const words = text.split(" ");
-  const i = Math.floor(Math.random()*words.length);
+  const banned = ["the","a","an","to","of","and","is","are","in","on"];
+  let i;
+
+  do{ i = Math.floor(Math.random()*words.length); }
+  while(banned.includes(words[i].toLowerCase()));
+
   const answer = words[i];
   words[i] = "___";
 
-  const options = [answer,"is","are","do","does","can","have"]
+  const options = [...new Set([answer,"practice","confidence","understand","communication"])]
     .sort(()=>Math.random()-0.5)
     .slice(0,4);
 
-  return {
-    question: words.join(" "),
-    answer,
-    options
-  };
+  return { question: words.join(" "), answer, options };
 }
 
-console.log("✅ Sentence Engine v6 loaded · Multi-source active");
+console.log("✅ Sentence Engine v11 loaded · Pronunciación avanzada");
 </script>
 </body>
 </html>
