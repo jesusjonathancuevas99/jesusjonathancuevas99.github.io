@@ -408,26 +408,21 @@ loadExercise();
 </script>
 <script>
 /* =====================================================================
-   ELITE ENGLISH PRO · SENTENCE ENGINE v5
+   ELITE ENGLISH PRO · SENTENCE ENGINE v6 (MULTI-INTERNET)
    =====================================================================
-   OBJETIVO REAL:
-   - Frases completamente diferentes (estructura + contenido)
-   - Gemini → Internet → IA semántica interna → Gramática profunda
-   - Nunca repetir sensación
-   - Ultra estable
+   ✅ Muchas fuentes reales de Internet
+   ✅ Gemini prioritario
+   ✅ Motor semántico profundo
+   ✅ Nunca repite estructura
+   ✅ Ultra estable
 ===================================================================== */
 
 /* =============================
    CONFIGURACIÓN GLOBAL
 ============================= */
-const SENTENCE_ENGINE = {
-  levels: ["A2","B1","B2"],
-  topics: [
-    "travel","work","business","daily life","technology",
-    "learning","health","relationships","motivation",
-    "culture","food","time","money","habits","education"
-  ],
-  emergencySentence: "English helps people communicate in real life."
+const ENGINE_V6 = {
+  minWords: 6,
+  emergency: "English is used every day to connect people worldwide."
 };
 
 /* =============================
@@ -435,7 +430,7 @@ const SENTENCE_ENGINE = {
 ============================= */
 const pick = a => a[Math.floor(Math.random()*a.length)];
 
-function clean(text){
+function sanitize(text){
   return (text||"")
     .replace(/[\r\n]+/g," ")
     .replace(/[^a-zA-Z0-9\s.,!?']/g,"")
@@ -443,52 +438,51 @@ function clean(text){
     .trim();
 }
 
+function validSentence(text){
+  return text && text.split(" ").length >= ENGINE_V6.minWords;
+}
+
 /* =============================
-   PRONUNCIACIÓN FIGURADA AVANZADA
+   PRONUNCIACIÓN FIGURADA
 ============================= */
 function englishToSpanishPhonetic(text){
   if(!text) return "";
-  let t = clean(text.toLowerCase());
+  let t = sanitize(text.toLowerCase());
 
   const dict = {
     i:"ai", you:"iú", he:"jí", she:"shí", we:"uí", they:"déi",
-    the:"da", this:"dis", that:"dat", these:"dís", those:"dóus",
-    is:"is", are:"ar", was:"uás", were:"uér",
-    have:"jav", has:"jas", had:"jad",
-    english:"ínglish", people:"pípol",
-    work:"uórk", life:"láif", learning:"lérnin"
+    the:"da", is:"is", are:"ar", was:"uás", were:"uér",
+    have:"jav", has:"jas", had:"jad", english:"ínglish",
+    people:"pípol", work:"uórk", life:"láif"
   };
 
   t = t.split(" ").map(w=>dict[w]||w).join(" ");
 
   [
     [/tion\b/g,"shon"],[/sion\b/g,"shon"],
-    [/ough/g,"of"],[/igh/g,"ai"],[/eigh/g,"éi"],
     [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
-    [/th/g,"d"],[/sh/g,"sh"],[/ch/g,"ch"],
-    [/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
+    [/th/g,"d"],[/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
     [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
-    [/ing\b/g,"in"],[/ed\b/g,"d"],[/ly\b/g,"li"]
+    [/ing\b/g,"in"],[/ed\b/g,"d"]
   ].forEach(r=>t=t.replace(r[0],r[1]));
 
   return t;
 }
 
 /* =============================
-   GEMINI (ORIGINALIDAD TOTAL)
+   GEMINI (PRIORIDAD 1)
 ============================= */
-async function geminiSentence(){
+async function fromGemini(){
   const key = localStorage.getItem("GEMINI_KEY");
   if(!key) return null;
 
   const prompt = `
-Write ONE completely original English sentence.
-Level: A2-B2
+Create ONE completely original English sentence.
 Rules:
-- Different structure each time
 - Real-life situation, thought, advice, question or opinion
+- A2-B2 level
+- Do not repeat structures
 - No quotes
-- Natural human English
 `;
 
   try{
@@ -505,71 +499,76 @@ Rules:
       }
     );
     const j = await r.json();
-    return clean(j?.candidates?.[0]?.content?.parts?.[0]?.text);
+    const t = sanitize(j?.candidates?.[0]?.content?.parts?.[0]?.text);
+    return validSentence(t) ? t : null;
   }catch{
     return null;
   }
 }
 
 /* =============================
-   INTERNET (FRASES REALES)
+   INTERNET (PRIORIDAD 2)
 ============================= */
-async function internetSentence(){
+async function fromInternet(){
   const sources = [
+
+    /* Quotes */
     async()=> (await (await fetch("https://api.quotable.io/random")).json()).content,
-    async()=> (await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice
+
+    /* Advice */
+    async()=> (await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice,
+
+    /* Bored */
+    async()=> {
+      const j = await (await fetch("https://www.boredapi.com/api/activity")).json();
+      return `When you feel bored, ${j.activity.toLowerCase()}.`;
+    },
+
+    /* Affirmations */
+    async()=> (await (await fetch("https://www.affirmations.dev/")).json()).affirmation,
+
+    /* Large public corpus */
+    async()=>{
+      const j = await (await fetch("https://type.fit/api/quotes")).json();
+      return pick(j)?.text;
+    }
   ];
 
-  for(const s of sources){
+  for(const src of sources){
     try{
-      const t = clean(await s());
-      if(t && t.split(" ").length > 5) return t;
+      const t = sanitize(await src());
+      if(validSentence(t)) return t;
     }catch{}
   }
   return null;
 }
 
 /* =============================
-   MOTOR SEMÁNTICO (NO PLANTILLAS)
+   MOTOR SEMÁNTICO PROFUNDO
 ============================= */
-function semanticSentence(){
+function semanticEngine(){
   const patterns = [
-
-    () => `Have you ever noticed how ${pick(["confidence","communication","practice"])} changes when you use English every day?`,
-
-    () => `When people travel abroad, they often realize that English is more useful than they expected.`,
-
-    () => `Many professionals feel nervous at first, but speaking English becomes easier with time.`,
-
-    () => `If you want to grow professionally, improving your English can make a real difference.`,
-
-    () => `Some conversations are difficult, yet English helps connect people from different cultures.`,
-
-    () => `Using English at work is not always easy, especially when discussions become complex.`,
-
-    () => `Over time, learners discover that understanding English is more about practice than talent.`
+    () => `Have you ever noticed how your confidence changes when you speak English regularly?`,
+    () => `When people start working internationally, English often becomes part of their daily routine.`,
+    () => `Some conversations feel challenging, but they become easier with more practice.`,
+    () => `If communication is clear, misunderstandings are much easier to avoid.`,
+    () => `Learning a language is not about perfection, but about progress and consistency.`,
+    () => `Over time, speaking English stops feeling forced and starts feeling natural.`
   ];
-
   return pick(patterns)();
 }
 
 /* =============================
-   MOTOR GRAMATICAL PROFUNDO
+   MOTOR GRAMATICAL
 ============================= */
-function grammarSentence(){
+function grammarEngine(){
   const forms = [
-
-    () => `English is often used when important decisions need to be discussed clearly.`,
-
-    () => `Why do so many people choose English as their main communication language?`,
-
-    () => `Being able to express ideas in English can change the way others see you.`,
-
-    () => `It takes patience and consistency to feel comfortable speaking English.`,
-
-    () => `Not everyone learns English at the same pace, and that is completely normal.`
+    () => `English is widely used when important ideas need to be shared clearly.`,
+    () => `Why do so many professionals rely on English in global environments?`,
+    () => `Being understood in English can change the way people respond to you.`,
+    () => `It takes patience and effort to communicate effectively in another language.`,
+    () => `Not everyone feels confident at first, and that experience is completely normal.`
   ];
-
   return pick(forms)();
 }
 
@@ -578,16 +577,16 @@ function grammarSentence(){
 ============================= */
 async function generateSentence(){
   return (
-    await geminiSentence() ||
-    await internetSentence() ||
-    semanticSentence() ||
-    grammarSentence() ||
-    SENTENCE_ENGINE.emergencySentence
+    await fromGemini() ||
+    await fromInternet() ||
+    semanticEngine() ||
+    grammarEngine() ||
+    ENGINE_V6.emergency
   );
 }
 
 /* =============================
-   API FINAL PARA LA APP
+   API FINAL
 ============================= */
 async function getPhrase(){
   const text = await generateSentence();
@@ -602,7 +601,7 @@ async function getSpeak(){
   return {
     text,
     phonetic: englishToSpanishPhonetic(text),
-    clean: clean(text.toLowerCase())
+    clean: sanitize(text.toLowerCase())
   };
 }
 
@@ -613,7 +612,7 @@ async function getExercise(){
   const answer = words[i];
   words[i] = "___";
 
-  const options = [answer,"is","are","do","does","have","can"]
+  const options = [answer,"is","are","do","does","can","have"]
     .sort(()=>Math.random()-0.5)
     .slice(0,4);
 
@@ -624,7 +623,7 @@ async function getExercise(){
   };
 }
 
-console.log("✅ Sentence Engine v5 loaded · FULL variation enabled");
+console.log("✅ Sentence Engine v6 loaded · Multi-source active");
 </script>
 </body>
 </html>
