@@ -2,17 +2,17 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Elite English Pro · Ultimate Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Elite English Pro</title>
 
-<!-- ================= FONTS & ICONS ================= -->
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-/* =====================================================
-   THEME · PREMIUM MOBILE APP
-===================================================== */
+/* ================= MOBILE PREMIUM THEME ================= */
 :root{
 --bg:#f8fafc;
 --card:#ffffff;
@@ -23,7 +23,6 @@
 --border:#e5e7eb;
 --ok:#16a34a;
 --bad:#dc2626;
---shadow:0 12px 30px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{
@@ -31,7 +30,7 @@ margin:0;
 font-family:Inter;
 background:var(--bg);
 color:var(--text);
-padding-bottom:90px;
+padding-bottom:92px;
 }
 
 /* ================= HEADER ================= */
@@ -41,31 +40,36 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-weight:800;
+font-size:1.2rem;
 background:white;
 border-bottom:1px solid var(--border);
-position:sticky;top:0;z-index:10;
+position:sticky;
+top:0;
+z-index:10;
 }
 
-/* ================= CONTAINER ================= */
-.container{padding:20px}
+/* ================= CONTENT ================= */
+.container{
+padding:20px;
+}
 
-/* ================= CARD ================= */
+/* ================= CARDS ================= */
 .card{
 background:var(--card);
-border-radius:24px;
-padding:26px;
-margin-bottom:26px;
-box-shadow:var(--shadow);
+border-radius:22px;
+padding:24px;
+margin-bottom:22px;
+box-shadow:0 10px 25px rgba(0,0,0,.06);
 }
 .badge{
 font-size:.65rem;
 font-weight:800;
 letter-spacing:.18em;
 color:var(--accent);
-margin-bottom:12px;
+margin-bottom:14px;
 }
 .text-en{
-font-size:1.75rem;
+font-size:1.8rem;
 font-weight:700;
 line-height:1.35;
 }
@@ -79,11 +83,14 @@ font-family:monospace;
 .text-es{
 margin-top:10px;
 color:var(--muted);
-line-height:1.4;
 }
 
-/* ================= BUTTONS ================= */
-.controls{display:flex;gap:12px;margin-top:18px}
+/* ================= CONTROLS ================= */
+.controls{
+display:flex;
+gap:14px;
+margin-top:18px;
+}
 .btn-icon{
 width:50px;height:50px;
 border-radius:50%;
@@ -91,6 +98,9 @@ border:none;
 background:var(--accent);
 color:white;
 font-size:1.1rem;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 .btn-main{
 margin-top:22px;
@@ -112,55 +122,45 @@ font-size:1rem;
 .option{
 padding:16px;
 border-radius:16px;
+background:white;
 border:1px solid var(--border);
 margin-top:12px;
-background:white;
-cursor:pointer;
 }
 .correct{background:#ecfdf5;color:var(--ok)}
 .wrong{background:#fef2f2;color:var(--bad)}
 
-/* ================= TRANSLATOR ================= */
-.trans-box{
-margin-top:14px;
-padding:16px;
-border-radius:16px;
-background:#f1f5f9;
-font-size:1.05rem;
-line-height:1.5;
-}
-.trans-meta{
-font-size:.7rem;
-color:var(--muted);
-margin-top:8px;
-}
-
-/* ================= FORMS ================= */
 input,textarea,select{
 width:100%;
 padding:14px;
 border-radius:14px;
 border:1px solid var(--border);
-margin-top:10px;
+margin-top:12px;
 font-family:Inter;
-font-size:1rem;
 }
-textarea{min-height:120px}
 
 /* ================= TABS ================= */
 .tab{display:none}
 .tab.active{display:block}
 
-/* ================= NAV ================= */
+/* ================= BOTTOM NAV ================= */
 nav{
-position:fixed;bottom:0;left:0;right:0;
-height:82px;background:white;
+position:fixed;
+bottom:0;left:0;right:0;
+height:82px;
+background:white;
 border-top:1px solid var(--border);
-display:flex;justify-content:space-around;align-items:center;
+display:flex;
+justify-content:space-around;
+align-items:center;
 }
 nav div{
-display:flex;flex-direction:column;align-items:center;
-font-size:.65rem;font-weight:700;color:var(--muted);
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:6px;
+font-size:.65rem;
+font-weight:700;
+color:var(--muted);
 }
 nav .active{color:var(--accent)}
 nav i{font-size:1.6rem}
@@ -173,78 +173,68 @@ nav i{font-size:1.6rem}
 
 <div class="container">
 
-<!-- ================= PHRASES ================= -->
+<!-- PHRASES -->
 <section id="phrases" class="tab active">
 <div class="card">
-<div class="badge">PHRASES · REAL ENGLISH</div>
+<div class="badge">PHRASE</div>
 <div id="phEn" class="text-en"></div>
 <div id="phFig" class="text-fig"></div>
 <div id="phEs" class="text-es"></div>
-
 <div class="controls">
 <button class="btn-icon" onclick="tts(phEn.innerText,1)"><i class="fas fa-play"></i></button>
 <button class="btn-icon" onclick="tts(phEn.innerText,.6)"><i class="fas fa-snail"></i></button>
 </div>
-
 <button class="btn-main" onclick="loadPhrase()">New Phrase</button>
 </div>
 </section>
 
-<!-- ================= SPEAK ================= -->
+<!-- SPEAK -->
 <section id="speak" class="tab">
 <div class="card">
-<div class="badge">SPEAK · PRONUNCIATION ANALYSIS</div>
+<div class="badge">SPEAK</div>
 <div id="spTarget" class="text-en"></div>
 <div id="spFig" class="text-fig"></div>
 <div id="spResult"></div>
-<div id="spScore" class="text-es"></div>
-
+<div id="spScore" style="margin-top:12px;font-weight:700"></div>
 <div class="controls">
 <button class="btn-icon" onclick="tts(spTarget.innerText,1)"><i class="fas fa-play"></i></button>
 <button class="btn-icon" onclick="startSpeak()"><i class="fas fa-microphone"></i></button>
 </div>
-
 <button class="btn-main" onclick="generateSpeak()">New Speak</button>
 </div>
 </section>
 
-<!-- ================= EXERCISES ================= -->
+<!-- EXERCISES -->
 <section id="exercises" class="tab">
 <div class="card">
-<div class="badge">EXERCISES · CONTEXT</div>
+<div class="badge">EXERCISE</div>
 <div id="exQ" class="text-en"></div>
 <div id="exOpts"></div>
 <button class="btn-main" onclick="loadExercise()">New Exercise</button>
 </div>
 </section>
 
-<!-- ================= TRANSLATOR ================= -->
+<!-- TRANSLATOR -->
 <section id="translator" class="tab">
 <div class="card">
-<div class="badge">TRANSLATOR · PROFESSIONAL</div>
-
+<div class="badge">TRANSLATOR</div>
 <select id="trDir">
 <option value="en-es">English → Español</option>
 <option value="es-en">Español → English</option>
 </select>
-
-<textarea id="trInput" placeholder="Write your text here..."></textarea>
-
+<textarea id="trInput" placeholder="Enter text"></textarea>
 <button class="btn-main" onclick="doTranslate()">Translate</button>
-
-<div id="trOutput" class="trans-box"></div>
-<div id="trMeta" class="trans-meta"></div>
-
+<div id="trOutput" class="text-es"></div>
 </div>
 </section>
 
-<!-- ================= SETTINGS ================= -->
-<section id="settings" class="tab">
+<!-- SETTINGS -->
+<section id="global" class="tab">
 <div class="card">
-<div class="badge">SETTINGS · AI</div>
+<div class="badge">SETTINGS</div>
 <label>Gemini API Key</label>
 <input id="geminiKey">
-<button class="btn-main" onclick="saveKey()">Save Settings</button>
+<button class="btn-main" onclick="saveGlobal()">Save</button>
 </div>
 </section>
 
@@ -255,17 +245,10 @@ nav i{font-size:1.6rem}
 <div onclick="tab('speak',this)"><i class="fas fa-microphone"></i>Speak</div>
 <div onclick="tab('exercises',this)"><i class="fas fa-list"></i>Exercises</div>
 <div onclick="tab('translator',this)"><i class="fas fa-language"></i>Translate</div>
-<div onclick="tab('settings',this)"><i class="fas fa-gear"></i>Settings</div>
+<div onclick="tab('global',this)"><i class="fas fa-gear"></i>Settings</div>
 </nav>
 
 <script>
-/* ================= SETTINGS ================= */
-geminiKey.value = localStorage.getItem("GEMINI_KEY") || "";
-function saveKey(){
-localStorage.setItem("GEMINI_KEY", geminiKey.value.trim());
-alert("✅ Gemini key saved");
-}
-
 /* ================= NAV ================= */
 function tab(id,el){
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -274,80 +257,63 @@ document.querySelectorAll('nav div').forEach(n=>n.classList.remove('active'));
 el.classList.add('active');
 }
 
+/* ================= GLOBAL ================= */
+geminiKey.value=localStorage.getItem("GEMINI_KEY")||"";
+function saveGlobal(){
+localStorage.setItem("GEMINI_KEY",geminiKey.value.trim());
+alert("✅ Saved");
+}
+
 /* ================= TTS ================= */
 function tts(text,rate){
 speechSynthesis.cancel();
 const u=new SpeechSynthesisUtterance(text);
-u.lang="en-US";u.rate=rate;
+u.lang="en-US";
+u.rate=rate;
 speechSynthesis.speak(u);
 }
 
 /* ================= PHONETIC ================= */
-function englishToSpanishPhonetic(t){
-return t.toLowerCase()
+function englishToSpanishPhonetic(text){
+return text.toLowerCase()
 .replace(/th/g,"d")
 .replace(/ing\b/g,"in")
 .replace(/tion\b/g,"shon")
-.replace(/ph/g,"f")
-.replace(/ee/g,"í")
-.replace(/oo/g,"ú");
+.replace(/ph/g,"f");
 }
 
-/* ================= GEMINI ================= */
-async function gemini(prompt){
-const key=localStorage.getItem("GEMINI_KEY");
-if(!key) return null;
+/* ================= TRANSLATOR ================= */
+async function doTranslate(){
+const [f,t]=trDir.value.split("-");
+trOutput.innerText="Translating...";
+trOutput.innerText=await translateSmart(trInput.value,f,t);
+}
+async function translateSmart(text,from,to){
 try{
-const r=await fetch(
-`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
-{
-method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-});
-const j=await r.json();
-return j.candidates?.[0]?.content?.parts?.[0]?.text || null;
-}catch{return null}
+const r=await fetch(`https://apertium.org/apy/translate?langpair=${from}|${to}&q=${encodeURIComponent(text)}`);
+return (await r.json()).responseData.translatedText;
+}catch{
+return "Translation unavailable";
 }
-
-/* ================= INTERNET ================= */
-async function internetSentence(){
-try{
-const r=await fetch("https://api.quotable.io/random");
-return (await r.json()).content;
-}catch{return null}
-}
-
-/* ================= INTERNAL ================= */
-const internalTopics=[
-"business","travel","daily life","technology",
-"education","work","motivation","social situations"
-];
-function internalSentence(){
-const t=internalTopics[Math.floor(Math.random()*internalTopics.length)];
-return `Learning English helps you communicate better in ${t}.`;
 }
 
 /* ================= PHRASES ================= */
-async function loadPhrase(){
-const text =
-await gemini("Generate one natural English sentence (B1-B2) about a random real-life topic. No quotes.")
-|| await internetSentence()
-|| internalSentence();
+const subjects=["I","You","We","They","Learning English","Daily practice"];
+const verbs=["improves","builds","creates","strengthens"];
+const complements=["your confidence","your future","your skills","new opportunities"];
 
-phEn.innerText=text;
-phFig.innerText=englishToSpanishPhonetic(text);
-phEs.innerText="";
+async function loadPhrase(){
+let t;
+try{t=(await (await fetch("https://api.quotable.io/random")).json()).content}catch{}
+if(!t){
+t=`${subjects[Math.floor(Math.random()*subjects.length)]} ${verbs[Math.floor(Math.random()*verbs.length)]} ${complements[Math.floor(Math.random()*complements.length)]}.`;
+}
+phEn.innerText=t;
+phFig.innerText=englishToSpanishPhonetic(t);
+phEs.innerText=await translateSmart(t,"en","es");
 }
 
 /* ================= SPEAK ================= */
-function generateSpeak(){
-loadPhrase();
-spTarget.innerText=phEn.innerText;
-spFig.innerText=phFig.innerText;
-spResult.innerHTML="";
-spScore.innerHTML="";
-}
 function startSpeak(){
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR)return;
@@ -357,20 +323,29 @@ r.onresult=e=>compareSpeech(e.results[0][0].transcript);
 r.start();
 }
 function compareSpeech(spoken){
-const t=spTarget.innerText.toLowerCase().split(" ");
+const t=phEn.innerText.toLowerCase().split(" ");
 const s=spoken.toLowerCase().split(" ");
-let ok=0,h="";
+let ok=0,html="";
 t.forEach((w,i)=>{
-if(s[i]===w){ok++;h+=`<span class="word-ok">${w}</span> `}
-else h+=`<span class="word-bad">${w}</span> `;
+if(s[i]===w){ok++;html+=`<span class="word-ok">${w}</span> `;}
+else html+=`<span class="word-bad">${w}</span> `;
 });
-spResult.innerHTML=h;
+spResult.innerHTML=html;
 spScore.innerText=`Accuracy: ${Math.round(ok/t.length*100)}%`;
+}
+function generateSpeak(){
+loadPhrase();
+spTarget.innerText=phEn.innerText;
+spFig.innerText=phFig.innerText;
+spResult.innerHTML="";
+spScore.innerHTML="";
 }
 
 /* ================= EXERCISES ================= */
 async function loadExercise(){
-let s=await internetSentence()||internalSentence();
+let s;
+try{s=(await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice}catch{}
+if(!s)s=phEn.innerText||"Learning English improves your confidence";
 const w=s.split(" ");
 const i=Math.floor(Math.random()*w.length);
 const a=w[i];
@@ -386,232 +361,260 @@ exOpts.appendChild(d);
 });
 }
 
-/* ================= TRANSLATOR ================= */
-async function doTranslate(){
-const [f,t]=trDir.value.split("-");
-trOutput.innerText="Translating...";
-trMeta.innerText="";
-const start=Date.now();
-try{
-const r=await fetch(`https://apertium.org/apy/translate?langpair=${f}|${t}&q=${encodeURIComponent(trInput.value)}`);
-const j=await r.json();
-trOutput.innerText=j.responseData.translatedText;
-trMeta.innerText=`Translated in ${Date.now()-start} ms`;
-}catch{
-trOutput.innerText="Translation unavailable";
-}
-}
-
 /* INIT */
 loadPhrase();
 loadExercise();
 </script>
 <script>
 /* =====================================================================
-   ELITE ENGLISH PRO · ULTIMATE INFINITE ENGINE
+   ELITE ENGLISH PRO · SENTENCE ENGINE v7 (EXTREME ROBUST)
    =====================================================================
-   OBJETIVO:
-   - Frases infinitas
-   - Pronunciación figurada infalible
-   - Speak estable
-   - Ejercicios ilimitados
-   - Gemini + Internet + Motor interno
-   ===================================================================== */
+   ✔ 10+ fuentes reales de Internet
+   ✔ Gemini prioritario
+   ✔ Control por función
+   ✔ Ultra estable
+   ✔ Nunca devuelve vacío
+===================================================================== */
 
-/* =========================
+/* =============================
    CONFIGURACIÓN GLOBAL
-========================= */
-const EEP_ENGINE = {
-  levelRange: ["A1","A2","B1","B2"],
-  topics: [
-    "daily life","travel","business","technology","education",
-    "work","social situations","health","motivation","finance",
-    "relationships","culture","food","habits","time management"
-  ],
-  internetSources: [
-    "https://api.quotable.io/random",
-    "https://api.adviceslip.com/advice"
-  ]
+============================= */
+const ENGINE_V7 = {
+  minWords: 6,
+  timeout: 7000,
+  emergency: "English is a global language used in many real situations."
 };
 
-/* =========================
-   UTILIDADES BÁSICAS
-========================= */
-const rand = a => a[Math.floor(Math.random()*a.length)];
-const normalize = t =>
-  t.toLowerCase().replace(/[^a-z\s]/g," ").replace(/\s+/g," ").trim();
+/* =============================
+   UTILIDADES GENERALES
+============================= */
+const pick = a => a[Math.floor(Math.random() * a.length)];
 
-/* =========================
-   PRONUNCIACIÓN FIGURADA
-   (VERSIÓN EXTREMA)
-========================= */
-function englishToSpanishPhonetic(text){
-  if(!text || typeof text!=="string") return "";
-
-  let t = text.toLowerCase()
-    .replace(/’/g,"'")
-    .replace(/[^a-z0-9\s'.?,!]/g,"")
+function sanitize(text){
+  return (text || "")
+    .toString()
+    .replace(/[\r\n]+/g," ")
+    .replace(/[^a-zA-Z0-9\s.,!?']/g,"")
+    .replace(/\s+/g," ")
     .trim();
-
-  /* ---- Diccionario crítico ---- */
-  const dict = {
-    "i":"ai","you":"iú","he":"jí","she":"shí","we":"uí","they":"déi",
-    "the":"da","this":"dis","that":"dat","these":"dís","those":"dóus",
-    "is":"is","are":"ar","was":"uás","were":"uér",
-    "have":"jav","has":"jas","had":"jad",
-    "do":"dú","does":"das","did":"did",
-    "to":"tú","of":"ov","for":"for","with":"uid",
-    "and":"and","or":"or","but":"bat","not":"nat",
-    "very":"véri","people":"pípol","english":"ínglish",
-    "learning":"lérnin","important":"importan",
-    "business":"bísnes","work":"uórk","life":"láif"
-  };
-
-  t = t.split(/\s+/).map(w => dict[w] || w).join(" ");
-
-  /* ---- Reglas fonéticas ---- */
-  const rules = [
-    [/tion\b/g,"shon"],[/sion\b/g,"shon"],[/cial/g,"shal"],
-    [/ough/g,"of"],[/igh/g,"ai"],[/eigh/g,"éi"],
-    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
-    [/th/g,"d"],[/sh/g,"sh"],[/ch/g,"ch"],
-    [/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
-    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
-    [/ing\b/g,"in"],[/ed\b/g,"d"],[/er\b/g,"er"],[/ly\b/g,"li"]
-  ];
-
-  rules.forEach(r => t = t.replace(r[0], r[1]));
-
-  return t.replace(/\s+/g," ").trim();
 }
 
-/* =========================
-   GEMINI
-========================= */
-async function geminiGenerate(prompt){
-  const key = localStorage.getItem("GEMINI_KEY");
-  if(!key) return null;
+function isValid(text){
+  return text && text.split(" ").length >= ENGINE_V7.minWords;
+}
 
+async function safeFetch(fn){
   try{
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`,
-      {
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          contents:[{parts:[{text:prompt}]}]
-        })
-      }
-    );
-    const j = await r.json();
-    return j.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    const controller = new AbortController();
+    setTimeout(()=>controller.abort(), ENGINE_V7.timeout);
+    return await fn(controller.signal);
   }catch{
     return null;
   }
 }
 
-/* =========================
-   INTERNET
-========================= */
-async function internetSentence(){
-  for(const url of EEP_ENGINE.internetSources){
+/* =============================
+   PRONUNCIACIÓN FIGURADA
+============================= */
+function englishToSpanishPhonetic(text){
+  if(!text) return "";
+  let t = sanitize(text.toLowerCase());
+
+  const dict = {
+    i:"ai", you:"iú", he:"jí", she:"shí", we:"uí", they:"déi",
+    the:"da", is:"is", are:"ar", was:"uás", were:"uér",
+    have:"jav", has:"jas", had:"jad",
+    english:"ínglish", people:"pípol",
+    work:"uórk", life:"láif", learning:"lérnin"
+  };
+
+  t = t.split(" ").map(w=>dict[w]||w).join(" ");
+
+  [
+    [/tion\b/g,"shon"],[/sion\b/g,"shon"],
+    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
+    [/th/g,"d"],[/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
+    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
+    [/ing\b/g,"in"],[/ed\b/g,"d"],[/ly\b/g,"li"]
+  ].forEach(r=>t=t.replace(r[0],r[1]));
+
+  return t;
+}
+
+/* =============================
+   FUENTES DE INTERNET
+============================= */
+
+/* 1. Quotable */
+async function srcQuotable(signal){
+  const r = await fetch("https://api.quotable.io/random",{signal});
+  return (await r.json()).content;
+}
+
+/* 2. AdviceSlip */
+async function srcAdvice(signal){
+  const r = await fetch("https://api.adviceslip.com/advice",{signal});
+  return (await r.json()).slip.advice;
+}
+
+/* 3. Bored API */
+async function srcBored(signal){
+  const r = await fetch("https://www.boredapi.com/api/activity",{signal});
+  const j = await r.json();
+  return `When you have free time, ${j.activity.toLowerCase()}.`;
+}
+
+/* 4. Affirmations */
+async function srcAffirmation(signal){
+  const r = await fetch("https://www.affirmations.dev/",{signal});
+  return (await r.json()).affirmation;
+}
+
+/* 5. Type.fit */
+async function srcTypeFit(signal){
+  const r = await fetch("https://type.fit/api/quotes",{signal});
+  const j = await r.json();
+  return pick(j)?.text;
+}
+
+/* 6. ZenQuotes */
+async function srcZen(signal){
+  const r = await fetch("https://zenquotes.io/api/random",{signal});
+  const j = await r.json();
+  return j[0]?.q;
+}
+
+/* 7. DummyJSON Quotes */
+async function srcDummyQuotes(signal){
+  const r = await fetch("https://dummyjson.com/quotes/random",{signal});
+  return (await r.json()).quote;
+}
+
+/* 8. JokeAPI (adaptada) */
+async function srcJoke(signal){
+  const r = await fetch("https://v2.jokeapi.dev/joke/Any?type=single",{signal});
+  const j = await r.json();
+  return j.joke;
+}
+
+/* 9. Wikipedia summary */
+async function srcWikipedia(signal){
+  const topics = ["English language","Communication","Education","Travel"];
+  const t = pick(topics);
+  const r = await fetch(
+    "https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t),
+    {signal}
+  );
+  return (await r.json()).extract;
+}
+
+/* =============================
+   GEMINI (PRIORIDAD ALTA)
+============================= */
+async function srcGemini(){
+  const key = localStorage.getItem("GEMINI_KEY");
+  if(!key) return null;
+
+  const prompt = `
+Write ONE original English sentence.
+- Real life
+- A2-B2
+- Different structure every time
+- No quotes
+`;
+
+  try{
+    const r = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key="+key,
+      {
+        method:"POST",
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+      }
+    );
+    const j = await r.json();
+    return j?.candidates?.[0]?.content?.parts?.[0]?.text;
+  }catch{
+    return null;
+  }
+}
+
+/* =============================
+   MOTOR INTERNO (ÚLTIMO NIVEL)
+============================= */
+function semanticInternal(){
+  const patterns = [
+    () => `Many people realize the importance of English only after facing a real challenge.`,
+    () => `Learning a language changes the way you see the world and communicate with others.`,
+    () => `Confidence grows naturally when you practice speaking without fear of mistakes.`,
+    () => `Some situations feel uncomfortable at first, but experience makes them easier.`,
+    () => `Effective communication often matters more than perfect grammar.`
+  ];
+  return pick(patterns)();
+}
+
+/* =============================
+   GENERADOR MAESTRO
+============================= */
+async function generateSentence(){
+  const sources = [
+    async()=>sanitize(await srcGemini()),
+    async()=>sanitize(await safeFetch(srcQuotable)),
+    async()=>sanitize(await safeFetch(srcAdvice)),
+    async()=>sanitize(await safeFetch(srcBored)),
+    async()=>sanitize(await safeFetch(srcAffirmation)),
+    async()=>sanitize(await safeFetch(srcZen)),
+    async()=>sanitize(await safeFetch(srcDummyQuotes)),
+    async()=>sanitize(await safeFetch(srcTypeFit)),
+    async()=>sanitize(await safeFetch(srcJoke)),
+    async()=>sanitize(await safeFetch(srcWikipedia)),
+    ()=>semanticInternal()
+  ];
+
+  for(const src of sources){
     try{
-      const r = await fetch(url);
-      const j = await r.json();
-      return j.content || j.slip?.advice || null;
+      const t = await src();
+      if(isValid(t)) return t;
     }catch{}
   }
-  return null;
+
+  return ENGINE_V7.emergency;
 }
 
-/* =========================
-   MOTOR INTERNO AVANZADO
-========================= */
-function internalSentence(){
-  const topic = rand(EEP_ENGINE.topics);
-  const level = rand(EEP_ENGINE.levelRange);
-
-  const templates = {
-    A1:[
-      `I like learning English for ${topic}.`,
-      `English is useful in ${topic}.`
-    ],
-    A2:[
-      `Learning English helps me in ${topic}.`,
-      `English is important for ${topic}.`
-    ],
-    B1:[
-      `Learning English helps people communicate better in ${topic}.`,
-      `English skills are useful in many areas of ${topic}.`
-    ],
-    B2:[
-      `Improving your English allows you to succeed in ${topic}.`,
-      `Strong English skills create new opportunities in ${topic}.`
-    ]
-  };
-
-  return rand(templates[level]);
-}
-
-/* =========================
-   GENERADOR MAESTRO
-========================= */
-async function generateSentence(){
-  return (
-    await geminiGenerate(
-      "Generate ONE natural English sentence (A2–B2) about a real-life topic. No quotes."
-    ) ||
-    await internetSentence() ||
-    internalSentence()
-  );
-}
-
-/* =========================
-   API PÚBLICA FINAL
-========================= */
-
-/* FRASES */
+/* =============================
+   API FINAL PARA LA APP
+============================= */
 async function getPhrase(){
-  const en = await generateSentence();
-  return {
-    en,
-    phonetic: englishToSpanishPhonetic(en)
-  };
+  const text = await generateSentence();
+  return { text, phonetic: englishToSpanishPhonetic(text) };
 }
 
-/* SPEAK */
 async function getSpeak(){
-  const en = await generateSentence();
+  const text = await generateSentence();
   return {
-    en,
-    phonetic: englishToSpanishPhonetic(en),
-    clean: normalize(en)
+    text,
+    phonetic: englishToSpanishPhonetic(text),
+    clean: sanitize(text.toLowerCase())
   };
 }
 
-/* EJERCICIOS */
 async function getExercise(){
-  const en = await generateSentence();
-  const w = en.split(" ");
-  const i = Math.floor(Math.random()*w.length);
-  const answer = w[i];
-  w[i] = "___";
-
-  const options = [answer,"is","are","do","does","have"]
-    .sort(()=>Math.random()-0.5)
-    .slice(0,4);
+  const text = await generateSentence();
+  const words = text.split(" ");
+  const i = Math.floor(Math.random()*words.length);
+  const answer = words[i];
+  words[i] = "___";
 
   return {
-    question: w.join(" "),
+    question: words.join(" "),
     answer,
-    options
+    options: [answer,"is","are","do","does","can","have"]
+      .sort(()=>Math.random()-0.5)
+      .slice(0,4)
   };
 }
 
-/* =========================
-   AUTO-TEST (OPCIONAL)
-========================= */
-console.log("✅ EEP Infinite Engine loaded");
+console.log("✅ Sentence Engine v7 loaded · EXTREME MULTI-SOURCE");
 </script>
 </body>
 </html>
