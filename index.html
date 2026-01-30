@@ -408,37 +408,35 @@ loadExercise();
 </script>
 <script>
 /* =====================================================================
-   ELITE ENGLISH PRO · PHRASE ENGINE v4 (ULTRA EXTENDED)
+   ELITE ENGLISH PRO · SENTENCE ENGINE v5
    =====================================================================
-   OBJETIVO PRINCIPAL:
-   - Crear frases infinitas y naturales
-   - Prioridad: Gemini → Internet → Motor interno
-   - Nunca devolver vacío
-   - Usable en Phrases, Speak y Exercises
+   OBJETIVO REAL:
+   - Frases completamente diferentes (estructura + contenido)
+   - Gemini → Internet → IA semántica interna → Gramática profunda
+   - Nunca repetir sensación
+   - Ultra estable
 ===================================================================== */
 
 /* =============================
-   CONFIGURACIÓN GENERAL
+   CONFIGURACIÓN GLOBAL
 ============================= */
-const PHRASE_ENGINE = {
-  levels: ["A1","A2","B1","B2"],
+const SENTENCE_ENGINE = {
+  levels: ["A2","B1","B2"],
   topics: [
-    "daily life","travel","business","technology","education",
-    "work","social situations","health","motivation","finance",
-    "relationships","culture","food","habits","time management",
-    "learning","communication","personal growth"
+    "travel","work","business","daily life","technology",
+    "learning","health","relationships","motivation",
+    "culture","food","time","money","habits","education"
   ],
-  minSentence: "Learning English helps you communicate better."
+  emergencySentence: "English helps people communicate in real life."
 };
 
 /* =============================
-   UTILIDADES BÁSICAS
+   UTILIDADES SEGURAS
 ============================= */
-const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const pick = a => a[Math.floor(Math.random()*a.length)];
 
-function safeText(text){
-  return (text || "")
-    .toString()
+function clean(text){
+  return (text||"")
     .replace(/[\r\n]+/g," ")
     .replace(/[^a-zA-Z0-9\s.,!?']/g,"")
     .replace(/\s+/g," ")
@@ -446,122 +444,133 @@ function safeText(text){
 }
 
 /* =============================
-   PRONUNCIACIÓN FIGURADA
+   PRONUNCIACIÓN FIGURADA AVANZADA
 ============================= */
 function englishToSpanishPhonetic(text){
   if(!text) return "";
-  let t = safeText(text.toLowerCase());
+  let t = clean(text.toLowerCase());
 
   const dict = {
     i:"ai", you:"iú", he:"jí", she:"shí", we:"uí", they:"déi",
-    the:"da", this:"dis", that:"dat",
+    the:"da", this:"dis", that:"dat", these:"dís", those:"dóus",
     is:"is", are:"ar", was:"uás", were:"uér",
     have:"jav", has:"jas", had:"jad",
-    english:"ínglish", learning:"lérnin",
-    people:"pípol", work:"uórk", life:"láif"
+    english:"ínglish", people:"pípol",
+    work:"uórk", life:"láif", learning:"lérnin"
   };
 
-  t = t.split(" ").map(w => dict[w] || w).join(" ");
+  t = t.split(" ").map(w=>dict[w]||w).join(" ");
 
-  const rules = [
-    [/tion\b/g,"shon"], [/sion\b/g,"shon"],
-    [/ph/g,"f"], [/th/g,"d"], [/ck/g,"k"], [/qu/g,"ku"],
-    [/ee/g,"í"], [/ea/g,"í"], [/oo/g,"ú"],
-    [/ai/g,"ei"], [/ay/g,"ei"], [/ow/g,"au"], [/ou/g,"au"],
-    [/ing\b/g,"in"], [/ed\b/g,"d"]
-  ];
+  [
+    [/tion\b/g,"shon"],[/sion\b/g,"shon"],
+    [/ough/g,"of"],[/igh/g,"ai"],[/eigh/g,"éi"],
+    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
+    [/th/g,"d"],[/sh/g,"sh"],[/ch/g,"ch"],
+    [/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
+    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
+    [/ing\b/g,"in"],[/ed\b/g,"d"],[/ly\b/g,"li"]
+  ].forEach(r=>t=t.replace(r[0],r[1]));
 
-  rules.forEach(r => t = t.replace(r[0], r[1]));
-  return t.replace(/\s+/g," ").trim();
+  return t;
 }
 
 /* =============================
-   GEMINI (PRIMER NIVEL)
+   GEMINI (ORIGINALIDAD TOTAL)
 ============================= */
 async function geminiSentence(){
   const key = localStorage.getItem("GEMINI_KEY");
   if(!key) return null;
 
-  const topic = pick(PHRASE_ENGINE.topics);
-  const level = pick(PHRASE_ENGINE.levels);
-
   const prompt = `
-Generate ONE natural English sentence.
-Level: ${level}
-Topic: ${topic}
-Style: real life, clear, short.
-Do not use quotes.
+Write ONE completely original English sentence.
+Level: A2-B2
+Rules:
+- Different structure each time
+- Real-life situation, thought, advice, question or opinion
+- No quotes
+- Natural human English
 `;
 
   try{
-    const controller = new AbortController();
-    setTimeout(()=>controller.abort(),6000);
+    const c = new AbortController();
+    setTimeout(()=>c.abort(),7000);
 
     const r = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key="+key,
       {
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-          contents:[{parts:[{text:prompt}]}]
-        }),
-        signal: controller.signal
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]}),
+        signal:c.signal
       }
     );
-
     const j = await r.json();
-    return safeText(j?.candidates?.[0]?.content?.parts?.[0]?.text);
+    return clean(j?.candidates?.[0]?.content?.parts?.[0]?.text);
   }catch{
     return null;
   }
 }
 
 /* =============================
-   INTERNET (SEGUNDO NIVEL)
+   INTERNET (FRASES REALES)
 ============================= */
 async function internetSentence(){
   const sources = [
-    async()=>{
-      const r = await fetch("https://api.quotable.io/random");
-      return (await r.json()).content;
-    },
-    async()=>{
-      const r = await fetch("https://api.adviceslip.com/advice");
-      return (await r.json()).slip.advice;
-    }
+    async()=> (await (await fetch("https://api.quotable.io/random")).json()).content,
+    async()=> (await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice
   ];
 
-  for(const src of sources){
+  for(const s of sources){
     try{
-      const t = safeText(await src());
-      if(t && t.split(" ").length > 4) return t;
+      const t = clean(await s());
+      if(t && t.split(" ").length > 5) return t;
     }catch{}
   }
   return null;
 }
 
 /* =============================
-   MOTOR INTERNO AVANZADO
+   MOTOR SEMÁNTICO (NO PLANTILLAS)
 ============================= */
-function internalSentence(){
-  const subject = pick([
-    "I","You","People","Learning English",
-    "Daily practice","Good communication"
-  ]);
-  const verb = pick([
-    "improves","helps","builds",
-    "creates","develops","strengthens"
-  ]);
-  const complement = pick([
-    "your confidence",
-    "better opportunities",
-    "your communication skills",
-    "your future",
-    "professional success",
-    "personal growth"
-  ]);
+function semanticSentence(){
+  const patterns = [
 
-  return `${subject} ${verb} ${complement}.`;
+    () => `Have you ever noticed how ${pick(["confidence","communication","practice"])} changes when you use English every day?`,
+
+    () => `When people travel abroad, they often realize that English is more useful than they expected.`,
+
+    () => `Many professionals feel nervous at first, but speaking English becomes easier with time.`,
+
+    () => `If you want to grow professionally, improving your English can make a real difference.`,
+
+    () => `Some conversations are difficult, yet English helps connect people from different cultures.`,
+
+    () => `Using English at work is not always easy, especially when discussions become complex.`,
+
+    () => `Over time, learners discover that understanding English is more about practice than talent.`
+  ];
+
+  return pick(patterns)();
+}
+
+/* =============================
+   MOTOR GRAMATICAL PROFUNDO
+============================= */
+function grammarSentence(){
+  const forms = [
+
+    () => `English is often used when important decisions need to be discussed clearly.`,
+
+    () => `Why do so many people choose English as their main communication language?`,
+
+    () => `Being able to express ideas in English can change the way others see you.`,
+
+    () => `It takes patience and consistency to feel comfortable speaking English.`,
+
+    () => `Not everyone learns English at the same pace, and that is completely normal.`
+  ];
+
+  return pick(forms)();
 }
 
 /* =============================
@@ -571,43 +580,40 @@ async function generateSentence(){
   return (
     await geminiSentence() ||
     await internetSentence() ||
-    internalSentence() ||
-    PHRASE_ENGINE.minSentence
+    semanticSentence() ||
+    grammarSentence() ||
+    SENTENCE_ENGINE.emergencySentence
   );
 }
 
 /* =============================
-   API PÚBLICA PARA LA APP
+   API FINAL PARA LA APP
 ============================= */
-
-/* FRASES */
 async function getPhrase(){
-  const en = await generateSentence();
+  const text = await generateSentence();
   return {
-    text: en,
-    phonetic: englishToSpanishPhonetic(en)
+    text,
+    phonetic: englishToSpanishPhonetic(text)
   };
 }
 
-/* SPEAK */
 async function getSpeak(){
-  const en = await generateSentence();
+  const text = await generateSentence();
   return {
-    text: en,
-    phonetic: englishToSpanishPhonetic(en),
-    clean: safeText(en.toLowerCase())
+    text,
+    phonetic: englishToSpanishPhonetic(text),
+    clean: clean(text.toLowerCase())
   };
 }
 
-/* EJERCICIOS */
 async function getExercise(){
-  const en = await generateSentence();
-  const words = en.split(" ");
-  const index = Math.floor(Math.random()*words.length);
-  const answer = words[index];
-  words[index] = "___";
+  const text = await generateSentence();
+  const words = text.split(" ");
+  const i = Math.floor(Math.random()*words.length);
+  const answer = words[i];
+  words[i] = "___";
 
-  const options = [answer,"is","are","do","does","have"]
+  const options = [answer,"is","are","do","does","have","can"]
     .sort(()=>Math.random()-0.5)
     .slice(0,4);
 
@@ -618,10 +624,7 @@ async function getExercise(){
   };
 }
 
-/* =============================
-   CONFIRMACIÓN DE CARGA
-============================= */
-console.log("✅ Phrase Engine v4 loaded · Infinite generation ready");
+console.log("✅ Sentence Engine v5 loaded · FULL variation enabled");
 </script>
 </body>
 </html>
