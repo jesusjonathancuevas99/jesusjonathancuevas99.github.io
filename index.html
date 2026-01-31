@@ -1,368 +1,2473 @@
 <!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>LinguaTutor Pro</title>
-    
-    <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>LinguaTutor ULTIMATE — Definitivo v4.1 (SRS + NLP Cloze + Charts) (jQuery + más fuentes)</title>
+  <meta name="theme-color" content="#0b1220" />
 
-    <!-- LIBRARIES -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- UI / Libraries (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- jQuery (pedido) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <!-- Utilidades / NLP / Charts (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+  <!-- Compromise NLP (cliente) -->
+  <script src="https://unpkg.com/compromise"></script>
+  <!-- Day.js (fechas para SRS) -->
+  <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+  <!-- Chart.js (progreso) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <!-- JSZip (export ZIP opcional) -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-    <!-- FONT -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    colors: {
-                        primary: { 500: '#3b82f6', 600: '#2563eb' },
-                        dark: { 800: '#1f2937', 900: '#111827', 950: '#030712' }
-                    },
-                    spacing: { 'safe-b': 'env(safe-area-inset-bottom)' }
-                }
-            }
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+
+  <!-- Pyodide (Python in browser) -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
+          colors: {
+            brand: {
+              50:'#eef6ff',100:'#d9ecff',200:'#b8dcff',300:'#86c6ff',400:'#4aa7ff',
+              500:'#1d86ff',600:'#0d6ae6',700:'#0f54b8',800:'#12458f',900:'#123b76'
+            },
+            ink: { 950:'#070b12', 900:'#0b1220', 850:'#0f172a', 800:'#111c33', 700:'#1a2a4d' },
+          }
         }
-    </script>
+      }
+    }
+  </script>
 
-    <style>
-        /* CSS FIXES FOR MOBILE & READABILITY */
-        body { background-color: #030712; color: #f3f4f6; height: 100%; overflow: hidden; }
-        #app { height: 100dvh; display: flex; flex-direction: column; }
+  <style>
+    :root{ --inputH: 170px; }
+    html, body { height: 100%; }
+    body { background:#070b12; color:#e5e7eb; margin:0; overflow:hidden; }
+    #app { min-height:100vh; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
 
-        /* MARKDOWN TABLES & STYLES */
-        .prose table { width: 100%; margin: 10px 0; border-collapse: collapse; font-size: 0.9em; }
-        .prose th { text-align: left; padding: 8px; border-bottom: 2px solid #374151; color: #9ca3af; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.05em; }
-        .prose td { padding: 8px; border-bottom: 1px solid #1f2937; }
-        .prose strong { color: #60a5fa; font-weight: 600; }
-        .prose code { background: #1f2937; padding: 2px 4px; border-radius: 4px; color: #e879f9; font-family: monospace; }
-        .prose ul { list-style: disc; padding-left: 20px; margin: 10px 0; }
-        .prose li { margin-bottom: 4px; }
-        .prose p { margin-bottom: 8px; line-height: 1.5; }
+    .no-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .no-scrollbar::-webkit-scrollbar-thumb { background:#24324f; border-radius: 999px; }
 
-        /* CHAT BUBBLES */
-        .bubble { padding: 12px 16px; border-radius: 18px; max-width: 100%; word-wrap: break-word; font-size: 15px; position: relative; }
-        .bubble-user { background: #2563eb; color: white; border-radius: 18px 18px 4px 18px; margin-left: auto; max-width: 85%; }
-        .bubble-ai { background: #1f2937; color: #e5e7eb; border: 1px solid #374151; border-radius: 18px 18px 18px 4px; width: 100%; }
+    .prose table { width:100%; margin: 12px 0; border-collapse: collapse; font-size: .92em; }
+    .prose th { text-align:left; padding:10px; border-bottom:2px solid #223253; color:#93a4c2; text-transform:uppercase; font-size:.75em; letter-spacing:.06em; }
+    .prose td { padding:10px; border-bottom:1px solid #1a2a4d; }
+    .prose strong { color:#7dd3fc; font-weight: 650; }
+    .prose code { background:#0f172a; padding:2px 6px; border-radius:8px; color:#f0abfc; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
+    .prose a { color:#60a5fa; text-decoration: underline; }
+    .prose blockquote { border-left: 3px solid #1d86ff; padding-left: 12px; color:#cbd5e1; }
 
-        /* INPUT AREA */
-        .input-area { background: #111827; border-top: 1px solid #1f2937; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+    .bubble { padding: 12px 14px; border-radius: 18px; max-width: 100%; word-wrap: break-word; font-size: 15px; position: relative; }
+    .bubble-user { background: linear-gradient(135deg, #0d6ae6, #1d86ff); color: #fff; border-radius: 18px 18px 6px 18px; margin-left:auto; max-width: 88%; box-shadow: 0 10px 30px rgba(29,134,255,.18); }
+    .bubble-ai { background: rgba(15, 23, 42, .82); border: 1px solid rgba(34,50,83,.8); border-radius: 18px 18px 18px 6px; width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,.22); }
 
-        /* SCROLL */
-        .no-scrollbar::-webkit-scrollbar { width: 4px; }
-        .no-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
-    </style>
+    .card { background: rgba(11,18,32,.84); border:1px solid rgba(34,50,83,.7); border-radius: 18px; }
+    .chip { background:#0f172a; border:1px solid rgba(34,50,83,.9); }
+
+    .input-area { background: rgba(11,18,32,.92); border-top: 1px solid rgba(34,50,83,.6); padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+    .glow { box-shadow: 0 0 0 1px rgba(29,134,255,.25), 0 15px 60px rgba(29,134,255,.12); }
+
+    .shimmer { background: linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.10), rgba(255,255,255,.05)); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+    @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:-200% 0%} }
+
+    .chat-pad { padding-bottom: calc(var(--inputH) + 24px + env(safe-area-inset-bottom)); }
+
+    audio { width:100%; }
+
+    .w-ok { color: #34d399; font-weight: 800; }
+    .w-bad { color: #f87171; font-weight: 800; }
+
+    .focus-ring:focus { outline: none; box-shadow: 0 0 0 3px rgba(29,134,255,.22); }
+  </style>
 </head>
-
 <body>
-
 <div id="app">
-
-    <!-- HEADER -->
-    <header class="h-14 flex items-center justify-between px-4 bg-dark-900/90 backdrop-blur border-b border-dark-800 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">
-                <i class="fa-solid fa-graduation-cap"></i>
-            </div>
-            <div>
-                <h1 class="font-bold text-sm tracking-wide text-gray-100">LinguaTutor</h1>
-                <div class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full" :class="apiKey ? 'bg-green-500' : 'bg-blue-400'"></span>
-                    <span class="text-[10px] text-gray-400 font-medium uppercase">{{ apiKey ? 'AI Conectada' : 'Modo Maestro' }}</span>
-                </div>
-            </div>
+  <!-- HEADER -->
+  <header class="h-14 flex items-center justify-between px-4 bg-ink-900/80 backdrop-blur border-b border-ink-700/60 z-50">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div class="min-w-0">
+        <h1 class="font-bold text-sm tracking-wide text-gray-100 truncate">LinguaTutor ULTIMATE</h1>
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full" :class="internetOk ? 'bg-emerald-400' : 'bg-yellow-400'"></span>
+          <span class="text-[10px] text-gray-400 font-medium uppercase">{{ internetOk ? 'Internet OK' : 'Fallback local' }}</span>
+          <span class="text-[10px] text-gray-600">•</span>
+          <span class="text-[10px] text-gray-500 font-medium uppercase">{{ modeLabel }}</span>
+          <span class="text-[10px] text-gray-600">•</span>
+          <span class="text-[10px]" :class="pyReady ? 'text-emerald-300' : 'text-gray-500'">
+            <i class="fa-brands fa-python mr-1"></i>{{ pyReady ? 'Python listo' : 'Python off' }}
+          </span>
+          <span class="text-[10px] text-gray-600">•</span>
+          <span class="text-[10px]" :class="jqOk ? 'text-sky-300' : 'text-gray-500'">
+            <i class="fa-brands fa-js mr-1"></i>{{ jqOk ? 'jQuery on' : 'jQuery off' }}
+          </span>
         </div>
-        <button @click="showConfig = true" class="w-9 h-9 rounded-full bg-dark-800 flex items-center justify-center text-gray-400 hover:text-white transition">
-            <i class="fa-solid fa-gear"></i>
-        </button>
-    </header>
+      </div>
+    </div>
 
-    <!-- CONTENT -->
-    <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth no-scrollbar">
-        
-        <!-- WELCOME STATE (Botones de Inicio Rápido) -->
-        <div v-if="messages.length === 0" class="h-full flex flex-col items-center justify-center -mt-10">
-            <div class="text-center space-y-2 mb-8 px-6">
-                <i class="fa-solid fa-chalkboard-user text-5xl text-dark-800 mb-4"></i>
-                <h2 class="text-lg font-bold text-white">¿Qué aprendemos hoy?</h2>
-                <p class="text-sm text-gray-500">Selecciona una lección rápida o escribe tu pregunta.</p>
-            </div>
+    <div class="flex items-center gap-2">
+      <button @click="mode = (mode==='chat' ? 'pron' : 'chat')" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center text-gray-300 hover:text-white transition" :title="mode==='chat' ? 'Ir a Pronunciación' : 'Volver al Chat'">
+        <i class="fa-solid" :class="mode==='chat' ? 'fa-microphone' : 'fa-comments'"></i>
+      </button>
+      <button @click="toggleSide" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center text-gray-400 hover:text-white transition" title="Panel">
+        <i class="fa-solid fa-sliders"></i>
+      </button>
+      <button @click="showConfig=true" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center text-gray-400 hover:text-white transition" title="Configuración">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    </div>
+  </header>
 
-            <div class="w-full max-w-sm grid grid-cols-2 gap-3 px-4">
-                <button @click="generateLesson('phrases')" class="p-4 bg-dark-800 hover:bg-dark-800/80 rounded-xl border border-dark-800 text-left group transition">
-                    <div class="text-blue-400 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-comments"></i></div>
-                    <div class="font-bold text-sm text-gray-200">Frases Útiles</div>
-                    <div class="text-[10px] text-gray-500">Para viajes y trabajo</div>
-                </button>
-                <button @click="generateLesson('grammar')" class="p-4 bg-dark-800 hover:bg-dark-800/80 rounded-xl border border-dark-800 text-left group transition">
-                    <div class="text-purple-400 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-book-open"></i></div>
-                    <div class="font-bold text-sm text-gray-200">Gramática</div>
-                    <div class="text-[10px] text-gray-500">Explicaciones simples</div>
-                </button>
-                <button @click="generateLesson('exercises')" class="col-span-2 p-4 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-xl flex items-center justify-between group transition">
-                    <div>
-                        <div class="font-bold text-sm text-blue-400">Generar Ejercicios</div>
-                        <div class="text-[10px] text-blue-300/60">Pon a prueba tu nivel ahora</div>
-                    </div>
-                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white"><i class="fa-solid fa-play"></i></div>
-                </button>
-            </div>
-        </div>
+  <!-- MAIN -->
+  <main class="flex-1 overflow-hidden">
+    <div class="h-full grid grid-cols-1 lg:grid-cols-[1fr_360px]">
 
-        <!-- MESSAGES -->
-        <div v-for="msg in messages" :key="msg.id" class="animate-[fadeIn_0.3s_ease-out]">
-            
-            <!-- USER -->
-            <div v-if="msg.role === 'user'" class="flex justify-end mb-2">
-                <div class="bubble bubble-user shadow-blue-900/20 shadow-lg">
-                    {{ msg.text }}
+      <!-- PRIMARY COLUMN -->
+      <section class="h-full flex flex-col overflow-hidden">
+
+        <!-- ========================= CHAT VIEW ========================= -->
+        <div v-show="mode==='chat'" class="h-full flex flex-col overflow-hidden">
+          <div id="chatScroll" class="flex-1 overflow-y-auto no-scrollbar scroll-smooth p-4 space-y-5 chat-pad">
+
+            <div v-if="messages.length===0" class="min-h-[calc(100dvh-56px-220px)] flex flex-col items-center justify-center -mt-2">
+              <div class="text-center space-y-2 mb-8 px-6">
+                <div class="mx-auto w-14 h-14 rounded-2xl bg-ink-850 border border-ink-700/70 flex items-center justify-center">
+                  <i class="fa-solid fa-wand-magic-sparkles text-2xl text-brand-400"></i>
                 </div>
+                <h2 class="text-lg font-extrabold text-white mt-3">¿Qué aprendemos hoy, {{ (displayName && displayName.trim()) ? displayName : 'amigo' }}?</h2>
+                <p class="text-sm text-gray-400">Máxima variedad: anti-repetición por hash + similitud + semillas de internet (Wikipedia/Datamuse/Trivia/Quotes).</p>
+                <p class="text-[11px] text-gray-500">Atajos: /define /wiki /quiz /grammar /plan /cloze /review /python /export. (Ctrl+K enfoca el cuadro)</p>
+              </div>
+
+              <div class="w-full max-w-md grid grid-cols-2 gap-3 px-4">
+                <button @click="sendText('/quiz work')" class="p-4 card hover:bg-ink-850/70 transition text-left group">
+                  <div class="text-brand-300 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-list-check"></i></div>
+                  <div class="font-bold text-sm text-gray-200">Quiz rápido</div>
+                  <div class="text-[10px] text-gray-500">varía siempre</div>
+                </button>
+                <button @click="sendText('/grammar past simple')" class="p-4 card hover:bg-ink-850/70 transition text-left group">
+                  <div class="text-purple-300 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-book-open"></i></div>
+                  <div class="font-bold text-sm text-gray-200">Gramática PRO</div>
+                  <div class="text-[10px] text-gray-500">ejercicios distintos</div>
+                </button>
+                <button @click="sendText('/wiki Coffee')" class="col-span-2 p-4 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 rounded-xl flex items-center justify-between group transition">
+                  <div>
+                    <div class="font-bold text-sm text-emerald-300">Lectura real (Wikipedia)</div>
+                    <div class="text-[10px] text-emerald-200/60">+ keywords/resumen (Python)</div>
+                  </div>
+                  <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white"><i class="fa-solid fa-book"></i></div>
+                </button>
+                <button @click="mode='pron'" class="col-span-2 p-4 bg-brand-600/10 hover:bg-brand-600/20 border border-brand-500/20 rounded-xl flex items-center justify-between group transition">
+                  <div>
+                    <div class="font-bold text-sm text-brand-300">Pronunciación</div>
+                    <div class="text-[10px] text-brand-200/60">frases distintas + score</div>
+                  </div>
+                  <div class="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white"><i class="fa-solid fa-microphone"></i></div>
+                </button>
+              </div>
             </div>
 
-            <!-- AI / TEACHER -->
-            <div v-if="msg.role === 'ai'" class="flex gap-3 mb-4 max-w-2xl mx-auto">
-                <div class="w-8 h-8 rounded-full bg-dark-800 flex items-center justify-center shrink-0 border border-dark-800 mt-1">
-                    <i class="fa-solid fa-robot text-blue-400 text-xs"></i>
+            <!-- Messages -->
+            <div v-for="msg in messages" :key="msg.id">
+              <div v-if="msg.role==='user'" class="flex justify-end">
+                <div class="bubble bubble-user">{{ msg.text }}</div>
+              </div>
+
+              <div v-else class="flex gap-3 max-w-3xl mx-auto">
+                <div class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center shrink-0 mt-1">
+                  <i class="fa-solid" :class="msg.kind==='audio' ? 'fa-microphone' : 'fa-robot'"></i>
                 </div>
+
                 <div class="flex-1 min-w-0">
-                    <div class="bubble bubble-ai shadow-lg">
-                        <div class="prose prose-invert prose-sm" v-html="renderMD(msg.text)"></div>
-                    </div>
-                    
-                    <!-- Feedback Toolbar -->
-                    <div class="flex gap-2 mt-2 ml-1">
-                        <button @click="speak(msg.text)" class="text-[10px] text-gray-500 bg-dark-800 px-2 py-1 rounded hover:text-white flex items-center gap-1 transition">
-                            <i class="fa-solid fa-volume-high"></i> Escuchar
-                        </button>
-                        <button @click="copy(msg.text)" class="text-[10px] text-gray-500 bg-dark-800 px-2 py-1 rounded hover:text-white flex items-center gap-1 transition">
-                            <i class="fa-regular fa-copy"></i> Copiar
-                        </button>
-                    </div>
+                  <div class="bubble bubble-ai">
+                    <template v-if="msg.kind==='audio'">
+                      <div class="text-sm text-gray-200 font-semibold mb-2">🎤 Audio grabado</div>
+                      <audio :src="msg.audioUrl" controls></audio>
+                    </template>
+
+                    <template v-else>
+                      <div class="prose prose-invert prose-sm max-w-none" v-html="renderMD(msg.text)"></div>
+
+                      <div v-if="msg.translation" class="mt-3 p-3 rounded-xl bg-ink-900/50 border border-ink-700/50">
+                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-bold flex items-center justify-between">
+                          <span>Traducción</span>
+                          <span class="text-gray-500">{{ msg.translationLangLabel }}</span>
+                        </div>
+                        <div class="prose prose-invert prose-sm max-w-none mt-2" v-html="renderMD(msg.translation)"></div>
+                      </div>
+
+                      <div v-if="msg.sources && msg.sources.length" class="mt-3 border-t border-ink-700/50 pt-3">
+                        <div class="flex items-center justify-between">
+                          <div class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">Fuentes</div>
+                          <button @click="msg.showSources=!msg.showSources" class="text-[11px] text-gray-400 hover:text-white">
+                            {{ msg.showSources ? 'Ocultar' : 'Ver' }}
+                          </button>
+                        </div>
+                        <div v-show="msg.showSources" class="mt-2 space-y-2">
+                          <a v-for="(s,i) in msg.sources" :key="i" :href="s.url" target="_blank" rel="noreferrer" class="block p-2 rounded-xl bg-ink-900/60 border border-ink-700/50 hover:bg-ink-850/70">
+                            <div class="text-xs text-gray-200 font-semibold truncate">{{ s.title || s.url }}</div>
+                            <div class="text-[11px] text-gray-400 line-clamp-2">{{ s.snippet }}</div>
+                          </a>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex flex-wrap gap-2 mt-2 ml-1" v-if="msg.kind!=='audio'">
+                    <button @click="tts(msg.text)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
+                      <i class="fa-solid fa-volume-high text-brand-200"></i> Escuchar
+                    </button>
+                    <button @click="copy(msg.text)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
+                      <i class="fa-regular fa-copy"></i> Copiar
+                    </button>
+                    <button @click="translateMsg(msg)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition" :title="msg.translating ? 'Traduciendo…' : 'Traducir'">
+                      <i class="fa-solid fa-language"></i> {{ msg.translation ? 'Ver original' : (msg.translating ? 'Traduciendo…' : 'Traducir') }}
+                    </button>
+                    <button @click="regenerate(msg)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
+                      <i class="fa-solid fa-rotate-right"></i> Variar
+                    </button>
+                    <button v-if="msg.sources && msg.sources.length" @click="pinToNotebook(msg)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
+                      <i class="fa-solid fa-thumbtack"></i> Guardar
+                    </button>
+                  </div>
+
+                  <div class="flex flex-wrap gap-2 mt-2 ml-1" v-else>
+                    <button @click="downloadAudio(msg)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
+                      <i class="fa-solid fa-download"></i> Descargar audio
+                    </button>
+                  </div>
+
                 </div>
+              </div>
             </div>
 
+            <!-- Loader -->
+            <div v-if="loading" class="max-w-3xl mx-auto">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70"></div>
+                <div class="flex-1">
+                  <div class="h-4 w-40 rounded-full shimmer"></div>
+                  <div class="mt-2 h-3 w-72 rounded-full shimmer opacity-80"></div>
+                  <div class="mt-2 h-3 w-64 rounded-full shimmer opacity-60"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- INPUT -->
+          <div id="inputBar" class="input-area px-3 pt-3" style="position: sticky; bottom: 0; z-index: 40;">
+            <div class="max-w-3xl mx-auto">
+              <div class="flex gap-2 mb-2 overflow-x-auto pb-1 no-scrollbar">
+                <button @click="sendText('/define safety')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-emerald-200 whitespace-nowrap hover:bg-ink-850">📘 /define</button>
+                <button @click="sendText('/wiki Mexico')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-purple-200 whitespace-nowrap hover:bg-ink-850">📖 /wiki</button>
+                <button @click="sendText('/quiz work')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-brand-200 whitespace-nowrap hover:bg-ink-850">📝 /quiz</button>
+                <button @click="sendText('/grammar past simple')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-yellow-200 whitespace-nowrap hover:bg-ink-850">📚 /grammar</button>
+                <button @click="sendText('/plan')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-sky-200 whitespace-nowrap hover:bg-ink-850">🗓️ /plan</button>
+                <button @click="sendText('/cloze')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-purple-200 whitespace-nowrap hover:bg-ink-850">🧩 /cloze</button>
+                <button @click="sendText('/review')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-amber-200 whitespace-nowrap hover:bg-ink-850">🧠 /review</button>
+                <button @click="sendText('/python')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-sky-200 whitespace-nowrap hover:bg-ink-850">🐍 /python</button>
+                <button @click="sendText('/export')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-gray-200 whitespace-nowrap hover:bg-ink-850">⬇️ /export</button>
+                <button @click="toggleVoiceInput" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs whitespace-nowrap border" :class="isVoiceInput ? 'bg-red-600/15 border-red-500/20 text-red-200' : 'chip text-gray-200'">
+                  🎤 Dictado: {{ isVoiceInput ? 'ON' : 'OFF' }}
+                </button>
+              </div>
+
+              <div class="flex items-end gap-2 bg-ink-850/70 border border-ink-700/60 rounded-3xl p-1.5 pl-4 glow">
+                <textarea v-model="input" @keydown.enter.exact.prevent="send" @keydown.enter.shift.stop
+                  ref="textarea" rows="1"
+                  class="bg-transparent text-gray-100 w-full py-2.5 outline-none resize-none max-h-36 placeholder-gray-500 text-[15px]"
+                  placeholder="Escribe… (Shift+Enter = salto)"></textarea>
+
+                <button @click="toggleChatRecord" :disabled="chatRecBusy" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mb-0.5 shadow-lg active:scale-95 transition"
+                  :class="isChatRecording ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-ink-850 border border-ink-700/70 text-gray-200 hover:text-white'"
+                  :title="isChatRecording ? 'Detener grabación' : 'Grabar audio (mensaje)'"><i class="fa-solid" :class="isChatRecording ? 'fa-stop' : 'fa-microphone'"></i></button>
+
+                <button @click="send" :disabled="!input.trim()" class="w-10 h-10 rounded-full bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center shrink-0 mb-0.5 shadow-lg active:scale-95 transition disabled:opacity-50" title="Enviar">
+                  <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between mt-2 px-1">
+                <div class="text-[10px] text-gray-500">Fuentes: Wikipedia + Datamuse + Dictionary + MyMemory + OpenTDB/Quotable (si permiten). jQuery + Vue.</div>
+                <div class="text-[10px] text-gray-500">{{ statusLine }}</div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
-        <!-- TYPING LOADER -->
-        <div v-if="loading" class="flex items-center gap-2 ml-12 text-gray-500 text-xs py-2">
-            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></span>
-            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-100"></span>
-            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-200"></span>
-            Preparando lección...
+        <!-- ===================== PRONUNCIATION VIEW ===================== -->
+        <div v-show="mode==='pron'" class="flex-1 overflow-y-auto no-scrollbar p-4">
+          <div class="max-w-3xl mx-auto space-y-4">
+
+            <div class="card p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-microphone text-emerald-300"></i>
+                    Pronunciación (score + palabras verde/rojo)
+                  </h2>
+                  <p class="text-sm text-gray-400 mt-1">Pulsa <b>Generar</b> para crear frases diferentes (internet + anti-repetición). Luego <b>Grabar</b>.</p>
+                </div>
+                <div class="text-right">
+                  <div class="text-[10px] uppercase text-gray-500">Promedio</div>
+                  <div class="text-2xl font-black" :class="overallScoreColor">{{ overallScore }}%</div>
+                  <div class="text-[10px] text-gray-500">({{ doneCount }}/{{ practiceList.length }} completadas)</div>
+                </div>
+              </div>
+
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div class="sm:col-span-2">
+                  <label class="text-[11px] uppercase text-gray-500 font-bold">Tema (opcional)</label>
+                  <input v-model="practiceTopic" type="text" class="mt-1 w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring" placeholder="Ej: work, travel, safety, food…" />
+                </div>
+                <div class="flex items-end gap-2">
+                  <button @click="generatePracticeSet" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generar
+                  </button>
+                </div>
+              </div>
+
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button @click="practiceTopic='work'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🏭 Work</button>
+                <button @click="practiceTopic='travel'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🧳 Travel</button>
+                <button @click="practiceTopic='food'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🍽️ Food</button>
+                <button @click="practiceTopic='safety'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🦺 Safety</button>
+              </div>
+
+              <div v-if="!speechSupported" class="mt-4 text-sm text-yellow-300 bg-yellow-600/10 border border-yellow-500/20 p-3 rounded-xl">
+                ⚠️ SpeechRecognition no disponible para score. Igual puedes grabarte.
+              </div>
+              <div v-else class="mt-4 text-sm text-gray-400 bg-ink-950/40 border border-ink-700/50 p-3 rounded-xl">
+                ✅ SpeechRecognition disponible. Se usará para transcribir.
+              </div>
+            </div>
+
+            <div v-if="practiceList.length" class="card p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="text-[10px] uppercase text-gray-500 font-bold">Frase actual</div>
+                  <div class="text-lg font-extrabold text-white mt-1 break-words">“{{ currentItem.text }}”</div>
+
+                  <div class="mt-3">
+                    <div class="text-[10px] uppercase text-gray-500 font-bold">Evaluación por palabra</div>
+                    <div class="mt-2 text-base leading-relaxed">
+                      <template v-if="currentItem.marks && currentItem.marks.length">
+                        <span v-for="(w,i) in currentItem.marks" :key="i" class="mr-1" :class="w.ok ? 'w-ok' : 'w-bad'">{{ w.word }}</span>
+                      </template>
+                      <template v-else>
+                        <span class="text-gray-400">(Graba para ver verde/rojo.)</span>
+                      </template>
+                    </div>
+                    <div v-if="currentItem.wordScore!==null && currentItem.wordScore!==undefined" class="mt-2 text-[11px] text-gray-400">
+                      Precisión por palabra: <b class="text-gray-200">{{ currentItem.wordScore }}%</b>
+                    </div>
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <button @click="ttsPractice(currentItem.text)" class="px-3 py-1.5 chip rounded-full text-xs text-gray-200 hover:bg-ink-850 flex items-center gap-2">
+                      <i class="fa-solid fa-volume-high text-emerald-300"></i> Escuchar (TTS)
+                    </button>
+                    <button @click="prevPractice" :disabled="currentIndex===0" class="px-3 py-1.5 chip rounded-full text-xs text-gray-200 hover:bg-ink-850 disabled:opacity-40">◀ Anterior</button>
+                    <button @click="nextPractice" :disabled="currentIndex===practiceList.length-1" class="px-3 py-1.5 chip rounded-full text-xs text-gray-200 hover:bg-ink-850 disabled:opacity-40">Siguiente ▶</button>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="text-[10px] uppercase text-gray-500 font-bold">Tu score</div>
+                  <div class="text-2xl font-black" :class="scoreColor(currentItem.score)">{{ currentItem.score ?? '--' }}<span v-if="currentItem.score!==null">%</span></div>
+                  <div class="text-[10px] text-gray-500" v-if="currentItem.score!==null">{{ currentItem.passed ? '✅ Bien' : '❌ Falta' }}</div>
+                </div>
+              </div>
+
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-ink-950/40 border border-ink-700/50 rounded-xl p-3">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] uppercase text-gray-500 font-bold">Grabación</div>
+                    <div class="text-[11px] text-gray-500">{{ recStateLabel }}</div>
+                  </div>
+                  <div class="mt-3 flex gap-2">
+                    <button @click="toggleRecord" :disabled="recBusy" class="flex-1 py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition" :class="isRecording ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white'">
+                      <i class="fa-solid" :class="isRecording ? 'fa-stop' : 'fa-microphone'"></i>
+                      {{ isRecording ? 'Detener' : 'Grabar' }}
+                    </button>
+                    <button @click="clearRecording" :disabled="!lastAudioUrl && !lastTranscript" class="px-4 py-3 rounded-xl font-bold text-sm chip text-gray-200 hover:bg-ink-850 disabled:opacity-40">Limpiar</button>
+                  </div>
+                  <div class="mt-3" v-if="lastAudioUrl">
+                    <audio :src="lastAudioUrl" controls></audio>
+                  </div>
+                </div>
+
+                <div class="bg-ink-950/40 border border-ink-700/50 rounded-xl p-3">
+                  <div class="text-[11px] uppercase text-gray-500 font-bold">Reconocimiento</div>
+                  <div v-if="speechSupported" class="mt-2">
+                    <div class="text-sm text-gray-200 bg-ink-900/60 border border-ink-700/50 rounded-xl p-3 min-h-[64px]">{{ lastTranscript || '—' }}</div>
+                  </div>
+                  <div v-else class="mt-2 text-sm text-yellow-300">SpeechRecognition no disponible.</div>
+
+                  <div class="mt-3" v-if="currentItem.score!==null">
+                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                      <span>Precisión</span>
+                      <span class="font-bold text-gray-200">{{ currentItem.score }}%</span>
+                    </div>
+                    <div class="mt-1 h-2 bg-ink-850 rounded-full overflow-hidden">
+                      <div class="h-2 rounded-full" :class="currentItem.passed ? 'bg-emerald-500' : 'bg-red-500'" :style="{ width: currentItem.score + '%' }"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="practiceList.length" class="card p-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[11px] uppercase text-gray-500 font-bold">Lista de práctica</div>
+                <div class="flex items-center gap-2">
+                  <label class="text-[11px] text-gray-400">Umbral</label>
+                  <input v-model.number="passThreshold" type="number" min="50" max="95" class="w-20 bg-ink-950/50 border border-ink-700/70 rounded-xl p-2 text-sm text-gray-200 focus-ring text-right" />
+                  <button @click="resetPracticeScores" class="text-[11px] text-gray-300 hover:text-white chip px-3 py-2 rounded-xl">Reiniciar</button>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <div v-for="(it, idx) in practiceList" :key="it.id" @click="currentIndex = idx; clearRecording()" class="p-3 rounded-xl border flex items-start justify-between gap-3 cursor-pointer transition" :class="rowClass(it, idx)">
+                  <div class="min-w-0">
+                    <div class="text-[10px] uppercase text-gray-500 font-bold">#{{ idx+1 }}</div>
+                    <div class="text-sm font-semibold break-words">{{ it.text }}</div>
+                    <div class="text-[11px] text-gray-500 mt-1" v-if="it.transcript"><span class="text-gray-400">Dijiste:</span> “{{ it.transcript }}”</div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <div class="text-[10px] uppercase text-gray-500 font-bold">Score</div>
+                    <div class="text-lg font-black" :class="scoreColor(it.score)">{{ it.score===null ? '--' : it.score + '%' }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3 text-[11px] text-gray-500">✅ Verde = bien (≥ {{ passThreshold }}%). ❌ Rojo = mejorar.</div>
+            </div>
+
+            <div class="h-20"></div>
+          </div>
         </div>
 
-        <!-- SPACER -->
-        <div class="h-4"></div>
-    </main>
+      </section>
 
-    <!-- INPUT DOCK -->
-    <div class="input-area z-40 px-3 pt-3">
-        <!-- Quick Suggestions (Pills) -->
-        <div v-if="messages.length > 0" class="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar px-1">
-            <button @click="generateLesson('exercises')" class="flex-shrink-0 px-3 py-1.5 bg-dark-800 rounded-full text-xs text-blue-300 border border-dark-800 whitespace-nowrap hover:bg-dark-800">
-                📝 Dame un ejercicio
-            </button>
-            <button @click="generateLesson('phrases')" class="flex-shrink-0 px-3 py-1.5 bg-dark-800 rounded-full text-xs text-purple-300 border border-dark-800 whitespace-nowrap hover:bg-dark-800">
-                🗣️ Frases útiles
-            </button>
-            <button @click="generateLesson('grammar')" class="flex-shrink-0 px-3 py-1.5 bg-dark-800 rounded-full text-xs text-green-300 border border-dark-800 whitespace-nowrap hover:bg-dark-800">
-                📚 Regla gramatical
-            </button>
-        </div>
+      <!-- SIDE PANEL -->
+      <div id="panelOverlay" v-show="sideOpen" @click="toggleSide" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] lg:hidden"></div>
 
-        <div class="flex items-end gap-2 bg-dark-800 p-1.5 pl-4 rounded-3xl border border-dark-800 shadow-xl max-w-3xl mx-auto">
-            <textarea v-model="input" 
-                      @keydown.enter.prevent="send"
-                      ref="textarea"
-                      rows="1" 
-                      class="bg-transparent text-gray-100 w-full py-2.5 outline-none resize-none max-h-32 placeholder-gray-600 text-[15px]" 
-                      placeholder="Escribe algo... (ej: 'Quiero aprender comida')"></textarea>
+      <aside class="fixed lg:static inset-y-0 right-0 w-[92vw] max-w-[380px] lg:w-auto lg:max-w-none border-l border-ink-700/60 bg-ink-900/90 lg:bg-ink-900/60 backdrop-blur overflow-y-auto no-scrollbar transform transition-transform duration-200 z-[60] " :class="sideOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'">
+        <div class="p-4 space-y-4">
+          <div class="card p-4">
+            <div class="flex items-center justify-between">
+              <div class="font-bold text-white">Panel</div>
+              <div class="text-[11px] text-gray-400">v3</div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <button @click="sideTab='tools'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='tools' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Herramientas</button>
+              <button @click="sideTab='notebook'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='notebook' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Notebook</button>
+              <button @click="sideTab='vocab'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='vocab' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Vocab</button>
+              <button @click="sideTab='memory'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='memory' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Memoria</button>
+              <button @click="sideTab='review'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='review' ? 'bg-amber-600/15 border-amber-500/25 text-amber-200' : 'chip text-gray-200'">Review</button>
+            </div>
+
+            <div class="mt-4" v-if="sideTab==='tools'">
+              <div class="text-[11px] uppercase text-gray-400 font-bold">Acciones rápidas</div>
+              <div class="mt-2 space-y-2">
+                <button @click="sendText('/define forklift')" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850"><i class="fa-solid fa-book mr-2 text-emerald-300"></i> Definir: <span class="font-semibold">forklift</span></button>
+                <button @click="sendText('/wiki Warehouse')" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850"><i class="fa-solid fa-globe mr-2 text-purple-300"></i> Wikipedia: <span class="font-semibold">Warehouse</span></button>
+                <button @click="sendText('/quiz safety')" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850"><i class="fa-solid fa-list-check mr-2 text-brand-300"></i> Quiz: <span class="font-semibold">safety</span></button>
+                <button @click="mode='pron'" class="w-full px-3 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-left text-sm"><i class="fa-solid fa-microphone mr-2 text-emerald-300"></i> Ir a Pronunciación</button>
+              </div>
+
+              <div class="mt-4 p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
+                <div class="flex items-center justify-between">
+                  <div class="text-[11px] uppercase text-gray-400 font-bold">Python (Pyodide)</div>
+                  <span class="text-[11px]" :class="pyReady ? 'text-emerald-300' : 'text-gray-500'">{{ pyReady ? 'Listo' : 'Off' }}</span>
+                </div>
+                <p class="text-[11px] text-gray-400 mt-1">Actívalo para: BM25 + keywords + resumen en /wiki.</p>
+                <button @click="togglePython" class="mt-2 w-full px-3 py-2 rounded-xl font-extrabold text-sm" :class="pyReady ? 'bg-red-600/15 border border-red-500/20 text-red-200' : 'bg-emerald-600/15 border border-emerald-500/20 text-emerald-200'">{{ pyReady ? 'Desactivar Python' : 'Activar Python' }}</button>
+              </div>
+            </div>
+
+            <div class="mt-4" v-if="sideTab==='notebook'">
+              <div class="flex items-center justify-between">
+                <div class="text-[11px] uppercase text-gray-400 font-bold">Notas guardadas</div>
+                <button @click="clearNotebook" class="text-[11px] text-gray-400 hover:text-white">Limpiar</button>
+              </div>
+              <div v-if="notebook.length===0" class="text-sm text-gray-500 mt-2">Aún no guardas nada.</div>
+              <div v-else class="mt-2 space-y-2">
+                <div v-for="n in notebook" :key="n.id" class="p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
+                  <div class="text-xs text-gray-200 font-semibold line-clamp-2">{{ n.title }}</div>
+                  <div class="text-[11px] text-gray-400 line-clamp-3 mt-1">{{ n.preview }}</div>
+                </div>
+              </div>
+            </div>
+
             
-            <button @click="send" 
-                    :disabled="!input.trim()"
-                    class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 mb-0.5 shadow-lg active:scale-95 transition disabled:opacity-50">
-                <i class="fa-solid fa-paper-plane text-xs"></i>
-            </button>
+            <div class="mt-4" v-if="sideTab==='review'">
+              <div class="flex items-center justify-between">
+                <div class="text-[11px] uppercase text-gray-400 font-bold">SRS / Review (SM-2)</div>
+                <button @click="openReview()" class="text-[11px] text-amber-200 hover:text-white">Iniciar</button>
+              </div>
+              <p class="text-[11px] text-gray-400 mt-2">Practica con repetición espaciada: califica 0–5 y el sistema agenda la próxima revisión.</p>
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <button @click="openReview()" class="px-3 py-2 rounded-xl border bg-amber-600/10 border-amber-500/20 text-amber-200 text-xs font-extrabold">▶ Review</button>
+                <button @click="exportZip()" class="px-3 py-2 rounded-xl border chip text-gray-200 text-xs">⬇️ ZIP</button>
+              </div>
+              <div class="mt-3 p-3 rounded-xl bg-ink-950/40 border border-ink-700/50">
+                <div class="text-[11px] uppercase text-gray-500 font-bold">Progreso (últimos 14 días)</div>
+                <canvas id="reviewChart" height="120" class="mt-2"></canvas>
+                <div class="text-[10px] text-gray-500 mt-2">Tip: agrega palabras con /define o en cualquier respuesta (se guardan en Vocab y entran al SRS).</div>
+              </div>
+            </div>
+
+            <div class="mt-4" v-if="sideTab==='vocab'">
+              <div class="flex items-center justify-between">
+                <div class="text-[11px] uppercase text-gray-400 font-bold">Vocabulario</div>
+                <button @click="clearVocab" class="text-[11px] text-gray-400 hover:text-white">Limpiar</button>
+              </div>
+              <div class="mt-2">
+                <input v-model="vocabSearch" placeholder="Buscar..." class="w-full bg-ink-950/40 border border-ink-700/50 rounded-xl px-3 py-2 text-sm focus-ring" />
+              </div>
+              <div v-if="filteredVocab.length===0" class="text-sm text-gray-500 mt-2">No hay palabras guardadas.</div>
+              <div v-else class="mt-2 space-y-2">
+                <div v-for="w in filteredVocab" :key="w.word" class="p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm font-bold text-white">{{ w.word }}</div>
+                    <button @click="sendText('/define ' + w.word)" class="text-[11px] text-brand-200 hover:text-white">revisar</button>
+                  </div>
+                  <div class="text-[11px] text-gray-400 mt-1 line-clamp-2">{{ w.note }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4" v-if="sideTab==='memory'">
+              <div class="text-[11px] uppercase text-gray-400 font-bold">Memoria anti-repetición</div>
+              <p class="text-[11px] text-gray-400 mt-2">Evita repetir frases/ejercicios por 7 días (hash + similitud).</p>
+              <button @click="resetSeen" class="mt-3 w-full px-3 py-2 rounded-xl chip text-sm hover:bg-ink-850">Reset memoria</button>
+            </div>
+          </div>
+
+          <div class="card p-4">
+            <div class="text-[11px] uppercase text-gray-400 font-bold">Atajos</div>
+            <div class="mt-2 text-sm text-gray-300 space-y-2">
+              <div><span class="font-mono text-gray-200">Ctrl+K</span> — enfocar input</div>
+              <div><span class="font-mono text-gray-200">/define word</span> — definición real</div>
+              <div><span class="font-mono text-gray-200">/wiki topic</span> — lectura real</div>
+              <div><span class="font-mono text-gray-200">/quiz topic</span> — quiz (OpenTDB si puede)</div>
+              <div><span class="font-mono text-gray-200">/python</span> — activa Python</div>
+              <div><span class="font-mono text-gray-200">/export</span> — exporta JSON</div>
+            </div>
+          </div>
+
         </div>
-        <p class="text-center text-[10px] text-gray-700 mt-2 mb-1">
-            {{ apiKey ? 'Motor IA: GPT/Gemini (Online)' : 'Motor IA: TeacherCore v2 (Offline/Gratis)' }}
-        </p>
+      </aside>
+
     </div>
+  </main>
 
-    <!-- CONFIG MODAL -->
-    <div v-if="showConfig" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center" @click.self="showConfig=false">
-        <div class="bg-dark-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 border-t border-dark-800 shadow-2xl">
-            <h3 class="text-lg font-bold text-white mb-1">Configuración</h3>
-            <p class="text-xs text-gray-500 mb-4">Para respuestas infinitas y complejas, usa una API.</p>
-            
-            <label class="text-xs font-bold text-gray-400 uppercase block mb-2">API Key (Opcional)</label>
-            <input v-model="apiKey" type="password" placeholder="sk-..." class="w-full bg-dark-950 border border-dark-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-blue-500 mb-2">
-            
-            <p class="text-[11px] text-gray-500 leading-relaxed bg-dark-950 p-3 rounded-lg border border-dark-800">
-                <strong class="text-gray-300">Modo Maestro (Sin Key):</strong> Usa una base de datos interna con miles de ejercicios y reglas pre-cargadas. Ideal para principiantes.<br><br>
-                <strong class="text-gray-300">Modo Dios (Con Key):</strong> Conecta con OpenAI/Gemini para correcciones a nivel nativo.
-            </p>
-
-            <button @click="showConfig=false" class="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm">Guardar y Cerrar</button>
+  <!-- CONFIG MODAL -->
+  <div v-if="showConfig" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center" @click.self="showConfig=false">
+    <div class="bg-ink-900 w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-6 border-t border-ink-700/70 shadow-2xl">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold text-white">Configuración</h3>
+          <p class="text-xs text-gray-400 mt-1">Internet mejora variedad (Wikipedia/Datamuse/Dictionary/Traducción) y fuentes extra (si CORS permite).</p>
         </div>
+        <button @click="showConfig=false" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 text-gray-300"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Nombre (UI)</label>
+          <input v-model="displayName" type="text" placeholder="Ej: Jesús" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Session ID</label>
+          <input v-model="sessionId" type="text" placeholder="ej: jesus-01" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring" />
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Usar Internet</label>
+          <button @click="useInternet=!useInternet" class="w-full px-3 py-3 rounded-xl text-sm font-extrabold border transition" :class="useInternet ? 'bg-emerald-600/15 text-emerald-200 border-emerald-500/20' : 'bg-yellow-600/15 text-yellow-200 border-yellow-500/20'">
+            {{ useInternet ? 'Activado' : 'Desactivado' }}
+          </button>
+          <p class="text-[11px] text-gray-500 mt-2">Internet permite Wikipedia/Dictionary/Datamuse y traducción MyMemory.</p>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Timeout API (ms)</label>
+          <input v-model.number="timeoutMs" type="number" min="1500" max="20000" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring" />
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Idioma TTS (Chat)</label>
+          <select v-model="ttsLang" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring">
+            <option value="en-US">en-US</option>
+            <option value="en-GB">en-GB</option>
+            <option value="es-MX">es-MX</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Nivel</label>
+          <select v-model="level" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring">
+            <option value="A2">A2</option>
+            <option value="B1">B1</option>
+            <option value="B2">B2</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Idioma Pronunciación</label>
+          <select v-model="pronLang" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring">
+            <option value="en-US">en-US</option>
+            <option value="en-GB">en-GB</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Umbral “Bien” (%)</label>
+          <input v-model.number="passThreshold" type="number" min="50" max="95" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 focus-ring" />
+        </div>
+      </div>
+
+      <div class="mt-5 flex gap-2">
+        <button @click="saveConfig" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white py-3 rounded-xl font-extrabold text-sm">Guardar</button>
+        <button @click="resetAll" class="px-4 bg-red-600/15 hover:bg-red-600/20 text-red-200 border border-red-500/20 py-3 rounded-xl font-bold text-sm">Reset</button>
+      </div>
+
+      <div class="mt-4 text-[11px] text-gray-500 leading-relaxed">
+        <b>Nota:</b> algunas fuentes extra (OpenTDB/Quotable) pueden fallar en algunos navegadores por CORS; si fallan, el sistema usa fallback local.
+      </div>
+
     </div>
+  </div>
+
+  <!-- REVIEW MODAL (SRS) -->
+  <div v-if="reviewOpen" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center" @click.self="reviewOpen=false">
+    <div class="bg-ink-900 w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-6 border-t border-ink-700/70 shadow-2xl">
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold text-white">🧠 Review (SRS)</h3>
+          <p class="text-xs text-gray-400 mt-1">Califica tu recuerdo: 0 (nada) → 5 (perfecto). Se agenda automáticamente.</p>
+        </div>
+        <button @click="reviewOpen=false" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 text-gray-300"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="mt-4" v-if="!reviewCard">
+        <div class="text-sm text-gray-300 bg-ink-950/40 border border-ink-700/50 p-3 rounded-xl">No hay tarjetas pendientes. 🎉</div>
+        <div class="mt-3 text-[11px] text-gray-500">Tip: agrega vocab con /define o guarda notas para crear más tarjetas.</div>
+      </div>
+
+      <div class="mt-4" v-else>
+        <div class="text-[11px] uppercase text-gray-500 font-bold">{{ reviewIndex+1 }} / {{ reviewQueue.length }} • vence: {{ reviewCard.dueLabel }}</div>
+        <div class="mt-2 p-4 rounded-2xl bg-ink-950/40 border border-ink-700/50">
+          <div class="text-xs text-gray-400 uppercase font-bold">Frente</div>
+          <div class="text-lg font-extrabold text-white mt-1">{{ reviewCard.front }}</div>
+          <button @click="reviewShowBack=!reviewShowBack" class="mt-3 px-3 py-2 rounded-xl chip text-gray-200 text-xs">{{ reviewShowBack ? 'Ocultar' : 'Ver respuesta' }}</button>
+          <div v-if="reviewShowBack" class="mt-3">
+            <div class="text-xs text-gray-400 uppercase font-bold">Respuesta</div>
+            <div class="text-sm text-gray-200 mt-1">{{ reviewCard.back }}</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-[11px] uppercase text-gray-500 font-bold">¿Qué tan bien lo recordaste?</div>
+          <div class="mt-2 grid grid-cols-6 gap-2">
+            <button v-for="q in [0,1,2,3,4,5]" :key="q" @click="rateReview(q)" class="py-2 rounded-xl font-extrabold text-xs border" :class="q>=4 ? 'bg-emerald-600/15 border-emerald-500/20 text-emerald-200' : (q===3 ? 'bg-yellow-600/15 border-yellow-500/20 text-yellow-200' : 'bg-red-600/15 border-red-500/20 text-red-200')">{{ q }}</button>
+          </div>
+          <div class="mt-2 text-[11px] text-gray-500">0–2: difícil • 3: ok • 4–5: fácil.</div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex gap-2">
+        <button @click="reviewOpen=false" class="flex-1 chip text-gray-200 py-3 rounded-xl font-extrabold text-sm">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <script>
-    const { createApp, ref, watch, nextTick } = Vue;
+  const { createApp, ref, computed, watch, nextTick, onMounted } = Vue;
 
-    /* REPOSITORIO DE CONTENIDO EDUCATIVO (Offline Database) */
-    const TEACHER_DB = {
-        grammar: [
-            { title: "Verbo To Be", content: "El verbo **To Be** significa ser o estar.\n\n| Pronombre | Verbo |\n|---|---|\n| I | am |\n| You | are |\n| He/She/It | is |\n| We/They | are |\n\nEjemplo: *I am happy* (Soy feliz)." },
-            { title: "Presente Simple", content: "Se usa para hábitos. Recuerda añadir **-s** en 'He/She/It'.\n\n* I work\n* She work**s**\n* We work" },
-            { title: "Pasado Simple", content: "Para verbos regulares añadimos **-ed**.\n* Play -> Played\n* Walk -> Walked\n\nLos irregulares cambian totalmente: Give -> Gave" }
-        ],
-        phrases: {
-            basics: "**Saludos Básicos:**\n\n| Inglés | Español |\n|---|---|\n| Hello / Hi | Hola |\n| How are you? | ¿Cómo estás? |\n| Nice to meet you | Mucho gusto |\n| See you later | Hasta luego |",
-            travel: "**Viajes:**\n\n| Inglés | Español |\n|---|---|\n| Where is the bathroom? | ¿Dónde está el baño? |\n| How much is this? | ¿Cuánto cuesta? |\n| Can I have water? | ¿Me da agua? |",
-            job: "**Trabajo:**\n\n| Inglés | Español |\n|---|---|\n| I have a meeting | Tengo una reunión |\n| Send an email | Enviar un correo |\n| Keep me updated | Mantenme informado |"
-        },
-        exercises: [
-            "**Completa la frase (Verbo To Be):**\n\n1. She `___` my sister.\n2. We `___` happy today.\n3. I `___` a doctor.\n\n*(Piensa la respuesta y pulsa 'Copiar' para rellenar)*",
-            "**Traduce estas palabras:**\n\n1. Manzana\n2. Coche\n3. Rojo\n4. Libro\n\n*(Escribe tus respuestas abajo)*",
-            "**Encuentra el error:**\n\nFrase: *He go to school yesterday.*\n\n*(¿Cuál es el error gramatical?)*"
-        ],
-        responses: [
-            "¡Excelente iniciativa! Aquí tienes material para eso.",
-            "Claro, vamos a practicar.",
-            "Aquí tienes la lección que pediste.",
-            "Teacher Mode activado. Revisa esto:"
-        ]
-    };
+  createApp({
+    setup(){
+      // ===================== Core State =====================
+      const displayName = ref(localStorage.getItem('ltult_name') || '');
+      const mode = ref('chat');
+      const messages = ref([]);
+      const input = ref('');
+      const loading = ref(false);
+      const showConfig = ref(false);
+      const textarea = ref(null);
+      const sideOpen = ref(false);
+      const sideTab = ref('tools');
 
-    createApp({
-        setup() {
-            const messages = ref([]);
-            const input = ref('');
-            const loading = ref(false);
-            const apiKey = ref(localStorage.getItem('lt_key') || '');
-            const showConfig = ref(false);
-            const textarea = ref(null);
+      const sessionId = ref(localStorage.getItem('ltult_session') || 'anon');
+      const useInternet = ref(localStorage.getItem('ltult_use_internet') !== '0');
+      const timeoutMs = ref(parseInt(localStorage.getItem('ltult_timeout') || '9000', 10));
+      const internetOk = ref(true);
+      const level = ref(localStorage.getItem('ltult_level') || 'B1');
+      const ttsLang = ref(localStorage.getItem('ltult_tts_lang') || 'en-US');
 
-            // --- LÓGICA CORE: EL CEREBRO DEL MAESTRO ---
-            
-            const processMessage = async (userText) => {
-                const lower = userText.toLowerCase();
-                let aiResponse = "";
+      const jqOk = computed(() => !!window.jQuery);
 
-                // 1. Detección de Intención (Offline Logic)
-                if (lower.includes('ejercicio') || lower.includes('practicar') || lower.includes('test')) {
-                    const ex = TEACHER_DB.exercises[Math.floor(Math.random() * TEACHER_DB.exercises.length)];
-                    aiResponse = `### 📝 Hora de Practicar\n\n${ex}`;
-                } 
-                else if (lower.includes('frase') || lower.includes('palabra') || lower.includes('vocabulario')) {
-                    const keys = Object.keys(TEACHER_DB.phrases);
-                    const topic = lower.includes('viaje') ? 'travel' : lower.includes('trabajo') ? 'job' : keys[Math.floor(Math.random() * keys.length)];
-                    aiResponse = `### 🗣️ Vocabulario: ${topic.toUpperCase()}\n\n${TEACHER_DB.phrases[topic]}`;
-                }
-                else if (lower.includes('gramatica') || lower.includes('regla') || lower.includes('aprender')) {
-                    const rule = TEACHER_DB.grammar[Math.floor(Math.random() * TEACHER_DB.grammar.length)];
-                    aiResponse = `### 📚 Lección: ${rule.title}\n\n${rule.content}`;
-                }
-                else {
-                    // Chat general simulado
-                    aiResponse = `**Teacher Bot:** Entiendo que quieres hablar sobre "${userText}". \n\nPara ayudarte mejor sin API Key, usa los botones o prueba diciendo:\n- *"Dame ejercicios"* \n- *"Frases de viajes"* \n- *"Explica gramática"*`;
-                }
+      // Pronunciation
+      const pronLang = ref(localStorage.getItem('ltult_pron_lang') || 'en-US');
+      const passThreshold = ref(parseInt(localStorage.getItem('ltult_pass_threshold') || '78', 10));
 
-                // Si hay API Key, intentamos llamada real (Placeholder logic)
-                if(apiKey.value.startsWith('sk-')) {
-                    try {
-                        const payload = {
-                            model: "gpt-3.5-turbo",
-                            messages: [
-                                {role: "system", content: "Eres un profesor de inglés experto. Responde con formato Markdown, tablas y ejercicios."},
-                                {role: "user", content: userText}
-                            ]
-                        };
-                        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey.value}`},
-                            body: JSON.stringify(payload)
-                        });
-                        const data = await res.json();
-                        if(data.choices) aiResponse = data.choices[0].message.content;
-                    } catch(e) {
-                        aiResponse += "\n\n*(Falló la conexión API, usando respuesta Offline)*";
-                    }
-                }
+      const modeLabel = computed(() => mode.value === 'chat' ? 'Chat' : 'Pronunciación');
 
-                return aiResponse;
-            };
+      // storage
+      localforage.config({ name: 'LinguaTutorULT_v3', storeName: 'ltult_v3' });
+      const notebook = ref([]);
+      const vocab = ref([]);
+      const vocabSearch = ref('');
 
-            const send = async () => {
-                const text = input.value.trim();
-                if(!text) return;
-                
-                input.value = '';
-                if(textarea.value) textarea.value.style.height = 'auto';
+      // ===== SRS / Review (SM-2) =====
+      const srsCards = ref({});
+      const reviewOpen = ref(false);
+      const reviewQueue = ref([]);
+      const reviewIndex = ref(0);
+      const reviewShowBack = ref(false);
+      const reviewCard = computed(() => reviewQueue.value[reviewIndex.value] || null);
 
-                messages.value.push({ id: Date.now(), role: 'user', text: text });
-                loading.value = true;
-                scrollToBottom();
+      function formatDate(ts){
+        try{ if(window.dayjs) return dayjs(ts).format('YYYY-MM-DD'); }catch{}
+        return new Date(ts).toISOString().slice(0,10);
+      }
 
-                // Simular latencia de "pensar"
-                await new Promise(r => setTimeout(r, 600));
+      async function loadSrs(){
+        const data = (await localforage.getItem('srs_cards')) || {};
+        srsCards.value = (data && typeof data === 'object') ? data : {};
+      }
 
-                const response = await processMessage(text);
-                
-                messages.value.push({ id: Date.now()+1, role: 'ai', text: response });
-                loading.value = false;
-                scrollToBottom();
-            };
+      async function saveSrs(){
+        await localforage.setItem('srs_cards', srsCards.value);
+      }
 
-            const generateLesson = (type) => {
-                let prompt = "";
-                if(type === 'grammar') prompt = "Enséñame una regla gramatical";
-                if(type === 'exercises') prompt = "Dame un ejercicio práctico";
-                if(type === 'phrases') prompt = "Dame frases útiles en inglés";
-                
-                // Simplemente llamamos a send() simulando que el usuario lo escribió
-                input.value = prompt;
-                send();
-            };
-
-            // --- UTILS ---
-            const scrollToBottom = () => nextTick(() => {
-                const c = document.getElementById('chat-container');
-                if(c) c.scrollTop = c.scrollHeight;
-            });
-            const renderMD = (tekst) => marked.parse(tekst);
-            const speak = (txt) => {
-                // Limpiar markdown antes de hablar
-                const clean = txt.replace(/[*#|]/g, '');
-                const u = new SpeechSynthesisUtterance(clean);
-                u.lang = 'en-US';
-                u.rate = 0.9;
-                window.speechSynthesis.speak(u);
-            };
-            const copy = (t) => navigator.clipboard.writeText(t);
-
-            watch(apiKey, v => localStorage.setItem('lt_key', v));
-            watch(input, () => {
-                 if(textarea.value) {
-                     textarea.value.style.height = 'auto'; 
-                     textarea.value.style.height = textarea.value.scrollHeight + 'px';
-                 }
-            });
-
-            return { messages, input, loading, apiKey, showConfig, textarea, send, generateLesson, renderMD, speak, copy }
+      function ensureCard(front, back){
+        const id = 'c_' + hash32(normalize(front));
+        if(!srsCards.value[id]){
+          srsCards.value[id] = { id, front, back, easiness: 2.5, interval: 0, repetitions: 0, due: Date.now(), last: 0 };
+        } else {
+          // si cambió la nota/definición, actualiza el reverso
+          if(back && String(back).trim() && srsCards.value[id].back !== back) srsCards.value[id].back = back;
         }
-    }).mount('#app');
+        return srsCards.value[id];
+      }
+
+      function sm2(card, quality){
+        const q = Math.max(0, Math.min(5, Number(quality)));
+        let ef = (card.easiness ?? 2.5);
+        let reps = (card.repetitions ?? 0);
+        let interval = (card.interval ?? 0);
+
+        if(q < 3){
+          reps = 0;
+          interval = 1;
+        } else {
+          reps += 1;
+          if(reps === 1) interval = 1;
+          else if(reps === 2) interval = 6;
+          else interval = Math.round(interval * ef);
+        }
+
+        ef = ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+        if(ef < 1.3) ef = 1.3;
+
+        const due = window.dayjs ? dayjs().add(interval, 'day').valueOf() : (Date.now() + interval*86400000);
+        card.easiness = ef;
+        card.repetitions = reps;
+        card.interval = interval;
+        card.last = Date.now();
+        card.due = due;
+        return card;
+      }
+
+      const reviewStats = ref([]);
+      async function loadStats(){
+        const d = (await localforage.getItem('review_stats')) || [];
+        reviewStats.value = Array.isArray(d) ? d : [];
+      }
+      async function saveStats(){ await localforage.setItem('review_stats', reviewStats.value); }
+
+      function bumpStats(quality){
+        const day = formatDate(Date.now());
+        let row = reviewStats.value.find(x => x.day === day);
+        if(!row){ row = { day, n: 0, sumQ: 0 }; reviewStats.value.push(row); }
+        row.n += 1;
+        row.sumQ += (Number(quality) || 0);
+        reviewStats.value.sort((a,b)=>a.day.localeCompare(b.day));
+        reviewStats.value = reviewStats.value.slice(-30);
+      }
+
+      let chart = null;
+      function renderChart(){
+        try{
+          if(!window.Chart) return;
+          const el = document.getElementById('reviewChart');
+          if(!el) return;
+          const last = reviewStats.value.slice(-14);
+          const labels = last.map(x=>x.day.slice(5));
+          const data = last.map(x=>x.n);
+          if(chart) chart.destroy();
+          chart = new Chart(el, {
+            type: 'bar',
+            data: { labels, datasets: [{ label: 'Reviews', data, backgroundColor: 'rgba(245, 158, 11, 0.45)' }] },
+            options: {
+              responsive: true,
+              plugins: { legend: { display: false } },
+              scales: {
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,0.12)' } },
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,0.12)' }, beginAtZero: true }
+              }
+            }
+          });
+        }catch(e){ console.warn('chart fail', e); }
+      }
+
+      async function openReview(){
+        await loadSrs();
+        await loadStats();
+        const now = Date.now();
+        const cards = Object.values(srsCards.value || {});
+        const due = cards.filter(c => (c.due||0) <= now);
+        const ordered = fisherYates(due).slice(0, 25).map(c => ({ ...c, dueLabel: formatDate(c.due||now) }));
+        reviewQueue.value = ordered;
+        reviewIndex.value = 0;
+        reviewShowBack.value = false;
+        reviewOpen.value = true;
+        nextTick(() => renderChart());
+      }
+
+      async function rateReview(q){
+        const c = reviewQueue.value[reviewIndex.value];
+        if(!c) return;
+        const real = srsCards.value[c.id];
+        if(!real) return;
+        sm2(real, q);
+        bumpStats(q);
+        await saveSrs();
+        await saveStats();
+        reviewShowBack.value = false;
+        reviewIndex.value += 1;
+        nextTick(() => renderChart());
+      }
+
+      async function exportZip(){
+        try{
+          if(!window.JSZip){
+            return await exportAll();
+          }
+          await loadSrs();
+          await loadStats();
+          const zip = new JSZip();
+          const payload = {
+            version: 'LinguaTutorULT-Definitivo-v4',
+            ts: new Date().toISOString(),
+            sessionId: sessionId.value,
+            messages: messages.value.map(m => ({...m, audioUrl: undefined})),
+            notebook: notebook.value,
+            vocab: vocab.value,
+            srs: srsCards.value,
+            stats: reviewStats.value
+          };
+          zip.file('export.json', JSON.stringify(payload, null, 2));
+          const blob = await zip.generateAsync({ type:'blob' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ltult_v4_${Date.now()}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+          return { md: '### ✅ Exportado ZIP\n\nDescargué un **.zip** con export.json (chat, vocab, notebook, SRS, stats).', sources: [] };
+        }catch(e){
+          return { md: '### ⚠️ No pude exportar ZIP\n\nIntenté crear el .zip pero falló. Puedes usar /export (JSON).', sources: [] };
+        }
+      }
+
+
+      // Python
+      const pyReady = ref(false);
+      const pyLoading = ref(false);
+      let pyodide = null;
+
+      // Dictation
+      const isVoiceInput = ref(false);
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let voiceRec = null;
+
+      // Chat Audio
+      const isChatRecording = ref(false);
+      const chatRecBusy = ref(false);
+      let chatStream = null;
+      let chatRecorder = null;
+      let chatChunks = [];
+
+      // Markdown
+      marked.setOptions({ mangle:false, headerIds:false, breaks:true });
+      const renderMD = (text) => DOMPurify.sanitize(marked.parse(text || ''));
+
+      // Helpers
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+      const statusLine = computed(() => {
+        const bits = [];
+        bits.push(useInternet.value ? 'internet:on' : 'internet:off');
+        bits.push(pyReady.value ? 'python:on' : 'python:off');
+        bits.push(window.jQuery ? 'jq:on' : 'jq:off');
+        bits.push('nivel:' + level.value);
+        return bits.join(' • ');
+      });
+
+      function toggleSide(){ sideOpen.value = !sideOpen.value; }
+
+      function scrollToBottom(){
+        nextTick(() => {
+          const c = document.getElementById('chatScroll');
+          if(!c) return;
+          const top = c.scrollHeight;
+          if(window.jQuery){
+            try { window.jQuery(c).stop(true).animate({ scrollTop: top }, 220); }
+            catch { c.scrollTop = top; }
+          } else {
+            c.scrollTop = top;
+          }
+        });
+      }
+
+      function copy(t){
+        const txt = (t || '').replace(/\n\n+/g,'\n\n');
+        navigator.clipboard?.writeText(txt).catch(()=>{});
+      }
+
+      function stripForTTS(md){
+        return (md||'')
+          .replace(/```[\s\S]*?```/g,' ')
+          .replace(/`[^`]*`/g,' ')
+          .replace(/\[(.*?)\]\((.*?)\)/g,'$1')
+          .replace(/[\#\*\_\>]/g,' ')
+          .replace(/\s+/g,' ')
+          .trim();
+      }
+
+      function tts(text){
+        const clean = stripForTTS(text);
+        if(!clean) return;
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = ttsLang.value;
+        u.rate = 0.95;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }
+
+      function ttsPractice(text){
+        const u = new SpeechSynthesisUtterance(String(text||''));
+        u.lang = pronLang.value;
+        u.rate = 0.92;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }
+
+      // Layout fix
+      function setupInputPaddingObserver(){
+        const inputEl = document.getElementById('inputBar');
+        if(!inputEl || !('ResizeObserver' in window)) return;
+        const ro = new ResizeObserver(() => {
+          const h = inputEl.getBoundingClientRect().height;
+          document.documentElement.style.setProperty('--inputH', Math.ceil(h) + 'px');
+        });
+        ro.observe(inputEl);
+        const h0 = inputEl.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--inputH', Math.ceil(h0) + 'px');
+      }
+
+      // ====== Anti-repetition (global) ======
+      const seenKey = () => `ltult_seen_${sessionId.value}`;
+      function loadSeen(){
+        try{
+          const raw = localStorage.getItem(seenKey());
+          const obj = raw ? JSON.parse(raw) : { ts: Date.now(), items: [] };
+          const ttl = 7*24*60*60*1000;
+          if(!obj.ts || !Array.isArray(obj.items)) return { ts: Date.now(), items: [] };
+          if(Date.now() - obj.ts > ttl) return { ts: Date.now(), items: [] };
+          return obj;
+        }catch{ return { ts: Date.now(), items: [] }; }
+      }
+      function saveSeen(obj){ localStorage.setItem(seenKey(), JSON.stringify(obj)); }
+      function remember(tag){
+        const obj = loadSeen();
+        const max = 12000;
+        if(!obj.items.includes(tag)) obj.items.push(tag);
+        while(obj.items.length > max) obj.items.shift();
+        obj.ts = Date.now();
+        saveSeen(obj);
+      }
+      function hasSeen(tag){ return loadSeen().items.includes(tag); }
+      function resetSeen(){ localStorage.removeItem(seenKey()); }
+
+      function hash32(s){
+        s = String(s||'');
+        let h = 2166136261;
+        for(let i=0;i<s.length;i++){
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return (h>>>0).toString(16);
+      }
+
+      function fisherYates(arr){
+        const a = [...arr];
+        for(let i=a.length-1;i>0;i--){
+          const j = Math.floor(Math.random()*(i+1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      const recentText = ref([]);
+      const normalize = (s) => (s||'')
+        .toLowerCase()
+        .replace(/[\u2019']/g, "'")
+        .replace(/[^a-z0-9\s']/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      function jaccard(a, b){
+        const A = new Set(a.split(' ').filter(Boolean));
+        const B = new Set(b.split(' ').filter(Boolean));
+        if(!A.size || !B.size) return 0;
+        let inter = 0;
+        for(const w of A){ if(B.has(w)) inter++; }
+        const union = A.size + B.size - inter;
+        return union ? inter/union : 0;
+      }
+      function tooSimilar(text){
+        const n = normalize(text);
+        for(const prev of recentText.value){
+          if(jaccard(n, prev) > 0.68) return true;
+        }
+        return false;
+      }
+      function pushRecent(text){
+        const n = normalize(text);
+        recentText.value.unshift(n);
+        recentText.value = recentText.value.slice(0, 60);
+      }
+
+      function pickUnique(prefix, candidates){
+        const shuffled = fisherYates(candidates);
+        for(const c of shuffled){
+          const norm = String(c).toLowerCase();
+          const tag = `${prefix}:${hash32(norm)}`;
+          if(!hasSeen(tag) && !tooSimilar(norm)) {
+            remember(tag);
+            return c;
+          }
+        }
+        const fb = candidates[Math.floor(Math.random()*candidates.length)];
+        remember(`${prefix}:${hash32(String(fb).toLowerCase())}`);
+        return fb;
+      }
+
+      // Fetch with timeout
+      async function fetchJson(url, opts={}){
+        const ctrl = new AbortController();
+        const id = setTimeout(()=>ctrl.abort(), timeoutMs.value);
+        try{
+          const res = await fetch(url, { ...opts, signal: ctrl.signal });
+          if(!res.ok) throw new Error(`HTTP ${res.status}`);
+          return await res.json();
+        } finally { clearTimeout(id); }
+      }
+
+      // ===================== Translation (MyMemory) =====================
+      function detectLangSimple(text){
+        const t = String(text||'').toLowerCase();
+        const esHits = (t.match(/\b(el|la|los|las|un|una|y|o|pero|porque|para|con|sin|que|como|donde|cuando|por)\b/g)||[]).length;
+        const enHits = (t.match(/\b(the|a|an|and|or|but|because|for|with|without|that|this|how|where|when|why)\b/g)||[]).length;
+        return esHits >= enHits ? 'es' : 'en';
+      }
+      async function myMemoryTranslate(text, source, target){
+        const u = new URL('https://api.mymemory.translated.net/get');
+        u.searchParams.set('q', String(text||''));
+        u.searchParams.set('langpair', `${source}|${target}`);
+        const data = await fetchJson(u.toString());
+        return data?.responseData?.translatedText || '';
+      }
+      function shortHash(s){ return hash32(String(s||'').slice(0,1200)); }
+      async function translateMsg(msg){
+        if(!useInternet.value){
+          msg.translation = '_(Activa **Usar Internet** en configuración para traducir.)_';
+          msg.translationLangLabel = 'offline';
+          return;
+        }
+        if(msg.translation){
+          msg.translation = null;
+          msg.translationLangLabel = '';
+          return;
+        }
+        try{
+          msg.translating = true;
+          const original = stripForTTS(msg.text || '');
+          const src = detectLangSimple(original);
+          const tgt = (src==='es') ? 'en' : 'es';
+          const cacheKey = `tr:${shortHash(original)}:${src}:${tgt}`;
+          const cached = await localforage.getItem(cacheKey);
+          if(cached){
+            msg.translation = String(cached);
+            msg.translationLangLabel = `${src}→${tgt} (cache)`;
+            msg.translating = false;
+            return;
+          }
+          const out = await myMemoryTranslate(original, src, tgt);
+          const safe = out ? String(out) : '_(No pude traducir. Intenta más tarde.)_';
+          msg.translation = safe;
+          msg.translationLangLabel = `${src}→${tgt}`;
+          await localforage.setItem(cacheKey, safe);
+        }catch{
+          msg.translation = '_(Error traduciendo. Revisa tu conexión.)_';
+          msg.translationLangLabel = 'error';
+        } finally {
+          msg.translating = false;
+        }
+      }
+
+      // Providers base
+      async function datamuseRelated(seed, max=24){
+        const u = `https://api.datamuse.com/words?ml=${encodeURIComponent(seed)}&max=${max}`;
+        const data = await fetchJson(u);
+        return (data||[]).map(x=>x.word).filter(Boolean);
+      }
+
+async function randomWordApi(opts={}){
+        // Random Word API (sin key): https://random-word-api.herokuapp.com
+        // opts: { number, length, lang }
+        const number = Math.min(40, Math.max(1, opts.number || 10));
+        const u = new URL('https://random-word-api.herokuapp.com/word');
+        u.searchParams.set('number', String(number));
+        if(opts.length) u.searchParams.set('length', String(opts.length));
+        if(opts.lang) u.searchParams.set('lang', String(opts.lang));
+        try{
+          const data = await fetchJson(u.toString());
+          return Array.isArray(data) ? data.filter(Boolean) : [];
+        }catch{ return []; }
+      }
+
+      function makeCloze(sentence){
+        const s = String(sentence||'').replace(/\s+/g,' ').trim();
+        if(!s) return null;
+        // Prefer Compromise NLP if available
+        try{
+          if(window.nlp){
+            const doc = nlp(s);
+            const nouns = doc.nouns().out('array') || [];
+            const verbs = doc.verbs().out('array') || [];
+            const candidates = [...nouns, ...verbs]
+              .map(x => String(x).trim())
+              .filter(x => x.length >= 4);
+            if(candidates.length){
+              // choose the longest to reduce ambiguity
+              candidates.sort((a,b)=>b.length-a.length);
+              const ans = candidates[0];
+              const cloze = s.replace(new RegExp('\\b'+ans.replace(/[.*+?^${}()|[\\]\\]/g,'\\\\$&')+'\\b','i'), '_____');
+              return { cloze, answer: ans };
+            }
+          }
+        }catch{}
+        // Fallback: blank a random mid-length word
+        const words = s.split(' ').map(w=>w.replace(/[^A-Za-z']/g,''));
+        const pool = words.filter(w => w.length>=5);
+        if(!pool.length) return null;
+        const ans = pool[Math.floor(Math.random()*pool.length)];
+        const cloze = s.replace(new RegExp('\\b'+ans.replace(/[.*+?^${}()|[\\]\\]/g,'\\\\$&')+'\\b','i'), '_____');
+        return { cloze, answer: ans };
+      }
+
+      async function dictionaryDefine(word){
+        const u = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
+        try{
+          const data = await fetchJson(u);
+          const entry = Array.isArray(data) ? data[0] : null;
+          if(!entry) return null;
+          const m = (entry.meanings||[])[0] || {};
+          const d = (m.definitions||[])[0] || {};
+          return {
+            word: entry.word || word,
+            pos: m.partOfSpeech || '',
+            definition: d.definition || '',
+            example: d.example || '',
+            synonyms: (d.synonyms||[]).slice(0,6)
+          };
+        }catch{ return null; }
+      }
+
+      async function wikipediaSearch(query, limit=5){
+        const u = new URL('https://en.wikipedia.org/w/api.php');
+        u.searchParams.set('action','opensearch');
+        u.searchParams.set('format','json');
+        u.searchParams.set('limit', String(limit));
+        u.searchParams.set('origin','*');
+        u.searchParams.set('search', query);
+        const data = await fetchJson(u.toString());
+        return (data && data[1]) || [];
+      }
+
+      async function wikipediaExtract(title, sentences=7){
+        const u = new URL('https://en.wikipedia.org/w/api.php');
+        u.searchParams.set('action','query');
+        u.searchParams.set('format','json');
+        u.searchParams.set('prop','extracts');
+        u.searchParams.set('explaintext','1');
+        u.searchParams.set('exsentences', String(sentences));
+        u.searchParams.set('origin','*');
+        u.searchParams.set('titles', title);
+        const data = await fetchJson(u.toString());
+        const pages = data?.query?.pages || {};
+        const first = Object.values(pages)[0];
+        return first?.extract ? String(first.extract).trim() : null;
+      }
+
+      async function wikipediaRandomExtract(sentences=3){
+        const u = new URL('https://en.wikipedia.org/w/api.php');
+        u.searchParams.set('action','query');
+        u.searchParams.set('format','json');
+        u.searchParams.set('list','random');
+        u.searchParams.set('rnnamespace','0');
+        u.searchParams.set('rnlimit','1');
+        u.searchParams.set('origin','*');
+        const data = await fetchJson(u.toString());
+        const title = data?.query?.random?.[0]?.title;
+        if(!title) return null;
+        const extract = await wikipediaExtract(title, sentences);
+        return extract;
+      }
+
+      // ===== Extra providers (más fuentes) =====
+      async function openTdbFetch(amount=5, difficulty='easy'){
+        const u = new URL('https://opentdb.com/api.php');
+        u.searchParams.set('amount', String(Math.min(10, Math.max(1, amount))));
+        u.searchParams.set('type', 'multiple');
+        u.searchParams.set('difficulty', difficulty || 'easy');
+        u.searchParams.set('encode', 'url3986');
+        const data = await fetchJson(u.toString());
+        return data?.results || [];
+      }
+
+      async function maybeTriviaQuestions(){
+        if(!useInternet.value) return [];
+        try{
+          const dif = (level.value==='A2') ? 'easy' : (level.value==='B2' ? 'hard' : 'medium');
+          const raw = await openTdbFetch(6, dif);
+          const cleaned = (raw||[]).map(q => ({
+            question: decodeURIComponent(q.question || ''),
+            correct: decodeURIComponent(q.correct_answer || ''),
+            incorrect: (q.incorrect_answers||[]).map(a => decodeURIComponent(a))
+          })).filter(x => x.question && x.correct);
+
+          const uniq = [];
+          for(const q of cleaned){
+            const tag = `opentdb_q:${hash32(normalize(q.question))}`;
+            if(hasSeen(tag) || tooSimilar(q.question)) continue;
+            remember(tag);
+            uniq.push(q);
+          }
+          return uniq;
+        }catch{ return []; }
+      }
+
+      async function quotableRandom(){
+        if(!useInternet.value) return null;
+        try{
+          const u = new URL('https://api.quotable.io/random');
+          u.searchParams.set('minLength', '60');
+          u.searchParams.set('maxLength', '140');
+          const data = await fetchJson(u.toString());
+          const content = data?.content || data?.quote || '';
+          const author = data?.author || '';
+          const line = content ? `${content}${author ? ' — ' + author : ''}` : '';
+          if(!line) return null;
+          const tag = `quote:${hash32(normalize(line))}`;
+          if(hasSeen(tag)) return null;
+          remember(tag);
+          return line;
+        }catch{ return null; }
+      }
+
+      async function getSeedBundle(userText, topic){
+        const out = { seedText: userText || topic, extraLines: [] };
+        if(!useInternet.value) return out;
+        try{ if(Math.random() < 0.35){ const rx = await wikipediaRandomExtract(2); if(rx) out.extraLines.push(rx); } }catch{}
+        try{ if(Math.random() < 0.25){ const q = await quotableRandom(); if(q) out.extraLines.push(q); } }catch{}
+        try{ if(Math.random() < 0.25){ const qs = await maybeTriviaQuestions(); if(qs.length) out.extraLines.push(qs[0].question); } }catch{}
+        const blend = [out.seedText, ...out.extraLines].join(' ');
+        out.seedText = blend.slice(0, 500);
+        return out;
+      }
+
+      // Local fallback banks
+      const localTopics = ['work','travel','food','family','shopping','health','sports','time','safety'];
+      const localWordBank = {
+        work: ['meeting','shift','deadline','warehouse','forklift','pallet','supervisor','inventory','schedule','overtime','loading','unloading','label','scanner','aisle','dock','staging'],
+        travel: ['ticket','station','passport','hotel','luggage','schedule','gate','platform','reservation','delay'],
+        food: ['breakfast','spicy','recipe','ingredients','coffee','dessert','order','water','vegetables','allergy'],
+        safety: ['helmet','gloves','warning','careful','danger','safe','training','procedure','hazard','report','incident'],
+        family: ['cousin','uncle','aunt','brother','sister','parents','kids','neighbors'],
+        shopping: ['price','discount','receipt','size','cash','card','expensive','cheap'],
+        health: ['doctor','medicine','pain','sleep','exercise','healthy','sick','clinic'],
+        sports: ['team','score','practice','match','coach','player','win','lose'],
+        time: ['today','tomorrow','yesterday','early','late','minutes','hours','weekend']
+      };
+      const rand = (arr) => arr[Math.floor(Math.random()*arr.length)];
+
+      // Intent parsing
+      function parseCommand(text){
+        const t = (text||'').trim();
+        if(!t.startsWith('/')) return null;
+        const [cmd, ...rest] = t.slice(1).split(/\s+/);
+        return { cmd:(cmd||'').toLowerCase(), args: rest.join(' ').trim() };
+      }
+
+      function guessTopic(text){
+        const t = (text||'').toLowerCase();
+        if(/work|trabaj|almac[eé]n|warehouse|forklift|pallet|carga|embarques|montacargas/.test(t)) return 'work';
+        if(/travel|viaj|flight|airport|hotel|bus|train/.test(t)) return 'travel';
+        if(/food|comida|coffee|restaurant|order|spicy/.test(t)) return 'food';
+        if(/safety|seguridad|ppe|helmet|gloves|hazard|riesgo/.test(t)) return 'safety';
+        return rand(localTopics);
+      }
+
+      function classifyIntent(text){
+        const t = (text||'').toLowerCase();
+        const weights = {
+          define: [/\bdefine\b|\bdefin|\bsignificado\b|\bmeaning\b/],
+          wiki: [/\bwiki\b|\bwikipedia\b|\blectura\b|\breading\b|\bart[ií]culo\b|\btexto\b/],
+          quiz: [/\bquiz\b|\bejercicio\b|\btest\b|\bpracticar\b|\bactividad\b|\bexercises?\b/],
+          grammar: [/\bgram\w+\b|\btiempo\s*verbal\b|\bpasado\b|\bpresente\b|\bfuturo\b|\bverb\b/],
+          plan: [/\bplan\b|\brutina\b|\b7\s*d[ií]as\b|\bestudio\b/],
+          general: [/.*/]
+        };
+        for(const k of ['define','wiki','quiz','grammar','plan']){
+          if(weights[k].some(r=>r.test(t))) return k;
+        }
+        return 'general';
+      }
+
+      // ===================== Python (BM25 + RAKE + summary) =====================
+      const PY_BOOT = `
+import re, math
+
+def tok(s):
+  s=(s or '').lower()
+  s=re.sub(r"[^a-z0-9\s']"," ",s)
+  s=re.sub(r"\s+"," ",s).strip()
+  return [w for w in s.split(' ') if w]
+
+class BM25:
+  def __init__(self, docs, k1=1.5, b=0.75):
+    self.docs=[tok(d) for d in docs]
+    self.k1=k1; self.b=b
+    self.N=len(self.docs)
+    self.df={}
+    self.avgdl=sum(len(d) for d in self.docs)/(self.N or 1)
+    for d in self.docs:
+      for w in set(d):
+        self.df[w]=self.df.get(w,0)+1
+  def idf(self,w):
+    n=self.df.get(w,0)
+    return math.log(1+(self.N-n+0.5)/(n+0.5))
+  def score(self, q, idx):
+    q=tok(q)
+    d=self.docs[idx]
+    if not d: return 0.0
+    freqs={}
+    for w in d: freqs[w]=freqs.get(w,0)+1
+    dl=len(d)
+    s=0.0
+    for w in q:
+      if w not in freqs: continue
+      f=freqs[w]
+      denom=f+self.k1*(1-self.b+self.b*dl/self.avgdl)
+      s += self.idf(w)*(f*(self.k1+1))/denom
+    return s
+  def topk(self, q, k=3):
+    scores=[(self.score(q,i), i) for i in range(self.N)]
+    scores.sort(reverse=True)
+    return scores[:k]
+
+STOP = set('a an the and or but if then else when while to of in on at for with as from by about into over after before under between without within'.split())
+
+def rake_keywords(text, topn=8):
+  words = tok(text)
+  phrases=[]
+  cur=[]
+  for w in words:
+    if w in STOP or len(w)<3:
+      if cur: phrases.append(cur); cur=[]
+    else:
+      cur.append(w)
+  if cur: phrases.append(cur)
+  freq={}
+  deg={}
+  for ph in phrases:
+    d=len(ph)-1
+    for w in ph:
+      freq[w]=freq.get(w,0)+1
+      deg[w]=deg.get(w,0)+d
+  score={}
+  for w in freq:
+    score[w]=(deg[w]+freq[w])/freq[w]
+  pscore=[]
+  for ph in phrases:
+    s=sum(score.get(w,0) for w in ph)
+    pscore.append((' '.join(ph), s))
+  pscore.sort(key=lambda x: x[1], reverse=True)
+  out=[]
+  seen=set()
+  for p,_ in pscore:
+    if p not in seen:
+      out.append(p)
+      seen.add(p)
+    if len(out)>=topn:
+      break
+  return out
+
+def summarize(text, max_sents=3):
+  sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text.strip()) if len(s.strip())>25]
+  if not sents:
+    return []
+  q = ' '.join(tok(text)[:60])
+  bm = BM25(sents)
+  top = bm.topk(q, max_sents)
+  return [sents[i] for _, i in top]
+`;
+
+      async function initPython(){
+        if(pyReady.value || pyLoading.value) return;
+        pyLoading.value = true;
+        try{
+          pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
+          await pyodide.runPythonAsync(PY_BOOT);
+          pyReady.value = true;
+        }catch(e){
+          console.warn('Pyodide init failed', e);
+          pyReady.value = false;
+        } finally {
+          pyLoading.value = false;
+        }
+      }
+
+      function splitSentences(text){
+        const t = String(text||'').replace(/\s+/g,' ').trim();
+        if(!t) return [];
+        const out = [];
+        let cur = '';
+        for(let i=0;i<t.length;i++){
+          const ch = t[i];
+          cur += ch;
+          if(ch==='.' || ch==='!' || ch==='?'){
+            const next = t[i+1] || '';
+            if(next===' ' && cur.trim().length>20){ out.push(cur.trim()); cur=''; }
+          }
+        }
+        if(cur.trim().length) out.push(cur.trim());
+        return out;
+      }
+
+      async function pyKeywords(text, topn=8){
+        if(!pyReady.value || !pyodide) return [];
+        try{
+          pyodide.globals.set('TXT', String(text||''));
+          pyodide.globals.set('N', topn);
+          const kw = pyodide.runPython('rake_keywords(TXT, int(N))');
+          return Array.from(kw || []);
+        }catch{ return []; }
+      }
+
+      async function pyHighlights(question, text, k=3){
+        const sents = splitSentences(text);
+        if(!pyReady.value || !pyodide || !sents.length) return sents.slice(0,k);
+        try{
+          pyodide.globals.set('DOCS', sents);
+          pyodide.runPython('bm = BM25(DOCS)');
+          pyodide.globals.set('Q', String(question||''));
+          const top = pyodide.runPython(`bm.topk(Q, ${k})`);
+          const out = [];
+          for(const t of top) out.push(sents[t[1]]);
+          return out;
+        }catch{ return sents.slice(0,k); }
+      }
+
+      async function pySummary(text, k=3){
+        if(!pyReady.value || !pyodide) return [];
+        try{
+          pyodide.globals.set('TXT', String(text||''));
+          pyodide.globals.set('K', k);
+          const s = pyodide.runPython('summarize(TXT, int(K))');
+          return Array.from(s || []);
+        }catch{ return []; }
+      }
+
+      // Notebook & vocab
+      async function loadNotebook(){
+        const data = (await localforage.getItem('notebook')) || [];
+        notebook.value = Array.isArray(data) ? data : [];
+      }
+      async function loadVocab(){
+        const data = (await localforage.getItem('vocab')) || [];
+        vocab.value = Array.isArray(data) ? data : [];
+      }
+      async function saveNotebook(){ await localforage.setItem('notebook', notebook.value); }
+      async function saveVocab(){ await localforage.setItem('vocab', vocab.value); }
+
+      function pinToNotebook(msg){
+        const title = stripForTTS(msg.text).slice(0,80) || 'Nota';
+        const preview = stripForTTS(msg.text).slice(0,160);
+        notebook.value.unshift({ id: Date.now(), title, preview, ts: Date.now() });
+        notebook.value = notebook.value.slice(0, 140);
+        saveNotebook();
+      }
+
+      function addVocab(word, note){
+        word = (word||'').trim();
+        if(!word) return;
+        const key = word.toLowerCase();
+        const existing = vocab.value.find(v=>v.word.toLowerCase()===key);
+        if(existing){ existing.note = note || existing.note; existing.ts = Date.now(); }
+        else vocab.value.unshift({ word, note: note||'', ts: Date.now() });
+        vocab.value = vocab.value.slice(0, 500);
+        // crea/actualiza tarjeta SRS
+        try{ ensureCard(word, note || ''); saveSrs(); }catch{}
+        saveVocab();
+      }
+
+      function clearNotebook(){ notebook.value = []; saveNotebook(); }
+      function clearVocab(){ vocab.value = []; saveVocab(); }
+
+      const filteredVocab = computed(() => {
+        const q = vocabSearch.value.trim().toLowerCase();
+        if(!q) return vocab.value;
+        try{
+          const fuse = new Fuse(vocab.value, { keys:['word','note'], threshold: 0.35 });
+          return fuse.search(q).map(r=>r.item);
+        }catch{
+          return vocab.value.filter(v => (v.word+' '+v.note).toLowerCase().includes(q));
+        }
+      });
+
+      // Content helpers
+      function mdTable(rows){
+        const [h1,h2] = rows[0];
+        const lines = [];
+        lines.push(`| ${h1} | ${h2} |`);
+        lines.push(`| --- | --- |`);
+        for(let i=1;i<rows.length;i++){
+          const [a,b] = rows[i];
+          lines.push(`| ${a} | ${b} |`);
+        }
+        return lines.join('\n');
+      }
+
+      function grammarPack(tense){
+        const t = (tense||'').toLowerCase();
+        const packs = {
+          'past simple': {
+            title:'Past Simple (pasado simple)',
+            explain:`Se usa para acciones terminadas en el pasado.\n\n- Regular: play → **played**\n- Irregular: go → **went**\n\n**Marcadores**: yesterday, last week, ago.`,
+            ex:[
+              "Completa: 1) I ___ (work) yesterday. 2) She ___ (go) home. 3) They ___ (not/like) it.",
+              "Convierte: 'He visited the warehouse.' → negativa y pregunta.",
+              "Corrige: 'She go to work last Monday.'"
+            ]
+          },
+          'present perfect': {
+            title:'Present Perfect',
+            explain:`Conecta pasado con presente.\n\n- **have/has + past participle**\n- I **have worked** / She **has worked**\n\n**Marcadores**: already, yet, ever, never, since, for.`,
+            ex:[
+              "Completa: 1) I have ___ (finish) my shift. 2) She has ___ (not/see) it yet.",
+              "Elige: 'Have you ever / Did you ever' been to Mexico?",
+              "Escribe 2 oraciones con **since** y **for**."
+            ]
+          },
+          'present simple': {
+            title:'Present Simple (hábitos)',
+            explain:`Rutinas y hechos.\n\n- I/you/we/they work\n- he/she/it work**s**\n\nTip: agrega **-s** solo en he/she/it.`,
+            ex:[
+              "Completa: 1) He ___ (work) here. 2) They ___ (not/watch) TV. 3) ___ you ___ (study) English?",
+              "Convierte a pregunta: 'She works at a warehouse.'",
+              "Corrige: 'He don't like it.'"
+            ]
+          }
+        };
+        return packs[t] || packs['present simple'];
+      }
+
+      function buildQuiz(topic, words){
+        const lvl = level.value;
+        const chosen = words.slice(0,8);
+        const w1 = chosen[0] || 'work';
+        const w2 = chosen[1] || 'shift';
+        const w3 = chosen[2] || 'safety';
+        const w4 = chosen[3] || 'report';
+        const mcq = [
+          { q:`(1) ¿Cuál frase suena más natural para pedir ayuda?`, a:[`Can you help me with this ${w1}?`,`Can you aid me with this ${w1}?`,`Can you assistance me with this ${w1}?`], ok:0 },
+          { q:`(2) Elige la forma correcta (nivel ${lvl}):`, a:[`He work in the warehouse.`,`He works in the warehouse.`,`He working in the warehouse.`], ok:1 },
+          { q:`(3) Traduce: “Tengo mi próximo turno mañana.”`, a:[`I have my next shift tomorrow.`,`I has my next shift tomorrow.`,`I am have my next shift tomorrow.`], ok:0 },
+          { q:`(4) ¿Qué frase es correcta para seguridad?`, a:[`Safety first. Wear your ${w3}.`,`Safety one. Wear your ${w3}.`,`Safe first. Wear your ${w3}.`], ok:0 }
+        ];
+        const gap = `Completa (usa: **${w2}**, **${w4}**):\n\n1) My ____ starts at 7 a.m.\n2) Please ____ the issue to the supervisor.`;
+        const answerKey = [
+          `1) ${mcq[0].a[mcq[0].ok]}`,
+          `2) ${mcq[1].a[mcq[1].ok]}`,
+          `3) ${mcq[2].a[mcq[2].ok]}`,
+          `4) ${mcq[3].a[mcq[3].ok]}`,
+          `Gap: 1) ${w2} 2) ${w4}`
+        ].join('\n');
+        const table = mdTable([
+          ['Palabra','Uso rápido'],
+          [w1, `I need a **${w1}** today.`],
+          [w2, `My **${w2}** starts at 7.`],
+          [w3, `**${w3}** first.`],
+          [w4, `Please **${w4}** the issue.`],
+        ]);
+        return {
+          md: `### 📝 Quiz (${topic})\n\n${table}\n\n---\n#### 1) Multiple choice\n${mcq.map(x=>`- ${x.q}\n  - A) ${x.a[0]}\n  - B) ${x.a[1]}\n  - C) ${x.a[2]}\n`).join('\n')}\n---\n#### 2) Fill in the blanks\n${gap}\n\n---\n#### ✅ Respuestas\n\n${answerKey}\n\n💡 Si quieres, responde tú primero y te corrijo.`
+        };
+      }
+
+      function buildDefineMD(def){
+        if(!def) return { md: "### ⚠️ No encontré definición\n\nIntenta otra palabra o activa Internet.", sources: [] };
+        const syn = def.synonyms?.length ? def.synonyms.map(s=>`\`${s}\``).join(', ') : '—';
+        const ex = def.example ? `> _${def.example}_` : '> _(sin ejemplo disponible)_';
+        addVocab(def.word, def.definition || '');
+        return {
+          md: `### 📘 Definición\n\n**Palabra:** \`${def.word}\`${def.pos ? ` (${def.pos})` : ''}\n\n**Meaning:** ${def.definition || '—'}\n\n**Example:**\n${ex}\n\n**Synonyms:** ${syn}\n\n---\n**Mini-práctica**\n1) Escribe 2 oraciones con \`${def.word}\`.\n2) Dime un sinónimo y en qué cambia el significado.`,
+          sources: [{ title:'DictionaryAPI', url:'https://dictionaryapi.dev/', snippet:`${def.word}: ${def.definition || ''}` }]
+        };
+      }
+
+      async function buildWikiMD(topic){
+        const sources = [];
+        let title = topic;
+        if(useInternet.value){
+          try{
+            internetOk.value = true;
+            const sugg = await wikipediaSearch(topic, 5);
+            if(sugg && sugg.length) title = sugg[0];
+            const extract = await wikipediaExtract(title, 9);
+            sources.push({ title: `Wikipedia: ${title}`, url: `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/\s+/g,'_'))}`, snippet: (extract||'').slice(0,220) });
+
+            const highlights = extract ? (pyReady.value ? await pyHighlights(`key facts about ${title}`, extract, 3) : splitSentences(extract).slice(0,3)) : [];
+            const keywords = extract ? (pyReady.value ? await pyKeywords(extract, 8) : []) : [];
+            const summary = extract ? (pyReady.value ? await pySummary(extract, 3) : []) : [];
+
+            const words = (extract||'').toLowerCase().match(/[a-z]{5,}/g) || [];
+            const uniq = [...new Set(words)].slice(0, 80);
+            const picks = uniq.length ? [pickUnique('wk_vocab', uniq), pickUnique('wk_vocab', uniq), pickUnique('wk_vocab', uniq)] : ['concept','process','example'];
+            const vocabLines = picks.map(w => `- \`${w}\` — (usa /define ${w})`).join('\n');
+
+            const md = `### 📖 Lectura real (Wikipedia)\n\n**Tema:** ${title}\n\n> ${extract || 'No pude obtener el extracto. Intenta otro tema.'}\n\n---\n#### ✨ Frases clave\n${highlights.length ? highlights.map(s=>`- ${s}`).join('\n') : '_Activa Python para resaltar frases automáticamente._'}\n\n---\n#### 🧠 Resumen\n${summary.length ? summary.map(s=>`- ${s}`).join('\n') : '_Activa Python para resumen._'}\n\n---\n#### 🔑 Keywords\n${keywords.length ? keywords.map(k=>`- \`${k}\``).join('\n') : '_Activa Python para keywords._'}\n\n---\n#### ✅ Actividades\n1) Resume en **1 oración en inglés**.\n2) Escribe **3 palabras nuevas** y tu traducción aproximada.\n3) Haz una pregunta (en inglés) sobre el tema.\n\n---\n#### 📌 Vocab sugerido\n${vocabLines}`;
+
+            pushRecent(md);
+            return { md, sources };
+          }catch{
+            internetOk.value = false;
+          }
+        }
+
+        internetOk.value = false;
+        const mini = [
+          `Today I want to learn about **${guessTopic(topic)}**.`,
+          `I will practice short sentences and new words.`,
+          `My goal is to speak with confidence.`
+        ];
+        const md = `### 🟡 Lectura (Local)\n\n> ${fisherYates(mini).join(' ')}\n\n---\n#### ✅ Actividades\n1) Subraya 3 palabras clave.\n2) Escribe 1 oración en pasado.\n3) Escribe 1 pregunta en inglés.`;
+        pushRecent(md);
+        return { md, sources: [] };
+      }
+
+      async function buildGeneralMD(userText){
+        const topic = guessTopic(userText);
+        const sources = [];
+        let word = '';
+        let def = null;
+
+        if(useInternet.value){
+          try{
+            internetOk.value = true;
+            const seedBundle = await getSeedBundle(userText, topic);
+            if(seedBundle?.extraLines?.length){
+              sources.push({ title:'Seed (internet blend)', url:'https://en.wikipedia.org/wiki/Special:Random', snippet: seedBundle.extraLines.join(' ').slice(0,160) });
+            }
+            const seed = (seedBundle?.seedText || userText);
+            const related = await datamuseRelated(seed.length>2 ? seed : topic, 40);
+            // extra pool: Random Word API (si hay internet)
+            const rw = await randomWordApi({ number: 14, lang: Math.random()<0.35 ? 'es' : 'en' });
+            const rwPool = Array.isArray(rw) ? rw : [];
+            const pool = related.length ? related : (rwPool.length ? rwPool : (localWordBank[topic] || localWordBank.work));
+            word = pickUnique('word', pool);
+            def = await dictionaryDefine(word);
+            sources.push({ title: 'Datamuse', url: 'https://api.datamuse.com', snippet: `seed: ${seed.slice(0,60)} → ${word}` });
+            if(def?.definition) sources.push({ title: 'DictionaryAPI', url: 'https://dictionaryapi.dev/', snippet: `${def.word}: ${def.definition}` });
+          }catch{
+            internetOk.value = false;
+          }
+        }
+
+        if(!word){
+          internetOk.value = false;
+          const pool = (localWordBank[topic] || localWordBank.work);
+          word = pickUnique('local_word', pool);
+        }
+
+        const baseSentence = def?.example || `I need a ${word} today.`;
+
+        const templates = [
+          (w)=>`Can you help me with the ${w}?`,
+          (w)=>`Where should I put the ${w}?`,
+          (w)=>`Please check the ${w} before my shift.`,
+          (w)=>`I will report the ${w} to my supervisor.`,
+          (w)=>`Is the ${w} ready for loading?`,
+          (w)=>`We need to move the ${w} to aisle 3.`,
+          (w)=>`Let's verify the ${w} in the inventory system.`,
+          (w)=>`Please label the ${w} clearly.`,
+          (w)=>`The ${w} is damaged. I need a replacement.`,
+          (w)=>`Could you repeat the instructions for the ${w}?`,
+          (w)=>`Stop the forklift near the ${w}.`,
+          (w)=>`Double-check the ${w} on the scanner.`,
+          (w)=>`This ${w} goes to the loading dock.`
+        ];
+
+        const s1 = pickUnique('tmpl', templates.map(t=>t(word)));
+        const s2 = pickUnique('tmpl', templates.map(t=>t(word)));
+        const s3 = pickUnique('tmpl', templates.map(t=>t(word)));
+
+        const phrases = [
+          [s1, `Traduce y repite.`],
+          [s2, `Cambia una palabra y repite.`],
+          [s3, `Hazla pregunta y repite.`],
+        ];
+
+        const table = mdTable([['English','Tip'], ...phrases]);
+
+        const exType = pickUnique('ex_type', ['gap','translate','scramble','error','roleplay','shadowing','microdialog','choose']);
+        let ex = '';
+
+        if(exType==='gap'){
+          ex = `**Fill in the blank:**\n\n${baseSentence.replace(new RegExp(`\\b${word}\\b`,'i'),'_____')}\n\n✅ Respuesta: **${word}**`;
+        } else if(exType==='translate'){
+          ex = `**Traduce al inglés:**\n\n> "Necesito un/una **${word}** hoy."\n\nTip: usa \`${word}\`.`;
+        } else if(exType==='scramble'){
+          const scrambled = fisherYates(baseSentence.split(' ')).join(' / ');
+          ex = `**Ordena las palabras:**\n\n${scrambled}\n\n✅ Solución: _${baseSentence}_`;
+        } else if(exType==='shadowing'){
+          ex = `**Shadowing (imitación):**\n\n1) Pulsa **Escuchar**.\n2) Repite 3 veces.\n3) Graba tu voz (🎤) y compárate.`;
+        } else if(exType==='microdialog'){
+          ex = `**Micro-diálogo:**\n\nA) Pregunta por el **${word}**.\nB) Responde con ubicación + una pregunta.\n\nEj: _Where is the ${word}?_ → _It's in aisle 3. Do you need help?_`;
+        } else if(exType==='choose'){
+          const opts = fisherYates([s1, s2, baseSentence]).slice(0,3);
+          ex = `**Elige la frase más natural:**\n\nA) ${opts[0]}\nB) ${opts[1]}\nC) ${opts[2]}\n\n✅ Respuesta sugerida: **${opts[0]}**`;
+        } else if(exType==='roleplay'){
+          ex = `**Roleplay (2 turnos):**\n\nA) Pide ayuda con **${word}**.\nB) Da 2 opciones y una pregunta.`;
+        } else {
+          ex = `**Detecta el error:**\n\n> He go to the ${word} yesterday.\n\n✅ Corrección: **He went to the ${word} yesterday.**`;
+        }
+
+        if(def?.definition) addVocab(def.word, def.definition);
+        else addVocab(word, `Relacionado con ${topic}`);
+
+        const quote = (useInternet.value ? await quotableRandom() : null);
+        const quoteBlock = quote ? `---\n#### ✨ Quote (extra)\n> _${quote}_\n` : '';
+
+        const md = `### 🧩 Respuesta (variedad máxima)\n\n**Tema:** ${topic}\n**Palabra clave:** \`${def?.word || word}\`${def?.pos ? ` (${def.pos})` : ''}\n\n${def?.definition ? `**Meaning:** ${def.definition}\n\n` : ''}${def?.example ? `**Example:**\n> _${def.example}_\n\n` : ''}---\n#### 💬 Mini-frases\n${table}\n\n---\n#### 📝 Ejercicio\n${ex}\n\n${quoteBlock}---\n🎙️ Tip: usa **Pronunciación** para hablar.`;
+
+        pushRecent(md);
+        return { md, sources };
+      }
+
+      async function buildGrammarMD(tense){
+        const pack = grammarPack(tense);
+        const ex = fisherYates(pack.ex);
+        const md = `### 📚 Gramática PRO: ${pack.title}\n\n${pack.explain}\n\n---\n#### 🧪 Ejercicios (variados)\n1) ${ex[0]}\n\n2) ${ex[1]}\n\n3) ${ex[2]}\n\n---\n✅ Escribe tus respuestas y te doy retroalimentación.`;
+        pushRecent(md);
+        return { md, sources: [] };
+      }
+
+      async function buildPlanMD(){
+        const md = `### 🗓️ Plan de 7 días (inglés práctico)\n\n**Objetivo:** mejorar comunicación (15–20 min/día).\n\n1) Día 1: /define warehouse, forklift, shift\n2) Día 2: frases de ayuda (Can you…? Could you…?)\n3) Día 3: /grammar past simple\n4) Día 4: /quiz safety\n5) Día 5: mini reportes (because/so/but)\n6) Día 6: Pronunciación (8 frases)\n7) Día 7: simulación + /export\n\nDime tu área y lo personalizo.`;
+        pushRecent(md);
+        return { md, sources: [] };
+      }
+
+      // Orchestrator
+      async function buildAI(userText){
+        const cmd = parseCommand(userText);
+        const intent = cmd ? cmd.cmd : classifyIntent(userText);
+
+        if(cmd){
+          const args = cmd.args || '';
+
+          if(intent==='define'){
+            const w = args || pickUnique('rand_word', localWordBank[guessTopic(userText)]);
+            if(useInternet.value){
+              try{ internetOk.value = true; return buildDefineMD(await dictionaryDefine(w)); }
+              catch{ internetOk.value = false; }
+            }
+            internetOk.value = false;
+            return { md: `### 📘 Definición (Local)\n\n**Palabra:** \`${w}\`\n\nEjemplo: _I need a ${w} today._\n\nTip: activa Internet para definición real.`, sources: [] };
+          }
+
+          if(intent==='wiki') return await buildWikiMD(args || guessTopic(userText));
+
+          if(intent==='quiz'){
+            const topic = (args || guessTopic(userText));
+            if(useInternet.value){
+              const qs = await maybeTriviaQuestions();
+              if(qs && qs.length){
+                const pick = qs[0];
+                const options = fisherYates([pick.correct, ...pick.incorrect]).slice(0,4);
+                const md = `### 🎲 Quiz (OpenTDB)\n\n**Pregunta:** ${pick.question}\n\n**Opciones:**\n${options.map((o,i)=>`- ${String.fromCharCode(65+i)}) ${o}`).join('\\n')}\n\n---\n✅ Respuesta: **${pick.correct}**\n\n💡 Tip: di la respuesta en voz alta y luego tradúcela.`;
+                pushRecent(md);
+                return { md, sources: [{ title:'Open Trivia DB', url:'https://opentdb.com/api_config.php', snippet: pick.question.slice(0,160) }] };
+              }
+            }
+
+            let pool = (localWordBank[topic.toLowerCase()] || localWordBank[guessTopic(topic)] || localWordBank.work);
+            if(useInternet.value){
+              try{ internetOk.value = true; const related = await datamuseRelated(topic, 28); if(related.length) pool = related; }
+              catch{ internetOk.value = false; }
+            }
+            const words = [];
+            while(words.length < Math.min(14, pool.length)){
+              const w = pickUnique('quiz_word', pool);
+              if(!words.includes(w)) words.push(w);
+            }
+            const quiz = buildQuiz(topic, words);
+            pushRecent(quiz.md);
+            return { md: quiz.md, sources: [{ title:'Datamuse / local wordbank', url:'https://api.datamuse.com', snippet:`topic: ${topic}` }] };
+          }
+
+          if(intent==='grammar') return await buildGrammarMD(args || 'present simple');
+          if(intent==='plan') return await buildPlanMD();
+
+          if(intent==='cloze'){
+            // Crea un ejercicio cloze (fill-in-the-blank) usando NLP si está disponible.
+            const raw = args || (messages.value.slice().reverse().find(m=>m.role==='ai' && m.text)?.text || '');
+            const text = stripForTTS(raw).split('. ').slice(0,2).join('. ');
+            const c = makeCloze(text);
+            if(!c) return { md: '### 🧩 Cloze\n\nNo pude crear el cloze. Escribe: `/cloze I work at the warehouse.`', sources: [] };
+            const md = `### 🧩 Cloze (Fill in the blank)\n\n**Oración:** ${c.cloze}\n\n✅ Respuesta: **${c.answer}**\n\nTip: intenta decirla en voz alta 3 veces.`;
+            pushRecent(md);
+            return { md, sources: [] };
+          }
+
+          if(intent==='review'){
+            await openReview();
+            return { md: '### 🧠 Review iniciado\n\nAbrí el modo **SRS**. Califica 0–5 para programar repaso.', sources: [] };
+          }
+
+          if(intent==='python'){
+            await initPython();
+            return { md: pyReady.value ? '### 🐍 Python activado\n\nListo. /wiki ahora añade frases clave + keywords + resumen.' : '### ⚠️ No pude iniciar Python\n\nRevisa tu conexión o bloqueadores.', sources: [] };
+          }
+
+          if(intent==='export') return exportAll();
+
+          return { md: `### ⚠️ Comando no reconocido\n\nPrueba: /define, /wiki, /quiz, /grammar, /plan, /python, /export`, sources: [] };
+        }
+
+        if(intent==='wiki') return await buildWikiMD(userText);
+        if(intent==='grammar') return await buildGrammarMD(userText);
+        if(intent==='quiz') return await buildAI(`/quiz ${guessTopic(userText)}`);
+        if(intent==='plan') return await buildPlanMD();
+        if(intent==='define'){
+          const w = (userText.match(/[A-Za-z]{3,}$/) || [])[0] || pickUnique('rand_word', localWordBank[guessTopic(userText)]);
+          return await buildAI(`/define ${w}`);
+        }
+        return await buildGeneralMD(userText);
+      }
+
+      // Export
+      function download(filename, text){
+        const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportAll(){
+        const payload = {
+          version: 'LinguaTutorULT-Definitivo-v3',
+          ts: new Date().toISOString(),
+          sessionId: sessionId.value,
+          messages: messages.value.map(m => ({...m, audioUrl: undefined})),
+          notebook: notebook.value,
+          vocab: vocab.value,
+          settings: { useInternet: useInternet.value, timeoutMs: timeoutMs.value, level: level.value, ttsLang: ttsLang.value, pronLang: pronLang.value, passThreshold: passThreshold.value }
+        };
+        download(`ltult_v3_export_${Date.now()}.json`, JSON.stringify(payload, null, 2));
+        return { md: '### ✅ Exportado\n\nDescargué un archivo **.json** con tu chat, notebook, vocab y configuración.', sources: [] };
+      }
+
+      // Chat actions
+      const send = async () => {
+        const text = input.value.trim();
+        if(!text) return;
+        input.value = '';
+        if(textarea.value) textarea.value.style.height = 'auto';
+        messages.value.push({ id: Date.now(), role:'user', text });
+        loading.value = true;
+        scrollToBottom();
+        await sleep(120);
+
+        let out;
+        try{
+          if(useInternet.value) internetOk.value = true;
+          out = await buildAI(text);
+        }catch{
+          internetOk.value = false;
+          out = { md: '### ⚠️ Error\n\nNo pude generar respuesta. Intenta de nuevo o desactiva Internet.', sources: [] };
+        }
+
+        const aiMsg = { id: Date.now()+1, role:'ai', text: out.md, sources: out.sources || [], showSources: false, translation: null, translationLangLabel: '', translating: false };
+        messages.value.push(aiMsg);
+        loading.value = false;
+        scrollToBottom();
+
+        localforage.setItem('messages', messages.value.map(m => ({...m, audioUrl: undefined}))).catch(()=>{});
+      };
+
+      const sendText = (t) => { input.value = t; send(); };
+
+      const regenerate = async (msg) => {
+        const idx = messages.value.findIndex(m => m.id === msg.id);
+        if(idx <= 0) return;
+        const prevUser = [...messages.value].slice(0, idx).reverse().find(m => m.role==='user');
+        if(!prevUser) return;
+        loading.value = true;
+        await sleep(120);
+        const out = await buildAI(prevUser.text + ' (varía y no repitas)');
+        messages.value.splice(idx, 1, { id: Date.now(), role:'ai', text: out.md, sources: out.sources || [], showSources:false, translation:null, translationLangLabel:'', translating:false });
+        loading.value = false;
+        scrollToBottom();
+      };
+
+      watch(sideTab, () => { nextTick(() => renderChart()); });
+
+      watch(mode, () => { if(!window.matchMedia || window.matchMedia("(max-width: 1023px)").matches) sideOpen.value = false; });
+
+      watch(input, () => {
+        if(textarea.value){
+          textarea.value.style.height = 'auto';
+          textarea.value.style.height = Math.min(textarea.value.scrollHeight, 160) + 'px';
+        }
+      });
+
+      // Dictation
+      function toggleVoiceInput(){
+        if(!SpeechRecognition){
+          messages.value.push({ id: Date.now()+9, role:'ai', text: '### ⚠️ Dictado no disponible\n\nTu navegador no soporta SpeechRecognition para dictado.', sources: [], showSources:false });
+          return;
+        }
+        isVoiceInput.value = !isVoiceInput.value;
+        if(isVoiceInput.value){
+          voiceRec = new SpeechRecognition();
+          voiceRec.lang = 'es-MX';
+          voiceRec.continuous = true;
+          voiceRec.interimResults = true;
+          voiceRec.onresult = (ev) => {
+            let transcript = '';
+            for(let i=ev.resultIndex;i<ev.results.length;i++) transcript += ev.results[i][0].transcript;
+            input.value = transcript;
+          };
+          voiceRec.onerror = () => { isVoiceInput.value = false; };
+          voiceRec.onend = () => { if(isVoiceInput.value) voiceRec.start(); };
+          try{ voiceRec.start(); }catch{ isVoiceInput.value=false; }
+        } else {
+          try{ voiceRec && voiceRec.stop(); }catch{}
+        }
+      }
+
+      // Chat audio
+      function pickMimeType(){
+        const preferred = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
+        for(const t of preferred){
+          if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) return t;
+        }
+        return '';
+      }
+
+      async function ensureChatMic(){
+        if(!chatStream) chatStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+        return chatStream;
+      }
+
+      async function toggleChatRecord(){
+        if(chatRecBusy.value) return;
+        chatRecBusy.value = true;
+        try{
+          if(!isChatRecording.value){
+            const stream = await ensureChatMic();
+            chatChunks = [];
+            const mimeType = pickMimeType();
+            chatRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            chatRecorder.ondataavailable = (e) => { if(e.data && e.data.size>0) chatChunks.push(e.data); };
+            chatRecorder.onstop = async () => {
+              const blob = new Blob(chatChunks, { type: mimeType || 'audio/webm' });
+              const id = Date.now();
+              const key = `audio:${id}`;
+              try{ await localforage.setItem(key, blob); }catch(e){ console.warn('audio store failed', e); }
+              const url = URL.createObjectURL(blob);
+              messages.value.push({ id, role:'ai', kind:'audio', audioKey: key, audioUrl: url, text: '' });
+              scrollToBottom();
+              localforage.setItem('messages', messages.value.map(m => ({...m, audioUrl: undefined}))).catch(()=>{});
+            };
+            chatRecorder.start();
+            isChatRecording.value = true;
+          } else {
+            try{ chatRecorder && chatRecorder.state !== 'inactive' && chatRecorder.stop(); }catch{}
+            isChatRecording.value = false;
+          }
+        }catch{
+          messages.value.push({ id: Date.now()+11, role:'ai', text: '### ⚠️ No pude grabar audio\n\nPermiso denegado o tu navegador no soporta MediaRecorder.', sources: [], showSources:false });
+        } finally {
+          chatRecBusy.value = false;
+        }
+      }
+
+      function downloadAudio(msg){
+        if(!msg?.audioUrl) return;
+        const a = document.createElement('a');
+        a.href = msg.audioUrl;
+        a.download = `ltult_audio_${msg.id}.webm`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      // Config
+      function saveConfig(){
+        localStorage.setItem('ltult_name', displayName.value || '');
+        localStorage.setItem('ltult_session', sessionId.value || 'anon');
+        localStorage.setItem('ltult_use_internet', useInternet.value ? '1' : '0');
+        localStorage.setItem('ltult_timeout', String(timeoutMs.value || 9000));
+        localStorage.setItem('ltult_level', level.value || 'B1');
+        localStorage.setItem('ltult_tts_lang', ttsLang.value || 'en-US');
+        localStorage.setItem('ltult_pron_lang', pronLang.value || 'en-US');
+        localStorage.setItem('ltult_pass_threshold', String(passThreshold.value || 78));
+        showConfig.value = false;
+      }
+
+      async function resetAll(){
+        for(const k of ['ltult_name','ltult_session','ltult_use_internet','ltult_timeout','ltult_level','ltult_tts_lang','ltult_pron_lang','ltult_pass_threshold']) localStorage.removeItem(k);
+        resetSeen();
+        messages.value = [];
+        notebook.value = [];
+        vocab.value = [];
+        await localforage.clear();
+        showConfig.value = false;
+      }
+
+      async function togglePython(){
+        if(pyReady.value){ pyReady.value = false; pyodide = null; return; }
+        await initPython();
+      }
+
+      // ===================== Pronunciation Engine =====================
+      const speechSupported = ref(!!SpeechRecognition);
+      const practiceTopic = ref(localStorage.getItem('ltult_pron_topic') || 'work');
+      const practiceList = ref([]);
+      const currentIndex = ref(0);
+      const isRecording = ref(false);
+      const recBusy = ref(false);
+      const lastAudioUrl = ref('');
+      const lastTranscript = ref('');
+      const recStateLabel = ref('Listo');
+      let mediaStream = null;
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let recognition = null;
+
+      const currentItem = computed(() => practiceList.value[currentIndex.value] || { text:'', score:null, passed:false, transcript:'', marks:[], wordScore:null });
+      const doneCount = computed(() => practiceList.value.filter(x => x.score !== null).length);
+      const overallScore = computed(() => {
+        const done = practiceList.value.filter(x => x.score !== null);
+        if(!done.length) return 0;
+        return Math.round(done.reduce((a,b)=>a + b.score, 0) / done.length);
+      });
+      const overallScoreColor = computed(() => {
+        const s = overallScore.value;
+        if(s >= passThreshold.value) return 'text-emerald-300';
+        if(s >= Math.max(60, passThreshold.value - 10)) return 'text-yellow-300';
+        return 'text-red-400';
+      });
+
+      function scoreColor(score){
+        if(score === null || score === undefined) return 'text-gray-500';
+        if(score >= passThreshold.value) return 'text-emerald-300';
+        if(score >= Math.max(60, passThreshold.value - 10)) return 'text-yellow-300';
+        return 'text-red-400';
+      }
+
+      function rowClass(it, idx){
+        const base = idx === currentIndex.value ? 'border-brand-500/40 bg-brand-600/10' : 'border-ink-700/50 bg-ink-950/30';
+        if(it.score === null) return base;
+        if(it.passed) return (idx === currentIndex.value) ? 'border-emerald-500/50 bg-emerald-600/10' : 'border-emerald-500/25 bg-emerald-600/5';
+        return (idx === currentIndex.value) ? 'border-red-500/50 bg-red-600/10' : 'border-red-500/25 bg-red-600/5';
+      }
+
+      const nextPractice = () => { if(currentIndex.value < practiceList.value.length - 1){ currentIndex.value++; clearRecording(); } };
+      const prevPractice = () => { if(currentIndex.value > 0){ currentIndex.value--; clearRecording(); } };
+
+      const resetPracticeScores = () => {
+        practiceList.value = practiceList.value.map(x => ({ ...x, score:null, passed:false, transcript:'', marks:[], wordScore:null }));
+        clearRecording();
+      };
+
+      const tokenize = (s) => normalize(s).split(' ').filter(Boolean);
+
+      function levenshtein(a,b){
+        const m=a.length, n=b.length;
+        const dp = Array.from({length:m+1}, ()=> new Array(n+1).fill(0));
+        for(let i=0;i<=m;i++) dp[i][0]=i;
+        for(let j=0;j<=n;j++) dp[0][j]=j;
+        for(let i=1;i<=m;i++){
+          for(let j=1;j<=n;j++){
+            const cost = a[i-1]===b[j-1] ? 0 : 1;
+            dp[i][j] = Math.min(dp[i-1][j] + 1, dp[i][j-1] + 1, dp[i-1][j-1] + cost);
+          }
+        }
+        return dp[m][n];
+      }
+
+      function similarityPercent(target, spoken){
+        const ta = tokenize(target);
+        const sa = tokenize(spoken);
+        if(!ta.length && !sa.length) return 100;
+        if(!ta.length || !sa.length) return 0;
+        const dist = levenshtein(ta, sa);
+        const denom = Math.max(ta.length, sa.length);
+        const sim = Math.max(0, 1 - (dist/denom));
+        return Math.round(sim*100);
+      }
+
+      function wordMarks(target, spoken){
+        const T = tokenize(target);
+        const S = tokenize(spoken);
+        const m=T.length, n=S.length;
+        if(!m) return { marks: [], wordScore: null };
+        const dp = Array.from({length:m+1}, ()=> new Array(n+1).fill(0));
+        const back = Array.from({length:m+1}, ()=> new Array(n+1).fill(null));
+        for(let i=0;i<=m;i++){ dp[i][0]=i; back[i][0]='del'; }
+        for(let j=0;j<=n;j++){ dp[0][j]=j; back[0][j]='ins'; }
+        back[0][0]=null;
+        for(let i=1;i<=m;i++){
+          for(let j=1;j<=n;j++){
+            const cost = (T[i-1]===S[j-1]) ? 0 : 1;
+            const del = dp[i-1][j] + 1;
+            const ins = dp[i][j-1] + 1;
+            const sub = dp[i-1][j-1] + cost;
+            let best = sub, op = cost===0 ? 'match' : 'sub';
+            if(del < best){ best = del; op = 'del'; }
+            if(ins < best){ best = ins; op = 'ins'; }
+            dp[i][j] = best;
+            back[i][j] = op;
+          }
+        }
+        const ok = new Array(m).fill(false);
+        let i=m, j=n;
+        while(i>0 || j>0){
+          const op = back[i][j];
+          if(op==='match'){ ok[i-1]=true; i--; j--; }
+          else if(op==='sub'){ ok[i-1]=false; i--; j--; }
+          else if(op==='del'){ ok[i-1]=false; i--; }
+          else { j--; }
+        }
+        const marks = T.map((w, idx) => ({ word: w, ok: ok[idx] }));
+        const wordScore = Math.round((ok.filter(Boolean).length / m) * 100);
+        return { marks, wordScore };
+      }
+
+      async function generatePracticeSentences(topic, count=8){
+        const t = (topic||'').trim() || rand(localTopics);
+        const base = t.toLowerCase();
+
+        if(useInternet.value){
+          try{
+            internetOk.value = true;
+            let seed = base;
+            if(Math.random() < 0.35){
+              const rx = await wikipediaRandomExtract(2);
+              if(rx) seed = rx;
+            }
+            const related = await datamuseRelated(seed, 60);
+            const pool = related.length ? related : (localWordBank[base] || localWordBank.work);
+            const words = [];
+            while(words.length < Math.min(18, pool.length)){
+              const w = pickUnique('pron_word', pool);
+              if(!words.includes(w)) words.push(w);
+            }
+            const templates = [
+              (w)=>`I need a ${w} right now.`,
+              (w)=>`Can you help me with the ${w}?`,
+              ()=>`Please speak slowly and clearly.`,
+              ()=>`I am ready for my next shift.`,
+              (w)=>`Safety first. Wear your ${w}.`,
+              ()=>`Could you repeat that, please?`,
+              (w)=>`Where is the nearest ${w}?`,
+              ()=>`I will practice English every day.`,
+              (w)=>`Please label the ${w} clearly.`,
+              ()=>`Thank you for your help.`,
+              (w)=>`This ${w} goes to the dock.`
+            ];
+            const sentences = [];
+            let tries = 0;
+            while(sentences.length < count && tries < 120){
+              tries++;
+              const w = rand(words) || rand(pool);
+              let sent = '';
+              if(Math.random() < 0.25){
+                const def = await dictionaryDefine(w);
+                if(def?.example && def.example.length <= 110) sent = def.example;
+              }
+              if(!sent) sent = rand(templates)(w);
+              const tag = `pron_sent:${hash32(normalize(base+'|'+sent))}`;
+              if(hasSeen(tag) || tooSimilar(sent)) continue;
+              remember(tag);
+              sentences.push(sent);
+            }
+            return sentences.length ? sentences : fisherYates(templates).slice(0,count).map(fn=>fn(rand(words)||base));
+          }catch{ internetOk.value = false; }
+        }
+
+        internetOk.value = false;
+        const pool = localWordBank[base] || localWordBank.work;
+        const templates = [
+          (w)=>`I need a ${w} today.`,
+          ()=>`Please be careful and stay safe.`,
+          ()=>`Can you repeat that, please?`,
+          ()=>`I will practice my pronunciation.`,
+          ()=>`I am ready to start my shift.`,
+          ()=>`Let's work as a team.`,
+          (w)=>`Where can I find the ${w}?`,
+          ()=>`Thank you for your help.`,
+          (w)=>`Please check the ${w} now.`,
+          (w)=>`Move the ${w} to aisle 2.`
+        ];
+        const sentences = [];
+        let tries = 0;
+        while(sentences.length < count && tries < 120){
+          tries++;
+          const w = pickUnique('pron_word_local', pool);
+          const sent = rand(templates)(w);
+          const tag = `pron_sent:${hash32(normalize(base+'|'+sent))}`;
+          if(hasSeen(tag) || tooSimilar(sent)) continue;
+          remember(tag);
+          sentences.push(sent);
+        }
+        return sentences;
+      }
+
+      const generatePracticeSet = async () => {
+        const sents = await generatePracticeSentences(practiceTopic.value, 8);
+        practiceList.value = sents.map((t, i) => ({ id: Date.now()+i, text: t, score:null, passed:false, transcript:'', marks:[], wordScore:null }));
+        currentIndex.value = 0;
+        clearRecording();
+        localStorage.setItem('ltult_pron_topic', practiceTopic.value || '');
+      };
+
+      async function ensureMic(){
+        if(!mediaStream) mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true });
+        return mediaStream;
+      }
+
+      function stopRecorderSafe(){
+        if(mediaRecorder && mediaRecorder.state !== 'inactive'){
+          try{ mediaRecorder.stop(); }catch{}
+        }
+      }
+
+      function startSpeechRecognition(){
+        lastTranscript.value = '';
+        if(!speechSupported.value) return;
+        recognition = new SpeechRecognition();
+        recognition.lang = pronLang.value;
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onresult = (event) => {
+          const text = event.results?.[0]?.[0]?.transcript || '';
+          lastTranscript.value = text;
+        };
+        try{ recognition.start(); }catch{}
+      }
+
+      function stopSpeechRecognition(){
+        if(recognition){ try{ recognition.stop(); }catch{} }
+      }
+
+      function evaluatePronunciation(){
+        const target = currentItem.value.text || '';
+        const spoken = lastTranscript.value || '';
+        const score = speechSupported.value ? similarityPercent(target, spoken) : null;
+        const passed = (score !== null) ? (score >= passThreshold.value) : false;
+        const it = practiceList.value[currentIndex.value];
+        if(it){
+          it.transcript = spoken;
+          it.score = score;
+          it.passed = passed;
+          if(speechSupported.value){
+            const wm = wordMarks(target, spoken);
+            it.marks = wm.marks;
+            it.wordScore = wm.wordScore;
+          } else {
+            it.marks = [];
+            it.wordScore = null;
+          }
+        }
+      }
+
+      const clearRecording = () => {
+        if(lastAudioUrl.value) URL.revokeObjectURL(lastAudioUrl.value);
+        lastAudioUrl.value = '';
+        lastTranscript.value = '';
+        recStateLabel.value = 'Listo';
+      };
+
+      const toggleRecord = async () => {
+        if(recBusy.value) return;
+        recBusy.value = true;
+        try{
+          if(!isRecording.value){
+            clearRecording();
+            recStateLabel.value = 'Solicitando micrófono...';
+            const stream = await ensureMic();
+            recordedChunks = [];
+            const mimeType = pickMimeType();
+            mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size>0) recordedChunks.push(e.data); };
+            mediaRecorder.onstart = () => { recStateLabel.value = 'Grabando...'; };
+            mediaRecorder.onerror = () => { recStateLabel.value = 'Error al grabar'; };
+            mediaRecorder.onstop = () => {
+              const blob = new Blob(recordedChunks, { type: mimeType || 'audio/webm' });
+              lastAudioUrl.value = URL.createObjectURL(blob);
+              recStateLabel.value = 'Grabación lista';
+            };
+            startSpeechRecognition();
+            mediaRecorder.start();
+            isRecording.value = true;
+          } else {
+            recStateLabel.value = 'Procesando...';
+            stopRecorderSafe();
+            stopSpeechRecognition();
+            isRecording.value = false;
+            await sleep(550);
+            evaluatePronunciation();
+          }
+        }catch{
+          recStateLabel.value = 'Permiso denegado o error';
+        } finally {
+          recBusy.value = false;
+        }
+      };
+
+      // ===== Init =====
+      onMounted(async () => {
+        const savedMsgs = await localforage.getItem('messages');
+        if(Array.isArray(savedMsgs) && savedMsgs.length){
+          messages.value = savedMsgs;
+          for(const m of messages.value){
+            if(m.kind==='audio' && m.audioKey && !m.audioUrl){
+              try{ const blob = await localforage.getItem(m.audioKey); if(blob) m.audioUrl = URL.createObjectURL(blob); }catch{}
+            }
+          }
+        }
+        await loadNotebook();
+        await loadVocab();
+        setupInputPaddingObserver();
+        if(!practiceList.value.length) generatePracticeSet();
+        if(messages.value.length) scrollToBottom();
+      });
+
+      // jQuery shortcuts
+      if(window.jQuery){
+        window.jQuery(() => {
+          window.jQuery(document).on('keydown', (e) => {
+            if(e.ctrlKey && (e.key==='k' || e.key==='/')){
+              e.preventDefault();
+              const ta = document.querySelector('textarea');
+              if(ta) ta.focus();
+            }
+          });
+        });
+      }
+
+      // Cleanup
+      window.addEventListener('beforeunload', () => {
+        try{ voiceRec && voiceRec.stop(); }catch{}
+        try{ stopRecorderSafe(); stopSpeechRecognition(); }catch{}
+        if(lastAudioUrl.value) URL.revokeObjectURL(lastAudioUrl.value);
+        for(const m of messages.value){ if(m.kind==='audio' && m.audioUrl) try{ URL.revokeObjectURL(m.audioUrl); }catch{} }
+        localforage.setItem('messages', messages.value.map(m => ({...m, audioUrl: undefined}))).catch(()=>{});
+      });
+
+      return {
+        displayName, mode, modeLabel,
+        messages, input, loading, showConfig, textarea,
+        sessionId, useInternet, timeoutMs, internetOk,
+        level, ttsLang,
+        pronLang, passThreshold,
+        notebook, vocab, vocabSearch, filteredVocab,
+        sideOpen, sideTab,
+        pyReady, pyLoading,
+        isVoiceInput,
+        jqOk,
+        reviewOpen, reviewQueue, reviewIndex, reviewCard, reviewShowBack,
+        renderMD, statusLine,
+        toggleSide, send, sendText, regenerate,
+        tts, copy, translateMsg,
+        toggleVoiceInput,
+        pinToNotebook, clearNotebook, clearVocab,
+        saveConfig, resetAll,
+        resetSeen,
+        togglePython,
+        speechSupported,
+        practiceTopic, practiceList, currentIndex, currentItem,
+        generatePracticeSet, nextPractice, prevPractice,
+        resetPracticeScores,
+        doneCount, overallScore, overallScoreColor,
+        scoreColor, rowClass,
+        ttsPractice,
+        isRecording, recBusy, lastAudioUrl, lastTranscript,
+        recStateLabel, toggleRecord, clearRecording,
+        isChatRecording, chatRecBusy, toggleChatRecord, downloadAudio
+      };
+    }
+  }).mount('#app');
 </script>
 </body>
 </html>
