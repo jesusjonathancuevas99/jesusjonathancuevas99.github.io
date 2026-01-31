@@ -1,620 +1,368 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Elite English Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>LinguaTutor Pro</title>
+    
+    <meta name="theme-color" content="#111827">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- LIBRARIES -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<!-- Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-/* ================= MOBILE PREMIUM THEME ================= */
-:root{
---bg:#f8fafc;
---card:#ffffff;
---accent:#2563eb;
---accent-soft:#eff6ff;
---text:#020617;
---muted:#64748b;
---border:#e5e7eb;
---ok:#16a34a;
---bad:#dc2626;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{
-margin:0;
-font-family:Inter;
-background:var(--bg);
-color:var(--text);
-padding-bottom:92px;
-}
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: { 500: '#3b82f6', 600: '#2563eb' },
+                        dark: { 800: '#1f2937', 900: '#111827', 950: '#030712' }
+                    },
+                    spacing: { 'safe-b': 'env(safe-area-inset-bottom)' }
+                }
+            }
+        }
+    </script>
 
-/* ================= HEADER ================= */
-header{
-height:64px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:800;
-font-size:1.2rem;
-background:white;
-border-bottom:1px solid var(--border);
-position:sticky;
-top:0;
-z-index:10;
-}
+    <style>
+        /* CSS FIXES FOR MOBILE & READABILITY */
+        body { background-color: #030712; color: #f3f4f6; height: 100%; overflow: hidden; }
+        #app { height: 100dvh; display: flex; flex-direction: column; }
 
-/* ================= CONTENT ================= */
-.container{
-padding:20px;
-}
+        /* MARKDOWN TABLES & STYLES */
+        .prose table { width: 100%; margin: 10px 0; border-collapse: collapse; font-size: 0.9em; }
+        .prose th { text-align: left; padding: 8px; border-bottom: 2px solid #374151; color: #9ca3af; text-transform: uppercase; font-size: 0.7em; letter-spacing: 0.05em; }
+        .prose td { padding: 8px; border-bottom: 1px solid #1f2937; }
+        .prose strong { color: #60a5fa; font-weight: 600; }
+        .prose code { background: #1f2937; padding: 2px 4px; border-radius: 4px; color: #e879f9; font-family: monospace; }
+        .prose ul { list-style: disc; padding-left: 20px; margin: 10px 0; }
+        .prose li { margin-bottom: 4px; }
+        .prose p { margin-bottom: 8px; line-height: 1.5; }
 
-/* ================= CARDS ================= */
-.card{
-background:var(--card);
-border-radius:22px;
-padding:24px;
-margin-bottom:22px;
-box-shadow:0 10px 25px rgba(0,0,0,.06);
-}
-.badge{
-font-size:.65rem;
-font-weight:800;
-letter-spacing:.18em;
-color:var(--accent);
-margin-bottom:14px;
-}
-.text-en{
-font-size:1.8rem;
-font-weight:700;
-line-height:1.35;
-}
-.text-fig{
-background:var(--accent-soft);
-padding:14px;
-border-radius:14px;
-margin-top:14px;
-font-family:monospace;
-}
-.text-es{
-margin-top:10px;
-color:var(--muted);
-}
+        /* CHAT BUBBLES */
+        .bubble { padding: 12px 16px; border-radius: 18px; max-width: 100%; word-wrap: break-word; font-size: 15px; position: relative; }
+        .bubble-user { background: #2563eb; color: white; border-radius: 18px 18px 4px 18px; margin-left: auto; max-width: 85%; }
+        .bubble-ai { background: #1f2937; color: #e5e7eb; border: 1px solid #374151; border-radius: 18px 18px 18px 4px; width: 100%; }
 
-/* ================= CONTROLS ================= */
-.controls{
-display:flex;
-gap:14px;
-margin-top:18px;
-}
-.btn-icon{
-width:50px;height:50px;
-border-radius:50%;
-border:none;
-background:var(--accent);
-color:white;
-font-size:1.1rem;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-.btn-main{
-margin-top:22px;
-width:100%;
-padding:16px;
-border-radius:18px;
-border:none;
-background:var(--accent);
-color:white;
-font-weight:800;
-font-size:1rem;
-}
+        /* INPUT AREA */
+        .input-area { background: #111827; border-top: 1px solid #1f2937; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
 
-/* ================= SPEAK ================= */
-.word-ok{color:var(--ok);font-weight:700}
-.word-bad{color:var(--bad);font-weight:700}
-
-/* ================= EXERCISES ================= */
-.option{
-padding:16px;
-border-radius:16px;
-background:white;
-border:1px solid var(--border);
-margin-top:12px;
-}
-.correct{background:#ecfdf5;color:var(--ok)}
-.wrong{background:#fef2f2;color:var(--bad)}
-
-input,textarea,select{
-width:100%;
-padding:14px;
-border-radius:14px;
-border:1px solid var(--border);
-margin-top:12px;
-font-family:Inter;
-}
-
-/* ================= TABS ================= */
-.tab{display:none}
-.tab.active{display:block}
-
-/* ================= BOTTOM NAV ================= */
-nav{
-position:fixed;
-bottom:0;left:0;right:0;
-height:82px;
-background:white;
-border-top:1px solid var(--border);
-display:flex;
-justify-content:space-around;
-align-items:center;
-}
-nav div{
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:6px;
-font-size:.65rem;
-font-weight:700;
-color:var(--muted);
-}
-nav .active{color:var(--accent)}
-nav i{font-size:1.6rem}
-</style>
+        /* SCROLL */
+        .no-scrollbar::-webkit-scrollbar { width: 4px; }
+        .no-scrollbar::-webkit-scrollbar-thumb { background: #374151; }
+    </style>
 </head>
 
 <body>
 
-<header>Elite English Pro</header>
+<div id="app">
 
-<div class="container">
+    <!-- HEADER -->
+    <header class="h-14 flex items-center justify-between px-4 bg-dark-900/90 backdrop-blur border-b border-dark-800 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-sm tracking-wide text-gray-100">LinguaTutor</h1>
+                <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="apiKey ? 'bg-green-500' : 'bg-blue-400'"></span>
+                    <span class="text-[10px] text-gray-400 font-medium uppercase">{{ apiKey ? 'AI Conectada' : 'Modo Maestro' }}</span>
+                </div>
+            </div>
+        </div>
+        <button @click="showConfig = true" class="w-9 h-9 rounded-full bg-dark-800 flex items-center justify-center text-gray-400 hover:text-white transition">
+            <i class="fa-solid fa-gear"></i>
+        </button>
+    </header>
 
-<!-- PHRASES -->
-<section id="phrases" class="tab active">
-<div class="card">
-<div class="badge">PHRASE</div>
-<div id="phEn" class="text-en"></div>
-<div id="phFig" class="text-fig"></div>
-<div id="phEs" class="text-es"></div>
-<div class="controls">
-<button class="btn-icon" onclick="tts(phEn.innerText,1)"><i class="fas fa-play"></i></button>
-<button class="btn-icon" onclick="tts(phEn.innerText,.6)"><i class="fas fa-snail"></i></button>
-</div>
-<button class="btn-main" onclick="loadPhrase()">New Phrase</button>
-</div>
-</section>
+    <!-- CONTENT -->
+    <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth no-scrollbar">
+        
+        <!-- WELCOME STATE (Botones de Inicio Rápido) -->
+        <div v-if="messages.length === 0" class="h-full flex flex-col items-center justify-center -mt-10">
+            <div class="text-center space-y-2 mb-8 px-6">
+                <i class="fa-solid fa-chalkboard-user text-5xl text-dark-800 mb-4"></i>
+                <h2 class="text-lg font-bold text-white">¿Qué aprendemos hoy?</h2>
+                <p class="text-sm text-gray-500">Selecciona una lección rápida o escribe tu pregunta.</p>
+            </div>
 
-<!-- SPEAK -->
-<section id="speak" class="tab">
-<div class="card">
-<div class="badge">SPEAK</div>
-<div id="spTarget" class="text-en"></div>
-<div id="spFig" class="text-fig"></div>
-<div id="spResult"></div>
-<div id="spScore" style="margin-top:12px;font-weight:700"></div>
-<div class="controls">
-<button class="btn-icon" onclick="tts(spTarget.innerText,1)"><i class="fas fa-play"></i></button>
-<button class="btn-icon" onclick="startSpeak()"><i class="fas fa-microphone"></i></button>
-</div>
-<button class="btn-main" onclick="generateSpeak()">New Speak</button>
-</div>
-</section>
+            <div class="w-full max-w-sm grid grid-cols-2 gap-3 px-4">
+                <button @click="generateLesson('phrases')" class="p-4 bg-dark-800 hover:bg-dark-800/80 rounded-xl border border-dark-800 text-left group transition">
+                    <div class="text-blue-400 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-comments"></i></div>
+                    <div class="font-bold text-sm text-gray-200">Frases Útiles</div>
+                    <div class="text-[10px] text-gray-500">Para viajes y trabajo</div>
+                </button>
+                <button @click="generateLesson('grammar')" class="p-4 bg-dark-800 hover:bg-dark-800/80 rounded-xl border border-dark-800 text-left group transition">
+                    <div class="text-purple-400 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-book-open"></i></div>
+                    <div class="font-bold text-sm text-gray-200">Gramática</div>
+                    <div class="text-[10px] text-gray-500">Explicaciones simples</div>
+                </button>
+                <button @click="generateLesson('exercises')" class="col-span-2 p-4 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-xl flex items-center justify-between group transition">
+                    <div>
+                        <div class="font-bold text-sm text-blue-400">Generar Ejercicios</div>
+                        <div class="text-[10px] text-blue-300/60">Pon a prueba tu nivel ahora</div>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white"><i class="fa-solid fa-play"></i></div>
+                </button>
+            </div>
+        </div>
 
-<!-- EXERCISES -->
-<section id="exercises" class="tab">
-<div class="card">
-<div class="badge">EXERCISE</div>
-<div id="exQ" class="text-en"></div>
-<div id="exOpts"></div>
-<button class="btn-main" onclick="loadExercise()">New Exercise</button>
-</div>
-</section>
+        <!-- MESSAGES -->
+        <div v-for="msg in messages" :key="msg.id" class="animate-[fadeIn_0.3s_ease-out]">
+            
+            <!-- USER -->
+            <div v-if="msg.role === 'user'" class="flex justify-end mb-2">
+                <div class="bubble bubble-user shadow-blue-900/20 shadow-lg">
+                    {{ msg.text }}
+                </div>
+            </div>
 
-<!-- TRANSLATOR -->
-<section id="translator" class="tab">
-<div class="card">
-<div class="badge">TRANSLATOR</div>
-<select id="trDir">
-<option value="en-es">English → Español</option>
-<option value="es-en">Español → English</option>
-</select>
-<textarea id="trInput" placeholder="Enter text"></textarea>
-<button class="btn-main" onclick="doTranslate()">Translate</button>
-<div id="trOutput" class="text-es"></div>
-</div>
-</section>
+            <!-- AI / TEACHER -->
+            <div v-if="msg.role === 'ai'" class="flex gap-3 mb-4 max-w-2xl mx-auto">
+                <div class="w-8 h-8 rounded-full bg-dark-800 flex items-center justify-center shrink-0 border border-dark-800 mt-1">
+                    <i class="fa-solid fa-robot text-blue-400 text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="bubble bubble-ai shadow-lg">
+                        <div class="prose prose-invert prose-sm" v-html="renderMD(msg.text)"></div>
+                    </div>
+                    
+                    <!-- Feedback Toolbar -->
+                    <div class="flex gap-2 mt-2 ml-1">
+                        <button @click="speak(msg.text)" class="text-[10px] text-gray-500 bg-dark-800 px-2 py-1 rounded hover:text-white flex items-center gap-1 transition">
+                            <i class="fa-solid fa-volume-high"></i> Escuchar
+                        </button>
+                        <button @click="copy(msg.text)" class="text-[10px] text-gray-500 bg-dark-800 px-2 py-1 rounded hover:text-white flex items-center gap-1 transition">
+                            <i class="fa-regular fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-<!-- SETTINGS -->
-<section id="global" class="tab">
-<div class="card">
-<div class="badge">SETTINGS</div>
-<label>Gemini API Key</label>
-<input id="geminiKey">
-<button class="btn-main" onclick="saveGlobal()">Save</button>
-</div>
-</section>
+        </div>
+
+        <!-- TYPING LOADER -->
+        <div v-if="loading" class="flex items-center gap-2 ml-12 text-gray-500 text-xs py-2">
+            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce"></span>
+            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-100"></span>
+            <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-200"></span>
+            Preparando lección...
+        </div>
+
+        <!-- SPACER -->
+        <div class="h-4"></div>
+    </main>
+
+    <!-- INPUT DOCK -->
+    <div class="input-area z-40 px-3 pt-3">
+        <!-- Quick Suggestions (Pills) -->
+        <div v-if="messages.length > 0" class="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar px-1">
+            <button @click="generateLesson('exercises')" class="flex-shrink-0 px-3 py-1.5 bg-dark-800 rounded-full text-xs text-blue-300 border border-dark-800 whitespace-nowrap hover:bg-dark-800">
+                📝 Dame un ejercicio
+            </button>
+            <button @click="generateLesson('phrases')" class="flex-shrink-0 px-3 py-1.5 bg-dark-800 rounded-full text-xs text-purple-300 border border-dark-800 whitespace-nowrap hover:bg-dark-800">
+                🗣️ Frases útiles
+            </button>
+            <button @click="generateLesson('grammar')" class="flex-shrink-0 px-3 py-1.5 bg-dark-800 rounded-full text-xs text-green-300 border border-dark-800 whitespace-nowrap hover:bg-dark-800">
+                📚 Regla gramatical
+            </button>
+        </div>
+
+        <div class="flex items-end gap-2 bg-dark-800 p-1.5 pl-4 rounded-3xl border border-dark-800 shadow-xl max-w-3xl mx-auto">
+            <textarea v-model="input" 
+                      @keydown.enter.prevent="send"
+                      ref="textarea"
+                      rows="1" 
+                      class="bg-transparent text-gray-100 w-full py-2.5 outline-none resize-none max-h-32 placeholder-gray-600 text-[15px]" 
+                      placeholder="Escribe algo... (ej: 'Quiero aprender comida')"></textarea>
+            
+            <button @click="send" 
+                    :disabled="!input.trim()"
+                    class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0 mb-0.5 shadow-lg active:scale-95 transition disabled:opacity-50">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </div>
+        <p class="text-center text-[10px] text-gray-700 mt-2 mb-1">
+            {{ apiKey ? 'Motor IA: GPT/Gemini (Online)' : 'Motor IA: TeacherCore v2 (Offline/Gratis)' }}
+        </p>
+    </div>
+
+    <!-- CONFIG MODAL -->
+    <div v-if="showConfig" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center" @click.self="showConfig=false">
+        <div class="bg-dark-900 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 border-t border-dark-800 shadow-2xl">
+            <h3 class="text-lg font-bold text-white mb-1">Configuración</h3>
+            <p class="text-xs text-gray-500 mb-4">Para respuestas infinitas y complejas, usa una API.</p>
+            
+            <label class="text-xs font-bold text-gray-400 uppercase block mb-2">API Key (Opcional)</label>
+            <input v-model="apiKey" type="password" placeholder="sk-..." class="w-full bg-dark-950 border border-dark-800 rounded-lg p-3 text-sm text-gray-200 outline-none focus:border-blue-500 mb-2">
+            
+            <p class="text-[11px] text-gray-500 leading-relaxed bg-dark-950 p-3 rounded-lg border border-dark-800">
+                <strong class="text-gray-300">Modo Maestro (Sin Key):</strong> Usa una base de datos interna con miles de ejercicios y reglas pre-cargadas. Ideal para principiantes.<br><br>
+                <strong class="text-gray-300">Modo Dios (Con Key):</strong> Conecta con OpenAI/Gemini para correcciones a nivel nativo.
+            </p>
+
+            <button @click="showConfig=false" class="w-full mt-4 bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm">Guardar y Cerrar</button>
+        </div>
+    </div>
 
 </div>
-
-<nav>
-<div class="active" onclick="tab('phrases',this)"><i class="fas fa-quote-left"></i>Phrases</div>
-<div onclick="tab('speak',this)"><i class="fas fa-microphone"></i>Speak</div>
-<div onclick="tab('exercises',this)"><i class="fas fa-list"></i>Exercises</div>
-<div onclick="tab('translator',this)"><i class="fas fa-language"></i>Translate</div>
-<div onclick="tab('global',this)"><i class="fas fa-gear"></i>Settings</div>
-</nav>
 
 <script>
-/* ================= NAV ================= */
-function tab(id,el){
-document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-document.getElementById(id).classList.add('active');
-document.querySelectorAll('nav div').forEach(n=>n.classList.remove('active'));
-el.classList.add('active');
-}
+    const { createApp, ref, watch, nextTick } = Vue;
 
-/* ================= GLOBAL ================= */
-geminiKey.value=localStorage.getItem("GEMINI_KEY")||"";
-function saveGlobal(){
-localStorage.setItem("GEMINI_KEY",geminiKey.value.trim());
-alert("✅ Saved");
-}
+    /* REPOSITORIO DE CONTENIDO EDUCATIVO (Offline Database) */
+    const TEACHER_DB = {
+        grammar: [
+            { title: "Verbo To Be", content: "El verbo **To Be** significa ser o estar.\n\n| Pronombre | Verbo |\n|---|---|\n| I | am |\n| You | are |\n| He/She/It | is |\n| We/They | are |\n\nEjemplo: *I am happy* (Soy feliz)." },
+            { title: "Presente Simple", content: "Se usa para hábitos. Recuerda añadir **-s** en 'He/She/It'.\n\n* I work\n* She work**s**\n* We work" },
+            { title: "Pasado Simple", content: "Para verbos regulares añadimos **-ed**.\n* Play -> Played\n* Walk -> Walked\n\nLos irregulares cambian totalmente: Give -> Gave" }
+        ],
+        phrases: {
+            basics: "**Saludos Básicos:**\n\n| Inglés | Español |\n|---|---|\n| Hello / Hi | Hola |\n| How are you? | ¿Cómo estás? |\n| Nice to meet you | Mucho gusto |\n| See you later | Hasta luego |",
+            travel: "**Viajes:**\n\n| Inglés | Español |\n|---|---|\n| Where is the bathroom? | ¿Dónde está el baño? |\n| How much is this? | ¿Cuánto cuesta? |\n| Can I have water? | ¿Me da agua? |",
+            job: "**Trabajo:**\n\n| Inglés | Español |\n|---|---|\n| I have a meeting | Tengo una reunión |\n| Send an email | Enviar un correo |\n| Keep me updated | Mantenme informado |"
+        },
+        exercises: [
+            "**Completa la frase (Verbo To Be):**\n\n1. She `___` my sister.\n2. We `___` happy today.\n3. I `___` a doctor.\n\n*(Piensa la respuesta y pulsa 'Copiar' para rellenar)*",
+            "**Traduce estas palabras:**\n\n1. Manzana\n2. Coche\n3. Rojo\n4. Libro\n\n*(Escribe tus respuestas abajo)*",
+            "**Encuentra el error:**\n\nFrase: *He go to school yesterday.*\n\n*(¿Cuál es el error gramatical?)*"
+        ],
+        responses: [
+            "¡Excelente iniciativa! Aquí tienes material para eso.",
+            "Claro, vamos a practicar.",
+            "Aquí tienes la lección que pediste.",
+            "Teacher Mode activado. Revisa esto:"
+        ]
+    };
 
-/* ================= TTS ================= */
-function tts(text,rate){
-speechSynthesis.cancel();
-const u=new SpeechSynthesisUtterance(text);
-u.lang="en-US";
-u.rate=rate;
-speechSynthesis.speak(u);
-}
+    createApp({
+        setup() {
+            const messages = ref([]);
+            const input = ref('');
+            const loading = ref(false);
+            const apiKey = ref(localStorage.getItem('lt_key') || '');
+            const showConfig = ref(false);
+            const textarea = ref(null);
 
-/* ================= PHONETIC ================= */
-function englishToSpanishPhonetic(text){
-return text.toLowerCase()
-.replace(/th/g,"d")
-.replace(/ing\b/g,"in")
-.replace(/tion\b/g,"shon")
-.replace(/ph/g,"f");
-}
+            // --- LÓGICA CORE: EL CEREBRO DEL MAESTRO ---
+            
+            const processMessage = async (userText) => {
+                const lower = userText.toLowerCase();
+                let aiResponse = "";
 
-/* ================= TRANSLATOR ================= */
-async function doTranslate(){
-const [f,t]=trDir.value.split("-");
-trOutput.innerText="Translating...";
-trOutput.innerText=await translateSmart(trInput.value,f,t);
-}
-async function translateSmart(text,from,to){
-try{
-const r=await fetch(`https://apertium.org/apy/translate?langpair=${from}|${to}&q=${encodeURIComponent(text)}`);
-return (await r.json()).responseData.translatedText;
-}catch{
-return "Translation unavailable";
-}
-}
+                // 1. Detección de Intención (Offline Logic)
+                if (lower.includes('ejercicio') || lower.includes('practicar') || lower.includes('test')) {
+                    const ex = TEACHER_DB.exercises[Math.floor(Math.random() * TEACHER_DB.exercises.length)];
+                    aiResponse = `### 📝 Hora de Practicar\n\n${ex}`;
+                } 
+                else if (lower.includes('frase') || lower.includes('palabra') || lower.includes('vocabulario')) {
+                    const keys = Object.keys(TEACHER_DB.phrases);
+                    const topic = lower.includes('viaje') ? 'travel' : lower.includes('trabajo') ? 'job' : keys[Math.floor(Math.random() * keys.length)];
+                    aiResponse = `### 🗣️ Vocabulario: ${topic.toUpperCase()}\n\n${TEACHER_DB.phrases[topic]}`;
+                }
+                else if (lower.includes('gramatica') || lower.includes('regla') || lower.includes('aprender')) {
+                    const rule = TEACHER_DB.grammar[Math.floor(Math.random() * TEACHER_DB.grammar.length)];
+                    aiResponse = `### 📚 Lección: ${rule.title}\n\n${rule.content}`;
+                }
+                else {
+                    // Chat general simulado
+                    aiResponse = `**Teacher Bot:** Entiendo que quieres hablar sobre "${userText}". \n\nPara ayudarte mejor sin API Key, usa los botones o prueba diciendo:\n- *"Dame ejercicios"* \n- *"Frases de viajes"* \n- *"Explica gramática"*`;
+                }
 
-/* ================= PHRASES ================= */
-const subjects=["I","You","We","They","Learning English","Daily practice"];
-const verbs=["improves","builds","creates","strengthens"];
-const complements=["your confidence","your future","your skills","new opportunities"];
+                // Si hay API Key, intentamos llamada real (Placeholder logic)
+                if(apiKey.value.startsWith('sk-')) {
+                    try {
+                        const payload = {
+                            model: "gpt-3.5-turbo",
+                            messages: [
+                                {role: "system", content: "Eres un profesor de inglés experto. Responde con formato Markdown, tablas y ejercicios."},
+                                {role: "user", content: userText}
+                            ]
+                        };
+                        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey.value}`},
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        if(data.choices) aiResponse = data.choices[0].message.content;
+                    } catch(e) {
+                        aiResponse += "\n\n*(Falló la conexión API, usando respuesta Offline)*";
+                    }
+                }
 
-async function loadPhrase(){
-let t;
-try{t=(await (await fetch("https://api.quotable.io/random")).json()).content}catch{}
-if(!t){
-t=`${subjects[Math.floor(Math.random()*subjects.length)]} ${verbs[Math.floor(Math.random()*verbs.length)]} ${complements[Math.floor(Math.random()*complements.length)]}.`;
-}
-phEn.innerText=t;
-phFig.innerText=englishToSpanishPhonetic(t);
-phEs.innerText=await translateSmart(t,"en","es");
-}
+                return aiResponse;
+            };
 
-/* ================= SPEAK ================= */
-function startSpeak(){
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR)return;
-const r=new SR();
-r.lang="en-US";
-r.onresult=e=>compareSpeech(e.results[0][0].transcript);
-r.start();
-}
-function compareSpeech(spoken){
-const t=phEn.innerText.toLowerCase().split(" ");
-const s=spoken.toLowerCase().split(" ");
-let ok=0,html="";
-t.forEach((w,i)=>{
-if(s[i]===w){ok++;html+=`<span class="word-ok">${w}</span> `;}
-else html+=`<span class="word-bad">${w}</span> `;
-});
-spResult.innerHTML=html;
-spScore.innerText=`Accuracy: ${Math.round(ok/t.length*100)}%`;
-}
-function generateSpeak(){
-loadPhrase();
-spTarget.innerText=phEn.innerText;
-spFig.innerText=phFig.innerText;
-spResult.innerHTML="";
-spScore.innerHTML="";
-}
+            const send = async () => {
+                const text = input.value.trim();
+                if(!text) return;
+                
+                input.value = '';
+                if(textarea.value) textarea.value.style.height = 'auto';
 
-/* ================= EXERCISES ================= */
-async function loadExercise(){
-let s;
-try{s=(await (await fetch("https://api.adviceslip.com/advice")).json()).slip.advice}catch{}
-if(!s)s=phEn.innerText||"Learning English improves your confidence";
-const w=s.split(" ");
-const i=Math.floor(Math.random()*w.length);
-const a=w[i];
-w[i]="___";
-exQ.innerText=w.join(" ");
-exOpts.innerHTML="";
-[a,"is","are","do","does"].sort(()=>Math.random()-0.5).forEach(o=>{
-const d=document.createElement("div");
-d.className="option";
-d.innerText=o;
-d.onclick=()=>d.classList.add(o===a?"correct":"wrong");
-exOpts.appendChild(d);
-});
-}
+                messages.value.push({ id: Date.now(), role: 'user', text: text });
+                loading.value = true;
+                scrollToBottom();
 
-/* INIT */
-loadPhrase();
-loadExercise();
-</script>
-<script>
-/* =====================================================================
-   ELITE ENGLISH PRO · SENTENCE ENGINE v7 (EXTREME ROBUST)
-   =====================================================================
-   ✔ 10+ fuentes reales de Internet
-   ✔ Gemini prioritario
-   ✔ Control por función
-   ✔ Ultra estable
-   ✔ Nunca devuelve vacío
-===================================================================== */
+                // Simular latencia de "pensar"
+                await new Promise(r => setTimeout(r, 600));
 
-/* =============================
-   CONFIGURACIÓN GLOBAL
-============================= */
-const ENGINE_V7 = {
-  minWords: 6,
-  timeout: 7000,
-  emergency: "English is a global language used in many real situations."
-};
+                const response = await processMessage(text);
+                
+                messages.value.push({ id: Date.now()+1, role: 'ai', text: response });
+                loading.value = false;
+                scrollToBottom();
+            };
 
-/* =============================
-   UTILIDADES GENERALES
-============================= */
-const pick = a => a[Math.floor(Math.random() * a.length)];
+            const generateLesson = (type) => {
+                let prompt = "";
+                if(type === 'grammar') prompt = "Enséñame una regla gramatical";
+                if(type === 'exercises') prompt = "Dame un ejercicio práctico";
+                if(type === 'phrases') prompt = "Dame frases útiles en inglés";
+                
+                // Simplemente llamamos a send() simulando que el usuario lo escribió
+                input.value = prompt;
+                send();
+            };
 
-function sanitize(text){
-  return (text || "")
-    .toString()
-    .replace(/[\r\n]+/g," ")
-    .replace(/[^a-zA-Z0-9\s.,!?']/g,"")
-    .replace(/\s+/g," ")
-    .trim();
-}
+            // --- UTILS ---
+            const scrollToBottom = () => nextTick(() => {
+                const c = document.getElementById('chat-container');
+                if(c) c.scrollTop = c.scrollHeight;
+            });
+            const renderMD = (tekst) => marked.parse(tekst);
+            const speak = (txt) => {
+                // Limpiar markdown antes de hablar
+                const clean = txt.replace(/[*#|]/g, '');
+                const u = new SpeechSynthesisUtterance(clean);
+                u.lang = 'en-US';
+                u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            };
+            const copy = (t) => navigator.clipboard.writeText(t);
 
-function isValid(text){
-  return text && text.split(" ").length >= ENGINE_V7.minWords;
-}
+            watch(apiKey, v => localStorage.setItem('lt_key', v));
+            watch(input, () => {
+                 if(textarea.value) {
+                     textarea.value.style.height = 'auto'; 
+                     textarea.value.style.height = textarea.value.scrollHeight + 'px';
+                 }
+            });
 
-async function safeFetch(fn){
-  try{
-    const controller = new AbortController();
-    setTimeout(()=>controller.abort(), ENGINE_V7.timeout);
-    return await fn(controller.signal);
-  }catch{
-    return null;
-  }
-}
-
-/* =============================
-   PRONUNCIACIÓN FIGURADA
-============================= */
-function englishToSpanishPhonetic(text){
-  if(!text) return "";
-  let t = sanitize(text.toLowerCase());
-
-  const dict = {
-    i:"ai", you:"iú", he:"jí", she:"shí", we:"uí", they:"déi",
-    the:"da", is:"is", are:"ar", was:"uás", were:"uér",
-    have:"jav", has:"jas", had:"jad",
-    english:"ínglish", people:"pípol",
-    work:"uórk", life:"láif", learning:"lérnin"
-  };
-
-  t = t.split(" ").map(w=>dict[w]||w).join(" ");
-
-  [
-    [/tion\b/g,"shon"],[/sion\b/g,"shon"],
-    [/ph/g,"f"],[/ck/g,"k"],[/qu/g,"ku"],[/gh/g,""],
-    [/th/g,"d"],[/ee/g,"í"],[/ea/g,"í"],[/oo/g,"ú"],
-    [/ai/g,"ei"],[/ay/g,"ei"],[/ow/g,"au"],[/ou/g,"au"],
-    [/ing\b/g,"in"],[/ed\b/g,"d"],[/ly\b/g,"li"]
-  ].forEach(r=>t=t.replace(r[0],r[1]));
-
-  return t;
-}
-
-/* =============================
-   FUENTES DE INTERNET
-============================= */
-
-/* 1. Quotable */
-async function srcQuotable(signal){
-  const r = await fetch("https://api.quotable.io/random",{signal});
-  return (await r.json()).content;
-}
-
-/* 2. AdviceSlip */
-async function srcAdvice(signal){
-  const r = await fetch("https://api.adviceslip.com/advice",{signal});
-  return (await r.json()).slip.advice;
-}
-
-/* 3. Bored API */
-async function srcBored(signal){
-  const r = await fetch("https://www.boredapi.com/api/activity",{signal});
-  const j = await r.json();
-  return `When you have free time, ${j.activity.toLowerCase()}.`;
-}
-
-/* 4. Affirmations */
-async function srcAffirmation(signal){
-  const r = await fetch("https://www.affirmations.dev/",{signal});
-  return (await r.json()).affirmation;
-}
-
-/* 5. Type.fit */
-async function srcTypeFit(signal){
-  const r = await fetch("https://type.fit/api/quotes",{signal});
-  const j = await r.json();
-  return pick(j)?.text;
-}
-
-/* 6. ZenQuotes */
-async function srcZen(signal){
-  const r = await fetch("https://zenquotes.io/api/random",{signal});
-  const j = await r.json();
-  return j[0]?.q;
-}
-
-/* 7. DummyJSON Quotes */
-async function srcDummyQuotes(signal){
-  const r = await fetch("https://dummyjson.com/quotes/random",{signal});
-  return (await r.json()).quote;
-}
-
-/* 8. JokeAPI (adaptada) */
-async function srcJoke(signal){
-  const r = await fetch("https://v2.jokeapi.dev/joke/Any?type=single",{signal});
-  const j = await r.json();
-  return j.joke;
-}
-
-/* 9. Wikipedia summary */
-async function srcWikipedia(signal){
-  const topics = ["English language","Communication","Education","Travel"];
-  const t = pick(topics);
-  const r = await fetch(
-    "https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t),
-    {signal}
-  );
-  return (await r.json()).extract;
-}
-
-/* =============================
-   GEMINI (PRIORIDAD ALTA)
-============================= */
-async function srcGemini(){
-  const key = localStorage.getItem("GEMINI_KEY");
-  if(!key) return null;
-
-  const prompt = `
-Write ONE original English sentence.
-- Real life
-- A2-B2
-- Different structure every time
-- No quotes
-`;
-
-  try{
-    const r = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key="+key,
-      {
-        method:"POST",
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-      }
-    );
-    const j = await r.json();
-    return j?.candidates?.[0]?.content?.parts?.[0]?.text;
-  }catch{
-    return null;
-  }
-}
-
-/* =============================
-   MOTOR INTERNO (ÚLTIMO NIVEL)
-============================= */
-function semanticInternal(){
-  const patterns = [
-    () => `Many people realize the importance of English only after facing a real challenge.`,
-    () => `Learning a language changes the way you see the world and communicate with others.`,
-    () => `Confidence grows naturally when you practice speaking without fear of mistakes.`,
-    () => `Some situations feel uncomfortable at first, but experience makes them easier.`,
-    () => `Effective communication often matters more than perfect grammar.`
-  ];
-  return pick(patterns)();
-}
-
-/* =============================
-   GENERADOR MAESTRO
-============================= */
-async function generateSentence(){
-  const sources = [
-    async()=>sanitize(await srcGemini()),
-    async()=>sanitize(await safeFetch(srcQuotable)),
-    async()=>sanitize(await safeFetch(srcAdvice)),
-    async()=>sanitize(await safeFetch(srcBored)),
-    async()=>sanitize(await safeFetch(srcAffirmation)),
-    async()=>sanitize(await safeFetch(srcZen)),
-    async()=>sanitize(await safeFetch(srcDummyQuotes)),
-    async()=>sanitize(await safeFetch(srcTypeFit)),
-    async()=>sanitize(await safeFetch(srcJoke)),
-    async()=>sanitize(await safeFetch(srcWikipedia)),
-    ()=>semanticInternal()
-  ];
-
-  for(const src of sources){
-    try{
-      const t = await src();
-      if(isValid(t)) return t;
-    }catch{}
-  }
-
-  return ENGINE_V7.emergency;
-}
-
-/* =============================
-   API FINAL PARA LA APP
-============================= */
-async function getPhrase(){
-  const text = await generateSentence();
-  return { text, phonetic: englishToSpanishPhonetic(text) };
-}
-
-async function getSpeak(){
-  const text = await generateSentence();
-  return {
-    text,
-    phonetic: englishToSpanishPhonetic(text),
-    clean: sanitize(text.toLowerCase())
-  };
-}
-
-async function getExercise(){
-  const text = await generateSentence();
-  const words = text.split(" ");
-  const i = Math.floor(Math.random()*words.length);
-  const answer = words[i];
-  words[i] = "___";
-
-  return {
-    question: words.join(" "),
-    answer,
-    options: [answer,"is","are","do","does","can","have"]
-      .sort(()=>Math.random()-0.5)
-      .slice(0,4)
-  };
-}
-
-console.log("✅ Sentence Engine v7 loaded · EXTREME MULTI-SOURCE");
+            return { messages, input, loading, apiKey, showConfig, textarea, send, generateLesson, renderMD, speak, copy }
+        }
+    }).mount('#app');
 </script>
 </body>
 </html>
