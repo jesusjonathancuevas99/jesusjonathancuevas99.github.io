@@ -1,1804 +1,2167 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>LinguaTutor ULTIMATE — Chat PRO + Pronunciación + Python</title>
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dietas Pro IA — Definitivo (Recetas Offline)</title>
 
-  <!-- UI / Libraries (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+  <!-- ✅ Bootstrap + Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-  <!-- Optional helpers -->
-  <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+  <!-- ✅ FullCalendar CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.css">
 
-  <!-- Pyodide (Python in the browser) -->
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter','system-ui','-apple-system','Segoe UI','Roboto','sans-serif'] },
-          colors: {
-            brand: {
-              50:'#eef6ff',100:'#d9ecff',200:'#b8dcff',300:'#86c6ff',400:'#4aa7ff',
-              500:'#1d86ff',600:'#0d6ae6',700:'#0f54b8',800:'#12458f',900:'#123b76'
-            },
-            ink: { 950:'#070b12', 900:'#0b1220', 850:'#0f172a', 800:'#111c33', 700:'#1a2a4d' },
-          }
-        }
-      }
-    }
-  </script>
+  <!-- ✅ Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      /* will be updated by ResizeObserver to avoid mobile content being hidden by the input bar */
-      --inputH: 140px;
+      --bg1:#0b1220; --bg2:#111c33;
+      --card:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.10);
+      --text:#e8eefc; --muted:#94a3b8;
+      --shadow:0 14px 30px rgba(0,0,0,.35);
+      --accent:#7c3aed;
+      --accent2:#22c55e;
+      --warn:#f59e0b;
+      --info:#60a5fa;
+      --danger:#ef4444;
+      --glass: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      --glass2: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.03));
     }
-    html, body { height: 100%; }
-    body { background:#070b12; color:#e5e7eb; overflow:hidden; }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg1:#f5f8ff; --bg2:#dfeaff;
+        --card:#fff; --border:rgba(15,23,42,.12);
+        --text:#0f172a; --muted:#64748b;
+        --shadow:0 14px 30px rgba(15,23,42,.12);
+        --accent:#6d28d9;
+        --accent2:#16a34a;
+        --warn:#d97706;
+        --info:#2563eb;
+        --danger:#dc2626;
+        --glass: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.86));
+        --glass2: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,255,255,.85));
+      }
+    }
 
-    /* Better mobile viewport behavior */
-    #app { height: 100svh; height: 100dvh; display:flex; flex-direction:column; }
+    *{ font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; }
+    body{
+      background: radial-gradient(900px 600px at 20% 10%, rgba(124,58,237,.28), transparent 55%),
+                  radial-gradient(700px 500px at 85% 20%, rgba(34,197,94,.18), transparent 55%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: var(--text);
+      min-height:100vh;
+    }
 
-    /* Scrollbar */
-    .no-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .no-scrollbar::-webkit-scrollbar-thumb { background:#24324f; border-radius: 999px; }
+    .shell{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 16px;
+      display:grid;
+      grid-template-columns: 300px 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 1024px){ .shell{ grid-template-columns: 1fr; } }
 
-    /* Markdown */
-    .prose table { width:100%; margin: 12px 0; border-collapse: collapse; font-size: .92em; }
-    .prose th { text-align:left; padding:10px; border-bottom:2px solid #223253; color:#93a4c2; text-transform:uppercase; font-size:.75em; letter-spacing:.06em; }
-    .prose td { padding:10px; border-bottom:1px solid #1a2a4d; }
-    .prose strong { color:#7dd3fc; font-weight: 650; }
-    .prose code { background:#0f172a; padding:2px 6px; border-radius:8px; color:#f0abfc; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-    .prose a { color:#60a5fa; text-decoration: underline; }
-    .prose blockquote { border-left: 3px solid #1d86ff; padding-left: 12px; color:#cbd5e1; }
+    .sidebar{
+      border:1px solid var(--border);
+      background: var(--glass);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      position: sticky;
+      top: 16px;
+      height: calc(100vh - 32px);
+      overflow:auto;
+      backdrop-filter: blur(10px);
+    }
+    @media (max-width: 1024px){ .sidebar{ position: relative; height:auto; } }
 
-    /* Chat bubbles */
-    .bubble { padding: 12px 14px; border-radius: 18px; max-width: 100%; word-wrap: break-word; font-size: 15px; position: relative; }
-    .bubble-user { background: linear-gradient(135deg, #0d6ae6, #1d86ff); color: #fff; border-radius: 18px 18px 6px 18px; margin-left:auto; max-width: 88%; box-shadow: 0 10px 30px rgba(29,134,255,.18); }
-    .bubble-ai { background: rgba(15, 23, 42, .82); border: 1px solid rgba(34,50,83,.8); border-radius: 18px 18px 18px 6px; width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,.22); }
+    .brandbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding: 8px 6px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+    .brandbar .name{ font-weight:900; letter-spacing:.2px; }
 
-    /* Cards */
-    .card { background: rgba(11,18,32,.84); border:1px solid rgba(34,50,83,.7); border-radius: 18px; }
-    .chip { background:#0f172a; border:1px solid rgba(34,50,83,.9); }
+    .pill{
+      font-size:.84rem;
+      border-radius:999px;
+      border:1px solid var(--border);
+      padding:.25rem .6rem;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+    }
 
-    /* Input */
-    .input-area { background: rgba(11,18,32,.92); border-top: 1px solid rgba(34,50,83,.6); padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+    .navbtn{
+      width:100%;
+      text-align:left;
+      border-radius: 14px;
+      border:1px solid transparent;
+      padding: 10px 12px;
+      background: transparent;
+      color: var(--text);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      transition: .15s ease;
+    }
+    .navbtn:hover{ background: rgba(255,255,255,.07); border-color: var(--border); }
+    .navbtn.active{ background: rgba(124,58,237,.18); border-color: rgba(124,58,237,.35); }
 
-    /* Subtle glow */
-    .glow { box-shadow: 0 0 0 1px rgba(29,134,255,.25), 0 15px 60px rgba(29,134,255,.12); }
+    .main{ display:flex; flex-direction:column; gap: 16px; }
 
-    /* Skeleton */
-    .shimmer { background: linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.10), rgba(255,255,255,.05)); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
-    @keyframes shimmer { 0%{background-position:0% 0%} 100%{background-position:-200% 0%} }
+    .topbar{
+      border:1px solid var(--border);
+      background: var(--glass2);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      flex-wrap:wrap;
+      backdrop-filter: blur(10px);
+    }
 
-    /* Ensure scroll area leaves room for input bar on mobile */
-    .chat-pad { padding-bottom: calc(var(--inputH) + 18px); }
+    .cardx{
+      border:1px solid var(--border);
+      background: var(--glass);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      backdrop-filter: blur(10px);
+    }
 
-    /* Audio control look */
-    audio { width: 100%; }
+    .muted{ color: var(--muted); }
+    .hr{ height:1px; background: var(--border); margin: 14px 0; }
 
-    #chatScroll{ min-height:0; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-    #app main, #app section { min-height:0; }
+    .form-control, .form-select, textarea{
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+    }
+    .form-control::placeholder, textarea::placeholder{ color: rgba(148,163,184,.75); }
+    .form-control:focus, .form-select:focus, textarea:focus{
+      border-color: rgba(124,58,237,.55);
+      box-shadow: 0 0 0 .2rem rgba(124,58,237,.20);
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+    }
+
+    .btn-accent{
+      background: linear-gradient(135deg, var(--accent), rgba(96,165,250,.95));
+      border:0;
+      color:white;
+      font-weight:900;
+      border-radius:12px;
+      padding: 10px 12px;
+    }
+    .btn-lite{
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-weight: 800;
+      border-radius:12px;
+      padding: 10px 12px;
+    }
+    .btn-lite:hover{ background: rgba(255,255,255,.06); }
+    .btn-danger-lite{
+      background: transparent;
+      border: 1px solid rgba(239,68,68,.35);
+      color: var(--text);
+      font-weight: 800;
+      border-radius:12px;
+      padding: 10px 12px;
+    }
+    .btn-danger-lite:hover{ background: rgba(239,68,68,.10); }
+
+    .kpi{
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.05);
+    }
+    .kpi .big{ font-weight: 900; font-size: 1.2rem; }
+    .badge-soft{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      padding: .2rem .6rem;
+      border-radius: 999px;
+      font-size: .82rem;
+    }
+
+    /* Calendar */
+    #calendarWrap{
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .fc{
+      --fc-border-color: rgba(255,255,255,.12);
+      --fc-page-bg-color: transparent;
+      --fc-neutral-bg-color: rgba(255,255,255,.04);
+      --fc-today-bg-color: rgba(124,58,237,.12);
+      --fc-now-indicator-color: rgba(239,68,68,.9);
+    }
+    .fc .fc-toolbar{ gap: 10px; margin-bottom: 10px !important; flex-wrap: wrap; }
+    .fc .fc-toolbar-title{ font-weight: 900; letter-spacing: .2px; font-size: 1.15rem; }
+    .fc .fc-button{ border-radius: 12px !important; padding: .50rem .80rem !important; font-weight: 900; }
+    .fc .fc-button-primary{
+      background: linear-gradient(135deg, var(--accent), rgba(96,165,250,.95)) !important;
+      border: 0 !important;
+    }
+    .fc .fc-timegrid-slot{ height: 48px !important; }
+    .fc .fc-timegrid-axis, .fc .fc-timegrid-slot-label{
+      font-weight: 900;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    .fc .fc-timegrid-event{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 20px rgba(0,0,0,.16);
+      overflow: hidden;
+    }
+    .evWrap{ display:flex; flex-direction:column; gap:4px; padding: 8px 10px; }
+    .evTop{ display:flex; gap:8px; align-items:center; flex-wrap: wrap; }
+    .evBadge{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 2px 10px; border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.14);
+      font-weight: 900; font-size: .74rem;
+      letter-spacing: .1px;
+    }
+    .evTime{ font-weight: 900; font-size: .78rem; opacity: .95; }
+    .evTitle{ white-space: normal; font-weight: 900; font-size: .94rem; line-height: 1.15; }
+    .evPortion{ white-space: normal; font-size: .82rem; line-height: 1.15; opacity: .95; }
+
+    .detailCard{
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,.04);
+      padding: 14px;
+      height: 100%;
+      min-height: 280px;
+      position: sticky;
+      top: 16px;
+      backdrop-filter: blur(10px);
+    }
+    @media (max-width: 992px){ .detailCard{ position: relative; top:auto; } }
+    .detailTitle{ font-weight: 900; font-size: 1.05rem; }
+    .detailRow{ border-top: 1px dashed rgba(255,255,255,.14); padding-top: 10px; margin-top: 10px; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    /* Recipes */
+    .recipeGrid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 992px){ .recipeGrid{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 576px){ .recipeGrid{ grid-template-columns: 1fr; } }
+    .recipeCard{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.05);
+      border-radius: 16px;
+      overflow:hidden;
+      box-shadow: 0 10px 18px rgba(0,0,0,.10);
+      transition: transform .12s ease;
+      cursor:pointer;
+      padding: 12px;
+    }
+    .recipeCard:hover{ transform: translateY(-2px); }
+    .recipeTitle{ font-weight: 900; line-height: 1.15; }
+    .recipeMeta{ font-size:.82rem; color: var(--muted); margin-top: 6px; display:flex; gap:6px; flex-wrap:wrap; }
+
+    .toast-container{ position: fixed; right: 16px; bottom: 16px; z-index: 9999; }
+    @media print{
+      body{ background:#fff !important; color:#000 !important; }
+      .sidebar, .topbar, #viewCalendar, .toast-container, .offcanvas, .modal { display:none !important; }
+      .cardx{ box-shadow:none !important; border: 1px solid #ddd !important; }
+      .muted{ color:#444 !important; }
+    }
   </style>
 </head>
 
 <body>
-<div id="app">
-  <!-- HEADER -->
-  <header class="h-14 flex items-center justify-between px-4 bg-ink-900/80 backdrop-blur border-b border-ink-700/60 z-50">
-    <div class="flex items-center gap-3 min-w-0">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center text-white shadow-lg">
-        <i class="fa-solid fa-graduation-cap"></i>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brandbar">
+        <div class="name">🥗 Dietas Pro IA <span class="badge-soft ms-1">Definitivo</span></div>
+        <span class="pill" id="pillUser">Usuario</span>
       </div>
-      <div class="min-w-0">
-        <h1 class="font-bold text-sm tracking-wide text-gray-100 truncate">LinguaTutor ULTIMATE</h1>
-        <div class="flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full" :class="internetOk ? 'bg-emerald-400' : 'bg-yellow-400'"></span>
-          <span class="text-[10px] text-gray-400 font-medium uppercase">{{ internetOk ? 'Internet OK' : 'Fallback local' }}</span>
-          <span class="text-[10px] text-gray-600">•</span>
-          <span class="text-[10px] text-gray-500 font-medium uppercase">{{ modeLabel }}</span>
-          <span class="text-[10px] text-gray-600">•</span>
-          <span class="text-[10px]" :class="pyReady ? 'text-emerald-300' : 'text-gray-500'">
-            <i class="fa-brands fa-python mr-1"></i>{{ pyReady ? 'Python listo' : 'Python off' }}
-          </span>
+
+      <div class="d-grid gap-2">
+        <button class="navbtn active" data-view="viewProfile"><i class="bi bi-person-badge"></i> Perfil</button>
+        <button class="navbtn" data-view="viewPlan"><i class="bi bi-stars"></i> Generar Plan</button>
+        <button class="navbtn" data-view="viewCalendar"><i class="bi bi-calendar-week"></i> Calendario</button>
+        <button class="navbtn" data-view="viewItinerary"><i class="bi bi-list-check"></i> Itinerario</button>
+        <button class="navbtn" data-view="viewRecipes"><i class="bi bi-journal-text"></i> Recetas (Offline)</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-lite" id="btnExport"><i class="bi bi-download"></i> Exportar</button>
+        <label class="btn btn-lite m-0">
+          <i class="bi bi-upload"></i> Importar
+          <input type="file" id="fileImport" accept=".json" hidden>
+        </label>
+        <button class="btn btn-danger-lite" id="btnHardReset"><i class="bi bi-trash3"></i> Reset total</button>
+      </div>
+
+      <div class="mt-3 muted small">
+       
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div style="font-weight:900">Panel Profesional</div>
+          <div class="muted"></div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <span class="pill" id="pillStatus">Sin plan</span>
+          <button class="btn btn-accent" id="btnQuickPlan"><i class="bi bi-lightning"></i> Plan rápido</button>
         </div>
       </div>
-    </div>
 
-    <div class="flex items-center gap-2">
-      <button @click="mode = (mode==='chat' ? 'pron' : 'chat')" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center text-gray-300 hover:text-white transition" :title="mode==='chat' ? 'Ir a Pronunciación' : 'Volver al Chat'">
-        <i class="fa-solid" :class="mode==='chat' ? 'fa-microphone' : 'fa-comments'"></i>
-      </button>
-      <button @click="toggleSide" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center text-gray-400 hover:text-white transition" title="Panel">
-        <i class="fa-solid fa-sliders"></i>
-      </button>
-      <button @click="showConfig=true" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center text-gray-400 hover:text-white transition" title="Configuración">
-        <i class="fa-solid fa-gear"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- MAIN -->
-  <main class="flex-1 overflow-hidden min-h-0">
-    <div class="h-full min-h-0 grid grid-cols-1 lg:grid-cols-[1fr_360px]">
-
-      <!-- PRIMARY COLUMN -->
-      <section class="h-full min-h-0 flex flex-col overflow-hidden">
-
-        <!-- ========================= CHAT VIEW ========================= -->
-        <div v-show="mode==='chat'" class="h-full min-h-0 flex flex-col overflow-hidden">
-          <!-- chat scroll container -->
-          <div id="chatScroll" class="flex-1 min-h-0 overflow-y-auto no-scrollbar scroll-smooth p-4 space-y-5 chat-pad">
-
-            <!-- Welcome -->
-            <div v-if="messages.length===0" class="min-h-[calc(100dvh-56px-160px)] flex flex-col items-center justify-center -mt-2">
-              <div class="text-center space-y-2 mb-8 px-6">
-                <div class="mx-auto w-14 h-14 rounded-2xl bg-ink-850 border border-ink-700/70 flex items-center justify-center">
-                  <i class="fa-solid fa-wand-magic-sparkles text-2xl text-brand-400"></i>
-                </div>
-                <h2 class="text-lg font-extrabold text-white mt-3">¿Qué aprendemos hoy, {{ displayName || 'amigo' }}?</h2>
-                <p class="text-sm text-gray-400">Chat con herramientas, fuentes reales, memoria anti-repetición, notebook, vocab y modo Python opcional.</p>
-                <p class="text-[11px] text-gray-500">Tip: comandos <span class="font-mono">/define</span>, <span class="font-mono">/wiki</span>, <span class="font-mono">/quiz</span>, <span class="font-mono">/grammar</span>, <span class="font-mono">/export</span>, <span class="font-mono">/python</span>.</p>
-              </div>
-
-              <div class="w-full max-w-md grid grid-cols-2 gap-3 px-4">
-                <button @click="sendText('/quiz work')" class="p-4 card hover:bg-ink-850/70 transition text-left group">
-                  <div class="text-brand-300 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-list-check"></i></div>
-                  <div class="font-bold text-sm text-gray-200">Quiz rápido</div>
-                  <div class="text-[10px] text-gray-500">Vocab + uso</div>
-                </button>
-                <button @click="sendText('/grammar past simple')" class="p-4 card hover:bg-ink-850/70 transition text-left group">
-                  <div class="text-purple-300 text-xl mb-2 group-hover:scale-110 transition"><i class="fa-solid fa-book-open"></i></div>
-                  <div class="font-bold text-sm text-gray-200">Gramática PRO</div>
-                  <div class="text-[10px] text-gray-500">Explica + ejercicios</div>
-                </button>
-                <button @click="sendText('/wiki Coffee')" class="col-span-2 p-4 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 rounded-xl flex items-center justify-between group transition">
-                  <div>
-                    <div class="font-bold text-sm text-emerald-300">Lectura real (Wikipedia)</div>
-                    <div class="text-[10px] text-emerald-200/60">con preguntas y vocab</div>
-                  </div>
-                  <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white"><i class="fa-solid fa-book"></i></div>
-                </button>
-                <button @click="sendText('Quiero frases útiles para mi trabajo en almacén, con audio y un ejercicio.')" class="col-span-2 p-4 bg-brand-600/10 hover:bg-brand-600/20 border border-brand-500/20 rounded-xl flex items-center justify-between group transition">
-                  <div>
-                    <div class="font-bold text-sm text-brand-300">Frases útiles + práctica</div>
-                    <div class="text-[10px] text-brand-200/60">anti-repetición</div>
-                  </div>
-                  <div class="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white"><i class="fa-solid fa-play"></i></div>
-                </button>
-              </div>
-            </div>
-
-            <!-- Messages -->
-            <div v-for="msg in messages" :key="msg.id" class="">
-              <div v-if="msg.role==='user'" class="flex justify-end">
-                <div class="bubble bubble-user">{{ msg.text }}</div>
-              </div>
-
-              <div v-else class="flex gap-3 max-w-3xl mx-auto">
-                <div class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 flex items-center justify-center shrink-0 mt-1">
-                  <i class="fa-solid fa-robot text-brand-300 text-xs"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="bubble bubble-ai">
-                    <div class="prose prose-invert prose-sm max-w-none" v-html="renderMD(msg.text)"></div>
-                    <div v-if="msg.sources && msg.sources.length" class="mt-3 border-t border-ink-700/50 pt-3">
-                      <div class="flex items-center justify-between">
-                        <div class="text-[11px] uppercase tracking-wider text-gray-400 font-bold">Fuentes</div>
-                        <button @click="msg.showSources=!msg.showSources" class="text-[11px] text-gray-400 hover:text-white">
-                          {{ msg.showSources ? 'Ocultar' : 'Ver' }}
-                        </button>
-                      </div>
-                      <div v-show="msg.showSources" class="mt-2 space-y-2">
-                        <a v-for="(s,i) in msg.sources" :key="i" :href="s.url" target="_blank" rel="noreferrer" class="block p-2 rounded-xl bg-ink-900/60 border border-ink-700/50 hover:bg-ink-850/70">
-                          <div class="text-xs text-gray-200 font-semibold truncate">{{ s.title || s.url }}</div>
-                          <div class="text-[11px] text-gray-400 line-clamp-2">{{ s.snippet }}</div>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="flex flex-wrap gap-2 mt-2 ml-1">
-                    <button @click="tts(msg.text)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
-                      <i class="fa-solid fa-volume-high text-brand-200"></i> Escuchar
-                    </button>
-                    <button @click="copy(msg.text)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
-                      <i class="fa-regular fa-copy"></i> Copiar
-                    </button>
-                    <button @click="regenerate(msg)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
-                      <i class="fa-solid fa-rotate-right"></i> Variar
-                    </button>
-                    <button v-if="msg.sources && msg.sources.length" @click="pinToNotebook(msg)" class="text-[11px] chip px-3 py-1.5 rounded-full text-gray-300 hover:text-white flex items-center gap-2 transition">
-                      <i class="fa-solid fa-thumbtack"></i> Guardar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Loader -->
-            <div v-if="loading" class="max-w-3xl mx-auto">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70"></div>
-                <div class="flex-1">
-                  <div class="h-4 w-40 rounded-full shimmer"></div>
-                  <div class="mt-2 h-3 w-72 rounded-full shimmer opacity-80"></div>
-                  <div class="mt-2 h-3 w-64 rounded-full shimmer opacity-60"></div>
-                </div>
-              </div>
-            </div>
-
+      <!-- PERFIL -->
+      <section id="viewProfile" class="cardx">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div style="font-weight:900"><i class="bi bi-person-badge"></i> Perfil</div>
+            <div class="muted"></div>
           </div>
-
-          <!-- INPUT (sticky inside chat column) -->
-          <div id="inputBar" class="input-area px-3 pt-3">
-            <div class="max-w-3xl mx-auto">
-              <div class="flex gap-2 mb-2 overflow-x-auto pb-1 no-scrollbar">
-                <button @click="sendText('/define safety')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-emerald-200 whitespace-nowrap hover:bg-ink-850">📘 /define</button>
-                <button @click="sendText('/wiki Mexico')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-purple-200 whitespace-nowrap hover:bg-ink-850">📖 /wiki</button>
-                <button @click="sendText('/quiz work')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-brand-200 whitespace-nowrap hover:bg-ink-850">📝 /quiz</button>
-                <button @click="sendText('/grammar past simple')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-yellow-200 whitespace-nowrap hover:bg-ink-850">📚 /grammar</button>
-                <button @click="sendText('/python')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-sky-200 whitespace-nowrap hover:bg-ink-850">🐍 /python</button>
-                <button @click="sendText('/export')" class="flex-shrink-0 px-3 py-1.5 chip rounded-full text-xs text-gray-200 whitespace-nowrap hover:bg-ink-850">⬇️ /export</button>
-                <button @click="toggleVoiceInput" class="flex-shrink-0 px-3 py-1.5 rounded-full text-xs whitespace-nowrap border" :class="isVoiceInput ? 'bg-red-600/15 border-red-500/20 text-red-200' : 'chip text-gray-200'">
-                  🎤 Dictado: {{ isVoiceInput ? 'ON' : 'OFF' }}
-                </button>
-              </div>
-
-              <div class="flex items-end gap-2 bg-ink-850/70 border border-ink-700/60 rounded-3xl p-1.5 pl-4 glow">
-                <textarea v-model="input" @keydown.enter.exact.prevent="send" @keydown.enter.shift.stop
-                  ref="textarea" rows="1"
-                  class="bg-transparent text-gray-100 w-full py-2.5 outline-none resize-none max-h-36 placeholder-gray-500 text-[15px]"
-                  placeholder="Escribe o usa comandos: /wiki Coffee, /define forklift, /quiz work... (Shift+Enter = salto)"
-                ></textarea>
-                <button @click="send" :disabled="!input.trim()" class="w-10 h-10 rounded-full bg-brand-600 hover:bg-brand-500 text-white flex items-center justify-center shrink-0 mb-0.5 shadow-lg active:scale-95 transition disabled:opacity-50">
-                  <i class="fa-solid fa-paper-plane text-xs"></i>
-                </button>
-              </div>
-
-              <div class="flex items-center justify-between mt-2 px-1">
-                <div class="text-[10px] text-gray-500">Motor: Wikipedia + DictionaryAPI + Datamuse + (OpenLibrary/Crossref opcional) + Memoria local.</div>
-                <div class="text-[10px] text-gray-500">{{ statusLine }}</div>
-              </div>
-            </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-lite" id="btnResetProfile"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+            <button class="btn btn-accent" id="btnSaveProfile"><i class="bi bi-save2"></i> Guardar</button>
           </div>
         </div>
 
-        <!-- ===================== PRONUNCIATION VIEW ===================== -->
-        <div v-show="mode==='pron'" class="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4">
-          <div class="max-w-3xl mx-auto space-y-4">
+        <div class="hr"></div>
 
-            <div class="card p-4">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <h2 class="text-base font-extrabold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-microphone text-emerald-300"></i>
-                    Pronunciación & Calificación
-                  </h2>
-                  <p class="text-sm text-gray-400 mt-1">Genera frases, presiona <b>Grabar</b>, pronuncia y recibe calificación basada en SpeechRecognition (speech-to-text).</p>
-                  <p class="text-[11px] text-gray-500 mt-2 leading-relaxed">Nota: algunos navegadores procesan el reconocimiento en servicios del proveedor y puede requerir internet.</p>
-                </div>
-                <div class="text-right">
-                  <div class="text-[10px] uppercase text-gray-500">Promedio</div>
-                  <div class="text-2xl font-black" :class="overallScoreColor">{{ overallScore }}%</div>
-                  <div class="text-[10px] text-gray-500">({{ doneCount }}/{{ practiceList.length }} completadas)</div>
-                </div>
-              </div>
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <label class="form-label">Nombre</label>
+            <input class="form-control" id="name" placeholder="Tu nombre">
+          </div>
+          <div class="col-lg-2 col-md-4">
+            <label class="form-label">Sexo</label>
+            <select class="form-select" id="sex">
+              <option value="M">M</option>
+              <option value="F">F</option>
+            </select>
+          </div>
+          <div class="col-lg-2 col-md-4">
+            <label class="form-label">Edad</label>
+            <input class="form-control" id="age" type="number" min="10" max="100">
+          </div>
+          <div class="col-lg-2 col-md-4">
+            <label class="form-label">Estatura (cm)</label>
+            <input class="form-control" id="height" type="number" min="120" max="230">
+          </div>
+          <div class="col-lg-2">
+            <label class="form-label">Peso (kg)</label>
+            <input class="form-control" id="weight" type="number" min="30" max="300" step="0.1">
+          </div>
 
-              <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div class="sm:col-span-2">
-                  <label class="text-[11px] uppercase text-gray-500 font-bold">Tema (opcional)</label>
-                  <input v-model="practiceTopic" type="text" class="mt-1 w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-emerald-500" placeholder="Ej: work, travel, safety, food..." />
-                </div>
-                <div class="flex items-end gap-2">
-                  <button @click="generatePracticeSet" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generar
-                  </button>
-                </div>
-              </div>
+          <div class="col-lg-4">
+            <label class="form-label">Actividad</label>
+            <select class="form-select" id="activity">
+              <option value="baja">Baja</option>
+              <option value="ligera">Ligera</option>
+              <option value="moderada" selected>Moderada</option>
+              <option value="alta">Alta</option>
+              <option value="muy_alta">Muy alta</option>
+            </select>
+          </div>
 
-              <div class="mt-3 flex flex-wrap gap-2">
-                <button @click="practiceTopic='work'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🏭 Work</button>
-                <button @click="practiceTopic='travel'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🧳 Travel</button>
-                <button @click="practiceTopic='food'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🍽️ Food</button>
-                <button @click="practiceTopic='safety'; generatePracticeSet()" class="px-3 py-1.5 chip rounded-full text-xs text-emerald-200 hover:bg-ink-850">🦺 Safety</button>
-              </div>
+          <div class="col-lg-4">
+            <label class="form-label">Objetivo</label>
+            <select class="form-select" id="goal">
+              <option value="bajar">Bajar</option>
+              <option value="mantener" selected>Mantener</option>
+              <option value="subir">Subir</option>
+            </select>
+          </div>
 
-              <div v-if="!speechSupported" class="mt-4 text-sm text-yellow-300 bg-yellow-600/10 border border-yellow-500/20 p-3 rounded-xl">
-                ⚠️ Tu navegador no soporta SpeechRecognition para calificar pronunciación. Aun así podrás grabar y escucharte.
-              </div>
-              <div v-else class="mt-4 text-sm text-gray-400 bg-ink-950/40 border border-ink-700/50 p-3 rounded-xl">
-                ✅ SpeechRecognition disponible. Se usará para transcribir tu voz y evaluar parecido con la frase objetivo.
-              </div>
-            </div>
+          <div class="col-lg-4">
+            <label class="form-label">Estilo</label>
+            <select class="form-select" id="style">
+              <option value="balanceada" selected>Balanceada</option>
+              <option value="alto_proteina">Alta proteína</option>
+              <option value="keto">Keto</option>
+              <option value="vegetariana">Vegetariana</option>
+            </select>
+          </div>
 
-            <!-- Current phrase card -->
-            <div v-if="practiceList.length" class="card p-4">
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <div class="text-[10px] uppercase text-gray-500 font-bold">Frase actual</div>
-                  <div class="text-lg font-extrabold text-white mt-1 break-words">“{{ currentItem.text }}”</div>
-                  <div class="mt-2 flex flex-wrap items-center gap-2">
-                    <button @click="ttsPractice(currentItem.text)" class="px-3 py-1.5 chip rounded-full text-xs text-gray-200 hover:bg-ink-850 flex items-center gap-2">
-                      <i class="fa-solid fa-volume-high text-emerald-300"></i> Escuchar (TTS)
-                    </button>
-                    <button @click="prevPractice" :disabled="currentIndex===0" class="px-3 py-1.5 chip rounded-full text-xs text-gray-200 hover:bg-ink-850 disabled:opacity-40">◀ Anterior</button>
-                    <button @click="nextPractice" :disabled="currentIndex===practiceList.length-1" class="px-3 py-1.5 chip rounded-full text-xs text-gray-200 hover:bg-ink-850 disabled:opacity-40">Siguiente ▶</button>
-                  </div>
-                </div>
-                <div class="text-right">
-                  <div class="text-[10px] uppercase text-gray-500 font-bold">Tu score</div>
-                  <div class="text-2xl font-black" :class="scoreColor(currentItem.score)">{{ currentItem.score ?? '--' }}<span v-if="currentItem.score!==null">%</span></div>
-                  <div class="text-[10px] text-gray-500" v-if="currentItem.score!==null">{{ currentItem.passed ? '✅ Bien' : '❌ Falta' }}</div>
-                </div>
-              </div>
-
-              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <!-- Recorder -->
-                <div class="bg-ink-950/40 border border-ink-700/50 rounded-xl p-3">
-                  <div class="flex items-center justify-between">
-                    <div class="text-[11px] uppercase text-gray-500 font-bold">Grabación</div>
-                    <div class="text-[11px] text-gray-500">{{ recStateLabel }}</div>
-                  </div>
-                  <div class="mt-3 flex gap-2">
-                    <button @click="toggleRecord" :disabled="recBusy" class="flex-1 py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition" :class="isRecording ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white'">
-                      <i class="fa-solid" :class="isRecording ? 'fa-stop' : 'fa-microphone'"></i>
-                      {{ isRecording ? 'Detener' : 'Grabar' }}
-                    </button>
-                    <button @click="clearRecording" :disabled="!lastAudioUrl && !lastTranscript" class="px-4 py-3 rounded-xl font-bold text-sm chip text-gray-200 hover:bg-ink-850 disabled:opacity-40">Limpiar</button>
-                  </div>
-                  <div class="mt-3" v-if="lastAudioUrl">
-                    <audio :src="lastAudioUrl" controls></audio>
-                    <div class="text-[10px] text-gray-500 mt-1">Audio grabado con MediaRecorder.</div>
-                  </div>
-                </div>
-
-                <!-- Recognition -->
-                <div class="bg-ink-950/40 border border-ink-700/50 rounded-xl p-3">
-                  <div class="text-[11px] uppercase text-gray-500 font-bold">Reconocimiento (lo que entendió)</div>
-                  <div v-if="speechSupported" class="mt-2">
-                    <div class="text-sm text-gray-200 bg-ink-900/60 border border-ink-700/50 rounded-xl p-3 min-h-[64px]">{{ lastTranscript || '—' }}</div>
-                    <div class="mt-2 text-[11px] text-gray-500">Se compara tu transcripción vs la frase objetivo para dar %.</div>
-                  </div>
-                  <div v-else class="mt-2 text-sm text-yellow-300">SpeechRecognition no disponible.</div>
-
-                  <div class="mt-3" v-if="currentItem.score!==null">
-                    <div class="flex items-center justify-between text-[11px] text-gray-400">
-                      <span>Precisión</span>
-                      <span class="font-bold text-gray-200">{{ currentItem.score }}%</span>
-                    </div>
-                    <div class="mt-1 h-2 bg-ink-850 rounded-full overflow-hidden">
-                      <div class="h-2 rounded-full" :class="currentItem.passed ? 'bg-emerald-500' : 'bg-red-500'" :style="{ width: currentItem.score + '%' }"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- List -->
-            <div v-if="practiceList.length" class="card p-4">
-              <div class="flex items-center justify-between mb-2">
-                <div class="text-[11px] uppercase text-gray-500 font-bold">Lista de práctica</div>
-                <div class="flex items-center gap-2">
-                  <label class="text-[11px] text-gray-400">Umbral “Bien”</label>
-                  <input v-model.number="passThreshold" type="number" min="50" max="95" class="w-20 bg-ink-950/50 border border-ink-700/70 rounded-xl p-2 text-sm text-gray-200 outline-none focus:border-brand-500 text-right" />
-                  <button @click="resetPracticeScores" class="text-[11px] text-gray-300 hover:text-white chip px-3 py-2 rounded-xl">Reiniciar</button>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div v-for="(it, idx) in practiceList" :key="it.id" @click="currentIndex = idx; clearRecording()" class="p-3 rounded-xl border flex items-start justify-between gap-3 cursor-pointer transition" :class="rowClass(it, idx)">
-                  <div class="min-w-0">
-                    <div class="text-[10px] uppercase text-gray-500 font-bold">#{{ idx+1 }}</div>
-                    <div class="text-sm font-semibold break-words">{{ it.text }}</div>
-                    <div class="text-[11px] text-gray-500 mt-1" v-if="it.transcript"><span class="text-gray-400">Dijiste:</span> “{{ it.transcript }}”</div>
-                  </div>
-                  <div class="text-right shrink-0">
-                    <div class="text-[10px] uppercase text-gray-500 font-bold">Score</div>
-                    <div class="text-lg font-black" :class="scoreColor(it.score)">{{ it.score===null ? '--' : it.score + '%' }}</div>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-3 text-[11px] text-gray-500">✅ Verde = bien (≥ {{ passThreshold }}%). ❌ Rojo = mejorar.</div>
-            </div>
-
-            <div class="h-20"></div>
+          <div class="col-lg-6">
+            <label class="form-label">Alergias (coma)</label>
+            <input class="form-control" id="allergies" placeholder="ej: lactosa, cacahuate">
+          </div>
+          <div class="col-lg-6">
+            <label class="form-label">No me gusta (coma)</label>
+            <input class="form-control" id="dislikes" placeholder="ej: pescado, brócoli">
           </div>
         </div>
 
+        <div class="hr"></div>
+
+        <div class="row g-3">
+          <div class="col-lg-4"><div class="kpi"><div class="muted">BMR</div><div class="big" id="kBMR">—</div></div></div>
+          <div class="col-lg-4"><div class="kpi"><div class="muted">TDEE</div><div class="big" id="kTDEE">—</div></div></div>
+          <div class="col-lg-4"><div class="kpi"><div class="muted">Calorías objetivo</div><div class="big" id="kCAL">—</div></div></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row g-3">
+          <div class="col-lg-6">
+            <div class="kpi">
+              <div style="font-weight:900">Macros estimados (g)</div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <span class="badge-soft">💪 Proteína: <b id="mProt">—</b></span>
+                <span class="badge-soft">🍞 Carbos: <b id="mCarb">—</b></span>
+                <span class="badge-soft">🥑 Grasas: <b id="mFat">—</b></span>
+              </div>
+              <div class="muted small mt-2">Estimación educativa.</div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="kpi">
+              <div style="font-weight:900">Gráfica</div>
+              <canvas id="macroChart" style="max-height: 220px; margin-top: 6px;"></canvas>
+              <div class="muted small mt-2" id="chartHint">Si la gráfica no carga, la app sigue funcionando.</div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <!-- SIDE PANEL (Desktop): only for chat (but stays available) -->
-      <div id="panelOverlay" v-show="sideOpen" @click="toggleSide" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] lg:hidden"></div>
+      <!-- PLAN -->
+      <section id="viewPlan" class="cardx d-none">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div style="font-weight:900"><i class="bi bi-stars"></i> Generar Plan</div>
+            <div class="muted"></div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-lite" id="btnExportPlan"><i class="bi bi-download"></i> Exportar plan</button>
+            <button class="btn btn-danger-lite" id="btnClearPlan"><i class="bi bi-trash"></i> Limpiar</button>
+            <button class="btn btn-accent" id="btnGeneratePlan"><i class="bi bi-magic"></i> Generar</button>
+          </div>
+        </div>
 
-      <aside class="fixed lg:static inset-y-0 right-0 w-[92vw] max-w-[380px] lg:w-auto lg:max-w-none border-l border-ink-700/60 bg-ink-900/90 lg:bg-ink-900/60 backdrop-blur overflow-y-auto no-scrollbar transform transition-transform duration-200 z-[60]" :class="sideOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'">
-        <div class="p-4 space-y-4">
-          <div class="card p-4">
-            <div class="flex items-center justify-between">
-              <div class="font-bold text-white">Panel</div>
-              <div class="text-[11px] text-gray-400">Ultimate</div>
-            </div>
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <button @click="sideTab='tools'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='tools' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Herramientas</button>
-              <button @click="sideTab='notebook'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='notebook' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Notebook</button>
-              <button @click="sideTab='vocab'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='vocab' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Vocab</button>
-              <button @click="sideTab='memory'" class="px-3 py-2 rounded-xl border text-xs" :class="sideTab==='memory' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Memoria</button>
-            </div>
+        <div class="hr"></div>
 
-            <div class="mt-4" v-if="sideTab==='tools'">
-              <div class="text-[11px] uppercase text-gray-400 font-bold">Acciones rápidas</div>
-              <div class="mt-2 space-y-2">
-                <button @click="sendText('/define forklift')" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850">
-                  <i class="fa-solid fa-book mr-2 text-emerald-300"></i> Definir: <span class="font-semibold">forklift</span>
-                </button>
-                <button @click="sendText('/wiki Warehouse')" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850">
-                  <i class="fa-solid fa-globe mr-2 text-purple-300"></i> Wikipedia: <span class="font-semibold">Warehouse</span>
-                </button>
-                <button @click="sendText('/quiz safety')" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850">
-                  <i class="fa-solid fa-list-check mr-2 text-brand-300"></i> Quiz: <span class="font-semibold">safety</span>
-                </button>
-                <button @click="mode='pron'" class="w-full px-3 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-left text-sm">
-                  <i class="fa-solid fa-microphone mr-2 text-emerald-300"></i> Ir a Pronunciación
-                </button>
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="kpi">
+              <div style="font-weight:900">🛒 Lista del súper (aprox)</div>
+              <div class="muted small">Estimado desde porciones.</div>
+              <div class="mt-2" id="groceryOut"></div>
+            </div>
+            <div class="kpi mt-3">
+              <div style="font-weight:900">🍳 Recetas Offline</div>
+              <div class="muted small mt-1">Filtradas por estilo/alergias/kcal.</div>
+              <div class="d-grid gap-2 mt-2">
+                <button class="btn btn-lite" id="btnOpenRecipesFromPlan"><i class="bi bi-journal-text"></i> Abrir Recetas</button>
               </div>
+            </div>
+          </div>
 
-              <div class="mt-4 p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
-                <div class="flex items-center justify-between">
-                  <div class="text-[11px] uppercase text-gray-400 font-bold">Python (Pyodide)</div>
-                  <span class="text-[11px]" :class="pyReady ? 'text-emerald-300' : 'text-gray-500'">{{ pyReady ? 'Listo' : 'Off' }}</span>
+          <div class="col-lg-8">
+            <div class="kpi">
+              <div style="font-weight:900">📅 Plan semanal (con porciones + botón Recetas)</div>
+              <div class="muted small">Cada comida tiene botón “Recetas” (offline).</div>
+              <div class="mt-2" id="planOut"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALENDARIO -->
+      <section id="viewCalendar" class="cardx d-none">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div style="font-weight:900"><i class="bi bi-calendar-week"></i> Calendario</div>
+            <div class="muted" id="calendarSubtitle">Calendario PRO si FullCalendar carga; si no, modo básico.</div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-lite" id="btnToday"><i class="bi bi-calendar2-event"></i> Hoy</button>
+            <button class="btn btn-lite" id="btnReloadFromPlan"><i class="bi bi-arrow-repeat"></i> Recargar del plan</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div id="calendarWarning" class="alert alert-warning d-none rounded-4">
+          <b>FullCalendar no cargó.</b> Activé el <b>Calendario Básico</b>.
+        </div>
+
+        <div class="row g-3">
+          <div class="col-lg-9">
+            <div id="calendarWrap">
+              <div id="calendar"></div>
+              <div id="miniCalendar" class="d-none"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 d-none d-lg-block">
+            <div class="detailCard">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <div class="detailTitle">🧾 Detalles</div>
+                  <div class="muted small">Click en un evento para ver todo.</div>
                 </div>
-                <p class="text-[11px] text-gray-400 mt-1">Actívalo para resaltar frases (BM25) en lecturas de Wikipedia.</p>
-                <button @click="togglePython" class="mt-2 w-full px-3 py-2 rounded-xl font-extrabold text-sm" :class="pyReady ? 'bg-red-600/15 border border-red-500/20 text-red-200' : 'bg-emerald-600/15 border border-emerald-500/20 text-emerald-200'">
-                  {{ pyReady ? 'Desactivar Python' : 'Activar Python' }}
-                </button>
+                <span class="badge-soft" id="detailDate">—</span>
+              </div>
+
+              <div class="detailRow">
+                <div class="muted small">Tipo</div>
+                <div id="detailType" style="font-weight:900">—</div>
+              </div>
+
+              <div class="detailRow">
+                <div class="muted small">Hora</div>
+                <div id="detailTime" class="mono" style="font-weight:900">—</div>
+              </div>
+
+              <div class="detailRow">
+                <div class="muted small">Comida</div>
+                <div id="detailMeal" style="font-weight:900">—</div>
+              </div>
+
+              <div class="detailRow">
+                <div class="muted small">Porción</div>
+                <div id="detailPortion">—</div>
+              </div>
+
+              <div class="detailRow d-grid gap-2">
+                <button class="btn btn-lite" id="btnDetailRecipes"><i class="bi bi-journal-text"></i> Recetas</button>
+                <button class="btn btn-lite" id="btnEditEvent"><i class="bi bi-pencil"></i> Editar</button>
+                <button class="btn btn-lite" id="btnMoveEvent"><i class="bi bi-arrows-move"></i> Mover</button>
+                <button class="btn btn-danger-lite" id="btnDeleteEvent"><i class="bi bi-x-lg"></i> Borrar</button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <div class="mt-4" v-if="sideTab==='notebook'">
-              <div class="flex items-center justify-between">
-                <div class="text-[11px] uppercase text-gray-400 font-bold">Notas guardadas</div>
-                <button @click="clearNotebook" class="text-[11px] text-gray-400 hover:text-white">Limpiar</button>
-              </div>
-              <div v-if="notebook.length===0" class="text-sm text-gray-500 mt-2">Aún no guardas nada.</div>
-              <div v-else class="mt-2 space-y-2">
-                <div v-for="n in notebook" :key="n.id" class="p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
-                  <div class="text-xs text-gray-200 font-semibold line-clamp-2">{{ n.title }}</div>
-                  <div class="text-[11px] text-gray-400 line-clamp-3 mt-1">{{ n.preview }}</div>
+      <!-- ITINERARIO -->
+      <section id="viewItinerary" class="cardx d-none">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div style="font-weight:900"><i class="bi bi-list-check"></i> Itinerario</div>
+            <div class="muted">Agenda desde calendario o desde plan.</div>
+          </div>
+          <button class="btn btn-lite" id="btnPrint"><i class="bi bi-printer"></i> Imprimir</button>
+        </div>
+        <div class="hr"></div>
+        <div id="itineraryOut" class="muted">Genera un plan para ver itinerario.</div>
+      </section>
+
+      <!-- RECETAS (OFFLINE) -->
+      <section id="viewRecipes" class="cardx d-none">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <div style="font-weight:900"><i class="bi bi-journal-text"></i> Recetas Offline</div>
+            <div class="muted"></div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-lite" id="btnAddRecipe"><i class="bi bi-plus-circle"></i> Nueva receta</button>
+            <button class="btn btn-danger-lite" id="btnResetRecipes"><i class="bi bi-trash"></i> Reset Mis recetas</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="kpi">
+              <div style="font-weight:900">Filtro</div>
+              <div class="row g-2 mt-1">
+                <div class="col-12">
+                  <label class="form-label">Buscar</label>
+                  <input class="form-control" id="recipeSearch" placeholder="ej: pollo, ensalada, lentejas">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Comida</label>
+                  <select class="form-select" id="recipeMealKey">
+                    <option value="">Todas</option>
+                    <option value="desayuno">Desayuno</option>
+                    <option value="snack1">Snack</option>
+                    <option value="comida">Comida</option>
+                    <option value="snack2">Snack</option>
+                    <option value="cena">Cena</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Dieta</label>
+                  <select class="form-select" id="recipeDiet">
+                    <option value="">Todas</option>
+                    <option value="balanceada">Balanceada</option>
+                    <option value="alto_proteina">Alta proteína</option>
+                    <option value="keto">Keto</option>
+                    <option value="vegetariana">Vegetariana</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Máx kcal (opcional)</label>
+                  <input class="form-control" id="recipeMaxKcal" type="number" min="0" placeholder="ej: 550">
+                </div>
+                <div class="col-12 d-grid">
+                  <button class="btn btn-accent" id="btnApplyRecipeFilter"><i class="bi bi-funnel"></i> Aplicar</button>
                 </div>
               </div>
+              <div class="muted small mt-2">Alergias/dislikes del perfil también filtran.</div>
             </div>
+          </div>
 
-            <div class="mt-4" v-if="sideTab==='vocab'">
-              <div class="flex items-center justify-between">
-                <div class="text-[11px] uppercase text-gray-400 font-bold">Vocabulario</div>
-                <button @click="clearVocab" class="text-[11px] text-gray-400 hover:text-white">Limpiar</button>
+          <div class="col-lg-8">
+            <div class="kpi">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div style="font-weight:900">Listado</div>
+                <span class="badge-soft" id="recipeCount">0</span>
               </div>
-              <div class="mt-2">
-                <input v-model="vocabSearch" placeholder="Buscar..." class="w-full bg-ink-950/40 border border-ink-700/50 rounded-xl px-3 py-2 text-sm outline-none focus:border-brand-500" />
-              </div>
-              <div v-if="filteredVocab.length===0" class="text-sm text-gray-500 mt-2">No hay palabras guardadas.</div>
-              <div v-else class="mt-2 space-y-2">
-                <div v-for="w in filteredVocab" :key="w.word" class="p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
-                  <div class="flex items-center justify-between">
-                    <div class="text-sm font-bold text-white">{{ w.word }}</div>
-                    <button @click="sendText('/define ' + w.word)" class="text-[11px] text-brand-200 hover:text-white">revisar</button>
-                  </div>
-                  <div class="text-[11px] text-gray-400 mt-1 line-clamp-2">{{ w.note }}</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-4" v-if="sideTab==='memory'">
-              <div class="text-[11px] uppercase text-gray-400 font-bold">Memoria anti-repetición</div>
-              <p class="text-[11px] text-gray-400 mt-2">Se guardan hashes por sesión (7 días) para evitar repetir frases.</p>
-              <button @click="resetSeen" class="mt-3 w-full px-3 py-2 rounded-xl chip text-sm hover:bg-ink-850">Reset memoria</button>
-            </div>
-
-          </div>
-
-          <div class="card p-4">
-            <div class="text-[11px] uppercase text-gray-400 font-bold">Atajos</div>
-            <div class="mt-2 text-sm text-gray-300 space-y-2">
-              <div><span class="font-mono text-gray-200">/define word</span> — definición + ejemplo + sinónimos</div>
-              <div><span class="font-mono text-gray-200">/wiki topic</span> — lectura real + preguntas</div>
-              <div><span class="font-mono text-gray-200">/quiz topic</span> — quiz con respuestas</div>
-              <div><span class="font-mono text-gray-200">/grammar tense</span> — regla + ejercicios</div>
-              <div><span class="font-mono text-gray-200">/python</span> — activa Python (BM25)</div>
-              <div><span class="font-mono text-gray-200">/export</span> — exporta a .json</div>
+              <div class="hr"></div>
+              <div id="recipesOut">—</div>
             </div>
           </div>
-
         </div>
-      </aside>
+      </section>
 
-    </div>
-  </main>
-
-  <!-- MOBILE SIDE DRAWER -->
-  <div v-if="sideOpen" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden" @click.self="sideOpen=false">
-    <div class="absolute right-0 top-0 h-full w-[92%] max-w-sm bg-ink-900 border-l border-ink-700/60 p-4 overflow-y-auto no-scrollbar">
-      <div class="flex items-center justify-between">
-        <div class="font-bold text-white">Panel</div>
-        <button @click="sideOpen=false" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 text-gray-300"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="mt-4 grid grid-cols-4 gap-2">
-        <button @click="sideTab='tools'" class="px-2 py-2 rounded-xl border text-xs" :class="sideTab==='tools' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Tools</button>
-        <button @click="sideTab='notebook'" class="px-2 py-2 rounded-xl border text-xs" :class="sideTab==='notebook' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Notas</button>
-        <button @click="sideTab='vocab'" class="px-2 py-2 rounded-xl border text-xs" :class="sideTab==='vocab' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Vocab</button>
-        <button @click="sideTab='memory'" class="px-2 py-2 rounded-xl border text-xs" :class="sideTab==='memory' ? 'bg-brand-600/15 border-brand-500/25 text-brand-200' : 'chip text-gray-200'">Memo</button>
-      </div>
-
-      <div class="mt-4 card p-4" v-if="sideTab==='tools'">
-        <div class="text-[11px] uppercase text-gray-400 font-bold">Acciones rápidas</div>
-        <div class="mt-2 space-y-2">
-          <button @click="sendText('/define forklift'); sideOpen=false" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850"><i class="fa-solid fa-book mr-2 text-emerald-300"></i> Definir: <b>forklift</b></button>
-          <button @click="sendText('/wiki Warehouse'); sideOpen=false" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850"><i class="fa-solid fa-globe mr-2 text-purple-300"></i> Wikipedia: <b>Warehouse</b></button>
-          <button @click="sendText('/quiz safety'); sideOpen=false" class="w-full px-3 py-2 rounded-xl chip text-left text-sm hover:bg-ink-850"><i class="fa-solid fa-list-check mr-2 text-brand-300"></i> Quiz: <b>safety</b></button>
-          <button @click="mode='pron'; sideOpen=false" class="w-full px-3 py-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-left text-sm"><i class="fa-solid fa-microphone mr-2 text-emerald-300"></i> Ir a Pronunciación</button>
-        </div>
-        <div class="mt-4 p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
-          <div class="flex items-center justify-between">
-            <div class="text-[11px] uppercase text-gray-400 font-bold">Python (Pyodide)</div>
-            <span class="text-[11px]" :class="pyReady ? 'text-emerald-300' : 'text-gray-500'">{{ pyReady ? 'Listo' : 'Off' }}</span>
-          </div>
-          <button @click="togglePython" class="mt-2 w-full px-3 py-2 rounded-xl font-extrabold text-sm" :class="pyReady ? 'bg-red-600/15 border border-red-500/20 text-red-200' : 'bg-emerald-600/15 border border-emerald-500/20 text-emerald-200'">{{ pyReady ? 'Desactivar Python' : 'Activar Python' }}</button>
-        </div>
-      </div>
-
-      <div class="mt-4 card p-4" v-if="sideTab==='notebook'">
-        <div class="flex items-center justify-between">
-          <div class="text-[11px] uppercase text-gray-400 font-bold">Notas guardadas</div>
-          <button @click="clearNotebook" class="text-[11px] text-gray-400 hover:text-white">Limpiar</button>
-        </div>
-        <div v-if="notebook.length===0" class="text-sm text-gray-500 mt-2">Aún no guardas nada.</div>
-        <div v-else class="mt-2 space-y-2">
-          <div v-for="n in notebook" :key="n.id" class="p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
-            <div class="text-xs text-gray-200 font-semibold line-clamp-2">{{ n.title }}</div>
-            <div class="text-[11px] text-gray-400 line-clamp-3 mt-1">{{ n.preview }}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 card p-4" v-if="sideTab==='vocab'">
-        <div class="flex items-center justify-between">
-          <div class="text-[11px] uppercase text-gray-400 font-bold">Vocabulario</div>
-          <button @click="clearVocab" class="text-[11px] text-gray-400 hover:text-white">Limpiar</button>
-        </div>
-        <div class="mt-2">
-          <input v-model="vocabSearch" placeholder="Buscar..." class="w-full bg-ink-950/40 border border-ink-700/50 rounded-xl px-3 py-2 text-sm outline-none focus:border-brand-500" />
-        </div>
-        <div v-if="filteredVocab.length===0" class="text-sm text-gray-500 mt-2">No hay palabras guardadas.</div>
-        <div v-else class="mt-2 space-y-2">
-          <div v-for="w in filteredVocab" :key="w.word" class="p-3 rounded-xl bg-ink-950/40 border border-ink-700/40">
-            <div class="flex items-center justify-between">
-              <div class="text-sm font-bold text-white">{{ w.word }}</div>
-              <button @click="sendText('/define ' + w.word); sideOpen=false" class="text-[11px] text-brand-200 hover:text-white">revisar</button>
-            </div>
-            <div class="text-[11px] text-gray-400 mt-1 line-clamp-2">{{ w.note }}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 card p-4" v-if="sideTab==='memory'">
-        <div class="text-[11px] uppercase text-gray-400 font-bold">Memoria anti-repetición</div>
-        <p class="text-[11px] text-gray-400 mt-2">Se guardan hashes por sesión (7 días) para evitar repetir frases.</p>
-        <button @click="resetSeen" class="mt-3 w-full px-3 py-2 rounded-xl chip text-sm hover:bg-ink-850">Reset memoria</button>
-      </div>
-
-    </div>
+    </main>
   </div>
 
-  <!-- CONFIG MODAL -->
-  <div v-if="showConfig" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center" @click.self="showConfig=false">
-    <div class="bg-ink-900 w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-6 border-t border-ink-700/70 shadow-2xl">
-      <div class="flex items-start justify-between">
-        <div>
-          <h3 class="text-lg font-extrabold text-white">Configuración</h3>
-          <p class="text-xs text-gray-400 mt-1">Todo corre en tu navegador. Fuentes externas solo si activas internet.</p>
-        </div>
-        <button @click="showConfig=false" class="w-9 h-9 rounded-full bg-ink-850 border border-ink-700/70 text-gray-300"><i class="fa-solid fa-xmark"></i></button>
+  <!-- Mobile Offcanvas -->
+  <div class="offcanvas offcanvas-bottom" tabindex="-1" id="eventSheet" aria-labelledby="eventSheetLabel"
+       style="height: 62vh; border-top-left-radius:18px; border-top-right-radius:18px;">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="eventSheetLabel" style="font-weight:900">🧾 Detalles</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="d-flex justify-content-between flex-wrap gap-2">
+        <span class="badge-soft" id="sheetDate">—</span>
+        <span class="badge-soft" id="sheetType">—</span>
       </div>
 
-      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Nombre (UI)</label>
-          <input v-model="displayName" type="text" placeholder="Ej: Jesús" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500" />
-        </div>
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Session ID (anti-repetición)</label>
-          <input v-model="sessionId" type="text" placeholder="ej: jesus-01" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500" />
-        </div>
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Usar Internet</label>
-          <button @click="useInternet=!useInternet" class="w-full px-3 py-3 rounded-xl text-sm font-extrabold border transition" :class="useInternet ? 'bg-emerald-600/15 text-emerald-200 border-emerald-500/20' : 'bg-yellow-600/15 text-yellow-200 border-yellow-500/20'">
-            {{ useInternet ? 'Activado' : 'Desactivado' }}
-          </button>
-          <p class="text-[11px] text-gray-500 mt-2">Internet permite Wikipedia/Dictionary/Datamuse.</p>
-        </div>
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Timeout API (ms)</label>
-          <input v-model.number="timeoutMs" type="number" min="1500" max="20000" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500" />
-          <p class="text-[11px] text-gray-500 mt-2">Si tu conexión es lenta, sube a 12000–15000.</p>
-        </div>
+      <div class="hr"></div>
+
+      <div class="kpi">
+        <div class="muted small">Hora</div>
+        <div class="mono" id="sheetTime" style="font-weight:900">—</div>
+        <div class="hr"></div>
+        <div class="muted small">Comida</div>
+        <div id="sheetMeal" style="font-weight:900">—</div>
+        <div class="hr"></div>
+        <div class="muted small">Porción</div>
+        <div id="sheetPortion">—</div>
       </div>
 
-      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Idioma TTS (Chat)</label>
-          <select v-model="ttsLang" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500">
-            <option value="en-US">en-US</option>
-            <option value="en-GB">en-GB</option>
-            <option value="es-MX">es-MX</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Nivel</label>
-          <select v-model="level" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500">
-            <option value="A2">A2 (básico)</option>
-            <option value="B1">B1 (intermedio)</option>
-            <option value="B2">B2 (intermedio-alto)</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Idioma Pronunciación (SpeechRecognition)</label>
-          <select v-model="pronLang" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500">
-            <option value="en-US">en-US</option>
-            <option value="en-GB">en-GB</option>
-          </select>
-          <p class="text-[11px] text-gray-500 mt-2">Recomendado: en-US o en-GB.</p>
-        </div>
-        <div>
-          <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Umbral “Bien” (%)</label>
-          <input v-model.number="passThreshold" type="number" min="50" max="95" class="w-full bg-ink-950/50 border border-ink-700/70 rounded-xl p-3 text-sm text-gray-200 outline-none focus:border-brand-500" />
-          <p class="text-[11px] text-gray-500 mt-2">Por defecto 78%.</p>
-        </div>
-      </div>
-
-      <div class="mt-5 flex gap-2">
-        <button @click="saveConfig" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white py-3 rounded-xl font-extrabold text-sm">Guardar</button>
-        <button @click="resetAll" class="px-4 bg-red-600/15 hover:bg-red-600/20 text-red-200 border border-red-500/20 py-3 rounded-xl font-bold text-sm">Reset</button>
-      </div>
-
-      <div class="mt-4 text-[11px] text-gray-500 leading-relaxed">
-        <b>Privacidad:</b> chat/notebook/vocab se guardan localmente. El reconocimiento de voz puede usar servicios del navegador.
+      <div class="d-grid gap-2 mt-3">
+        <button class="btn btn-lite" id="btnDetailRecipesM"><i class="bi bi-journal-text"></i> Recetas</button>
+        <button class="btn btn-lite" id="btnEditEventM"><i class="bi bi-pencil"></i> Editar</button>
+        <button class="btn btn-lite" id="btnMoveEventM"><i class="bi bi-arrows-move"></i> Mover</button>
+        <button class="btn btn-danger-lite" id="btnDeleteEventM"><i class="bi bi-x-lg"></i> Borrar</button>
       </div>
     </div>
   </div>
 
-</div>
+  <!-- Modal: Edit/Move Event -->
+  <div class="modal fade" id="eventModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background: var(--glass2); border:1px solid var(--border); color: var(--text); border-radius:18px;">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+          <h5 class="modal-title" id="eventModalTitle" style="font-weight:900">Editar evento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3" id="modalTitleRow">
+            <label class="form-label">Título / Comida</label>
+            <input class="form-control" id="modalTitleInput" placeholder="Ej: Pollo con ensalada">
+          </div>
+          <div class="row g-2" id="modalDateTimeRow">
+            <div class="col-6">
+              <label class="form-label">Fecha</label>
+              <input class="form-control" type="date" id="modalDateInput">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Hora</label>
+              <input class="form-control" type="time" id="modalTimeInput">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid var(--border);">
+          <button class="btn btn-lite" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-accent" id="modalSaveBtn"><i class="bi bi-check2"></i> Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<script>
-const { createApp, ref, computed, watch, nextTick, onMounted } = Vue;
+  <!-- Modal: Recetas (selector + detalle) -->
+  <div class="modal fade" id="recipesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content" style="background: var(--glass2); border:1px solid var(--border); color: var(--text); border-radius:18px;">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+          <div>
+            <h5 class="modal-title" id="recipesModalTitle" style="font-weight:900">🍳 Recetas Offline</h5>
+            <div class="muted small" id="recipesModalSub">Sin APIs. Filtrado por estilo/kcal/alergias.</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
 
-createApp({
-  setup(){
-    // ===================== Core State =====================
-    const displayName = ref(localStorage.getItem('ltult_name') || '');
-    const mode = ref('chat'); // 'chat' | 'pron'
-    const messages = ref([]);
-    const input = ref('');
-    const loading = ref(false);
-    const showConfig = ref(false);
-    const textarea = ref(null);
-    const sideOpen = ref(false);
-    const sideTab = ref('tools');
+        <div class="modal-body">
+          <div class="d-flex gap-2 flex-wrap align-items-center mb-3">
+            <input class="form-control" id="recipeQuery" placeholder="Buscar (opcional)" style="max-width:520px;">
+            <select class="form-select" id="recipeQueryMeal" style="max-width:220px;">
+              <option value="">Todas</option>
+              <option value="desayuno">Desayuno</option>
+              <option value="snack1">Snack</option>
+              <option value="comida">Comida</option>
+              <option value="snack2">Snack</option>
+              <option value="cena">Cena</option>
+            </select>
+            <button class="btn btn-accent" id="btnSearchRecipes"><i class="bi bi-search"></i> Buscar</button>
+            <span class="badge-soft" id="recipesCount">0</span>
+          </div>
 
-    const sessionId = ref(localStorage.getItem('ltult_session') || 'anon');
-    const useInternet = ref(localStorage.getItem('ltult_use_internet') !== '0');
-    const timeoutMs = ref(parseInt(localStorage.getItem('ltult_timeout') || '9000', 10));
-    const internetOk = ref(true);
-    const level = ref(localStorage.getItem('ltult_level') || 'B1');
-    const ttsLang = ref(localStorage.getItem('ltult_tts_lang') || 'en-US');
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="kpi">
+                <div style="font-weight:900">Resultados</div>
+                <div class="hr"></div>
+                <div id="recipesOutModal" class="muted small">—</div>
+              </div>
+            </div>
 
-    // pronunciation settings
-    const pronLang = ref(localStorage.getItem('ltult_pron_lang') || 'en-US');
-    const passThreshold = ref(parseInt(localStorage.getItem('ltult_pass_threshold') || '78', 10));
+            <div class="col-lg-6">
+              <div class="kpi">
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                  <div style="font-weight:900">Detalle</div>
+                  <span class="badge-soft" id="recipeDetailTag">—</span>
+                </div>
+                <div class="hr"></div>
+                <div id="recipeDetailOut" class="muted small">Selecciona una receta.</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    const modeLabel = computed(() => mode.value === 'chat' ? 'Chat' : 'Pronunciación');
+        <div class="modal-footer" style="border-top: 1px solid var(--border);">
+          <button class="btn btn-lite" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // storage (IndexedDB via localforage)
-    localforage.config({ name: 'LinguaTutorULT', storeName: 'ltult' });
-    const notebook = ref([]);
-    const vocab = ref([]);
-    const vocabSearch = ref('');
+  <!-- Modal: Nueva Receta -->
+  <div class="modal fade" id="addRecipeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content" style="background: var(--glass2); border:1px solid var(--border); color: var(--text); border-radius:18px;">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border);">
+          <h5 class="modal-title" style="font-weight:900">➕ Nueva receta (Mis recetas)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
 
-    // Python engine
-    const pyReady = ref(false);
-    const pyLoading = ref(false);
-    let pyodide = null;
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Nombre</label>
+              <input class="form-control" id="newR_name" placeholder="Ej: Ensalada de pollo con aguacate">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Kcal aprox</label>
+              <input class="form-control" id="newR_kcal" type="number" min="0" placeholder="ej: 520">
+            </div>
 
-    // Voice input (dictation)
-    const isVoiceInput = ref(false);
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let voiceRec = null;
+            <div class="col-md-6">
+              <label class="form-label">Tipo de comida</label>
+              <select class="form-select" id="newR_mealKey">
+                <option value="desayuno">Desayuno</option>
+                <option value="snack1">Snack</option>
+                <option value="comida">Comida</option>
+                <option value="snack2">Snack</option>
+                <option value="cena">Cena</option>
+              </select>
+            </div>
 
-    // ===================== Markdown safe render =====================
-    marked.setOptions({ mangle:false, headerIds:false, breaks:true });
-    const renderMD = (text) => DOMPurify.sanitize(marked.parse(text || ''));
+            <div class="col-md-6">
+              <label class="form-label">Compatible con dietas</label>
+              <div class="d-flex flex-wrap gap-2">
+                <label class="badge-soft"><input type="checkbox" class="me-1 dietChk" value="balanceada" checked> Balanceada</label>
+                <label class="badge-soft"><input type="checkbox" class="me-1 dietChk" value="alto_proteina"> Alta proteína</label>
+                <label class="badge-soft"><input type="checkbox" class="me-1 dietChk" value="keto"> Keto</label>
+                <label class="badge-soft"><input type="checkbox" class="me-1 dietChk" value="vegetariana"> Vegetariana</label>
+              </div>
+            </div>
 
-    // ===================== Helpers =====================
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-    const statusLine = computed(() => {
-      const bits = [];
-      bits.push(useInternet.value ? 'internet:on' : 'internet:off');
-      bits.push(pyReady.value ? 'python:on' : 'python:off');
-      bits.push('nivel:' + level.value);
-      return bits.join(' • ');
-    });
+            <div class="col-12">
+              <label class="form-label">Ingredientes (uno por línea)</label>
+              <textarea class="form-control" id="newR_ingredients" rows="5" placeholder="Ej:\n200g pechuga\n1 aguacate\n2 tazas lechuga"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Preparación (uno por línea)</label>
+              <textarea class="form-control" id="newR_steps" rows="5" placeholder="Ej:\nCocer el pollo\nPicar vegetales\nMezclar y servir"></textarea>
+            </div>
 
-    function toggleSide(){ sideOpen.value = !sideOpen.value; }
+            <div class="col-12">
+              <label class="form-label">Etiquetas (coma)</label>
+              <input class="form-control" id="newR_tags" placeholder="ej: rápido, económico, mealprep">
+            </div>
+          </div>
+          <div class="muted small mt-2">Tus recetas se guardan en el navegador.</div>
+        </div>
 
-    function scrollToBottom(){
-      nextTick(() => {
-        const c = document.getElementById('chatScroll');
-        if (c) c.scrollTop = c.scrollHeight;
+        <div class="modal-footer" style="border-top: 1px solid var(--border);">
+          <button class="btn btn-lite" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-accent" id="btnSaveNewRecipe"><i class="bi bi-check2"></i> Guardar receta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container">
+    <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true"
+         style="border-radius: 16px; box-shadow: var(--shadow); background: rgba(0,0,0,.55)!important;">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Listo</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- =========================
+       Loader de librerías (CDN fallback)
+       ========================= -->
+  <script>
+    function loadScript(url){
+      return new Promise((resolve, reject)=>{
+        const s = document.createElement("script");
+        s.src = url;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = ()=> reject(new Error("No se pudo cargar: " + url));
+        document.head.appendChild(s);
       });
     }
-
-    function copy(t){
-      const txt = (t || '').replace(/\n\n+/g,'\n\n');
-      navigator.clipboard?.writeText(txt).catch(()=>{});
-    }
-
-    function stripForTTS(md){
-      return (md||'')
-        .replace(/```[\s\S]*?```/g,' ')
-        .replace(/`[^`]*`/g,' ')
-        .replace(/\[(.*?)\]\((.*?)\)/g,'$1')
-        .replace(/[#*_>]/g,' ')
-        .replace(/\s+/g,' ')
-        .trim();
-    }
-
-    function tts(text){
-      const clean = stripForTTS(text);
-      if(!clean) return;
-      const u = new SpeechSynthesisUtterance(clean);
-      u.lang = ttsLang.value;
-      u.rate = 0.95;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
-    }
-
-    function ttsPractice(text){
-      const u = new SpeechSynthesisUtterance(String(text||''));
-      u.lang = pronLang.value;
-      u.rate = 0.92;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
-    }
-
-    // ===================== Mobile fix: dynamic padding for input bar =====================
-    function setupInputPaddingObserver(){
-      const inputEl = document.getElementById('inputBar');
-      if(!inputEl || !('ResizeObserver' in window)) return;
-      const ro = new ResizeObserver(() => {
-        const h = inputEl.getBoundingClientRect().height;
-        document.documentElement.style.setProperty('--inputH', Math.ceil(h) + 'px');
-      });
-      ro.observe(inputEl);
-      // initial
-      const h0 = inputEl.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--inputH', Math.ceil(h0) + 'px');
-    }
-
-    // ===================== Anti-repetition memory =====================
-    const seenKey = () => `ltult_seen_${sessionId.value}`;
-    function loadSeen(){
-      try{
-        const raw = localStorage.getItem(seenKey());
-        const obj = raw ? JSON.parse(raw) : { ts: Date.now(), items: [] };
-        const ttl = 7*24*60*60*1000;
-        if(!obj.ts || !Array.isArray(obj.items)) return { ts: Date.now(), items: [] };
-        if(Date.now() - obj.ts > ttl) return { ts: Date.now(), items: [] };
-        return obj;
-      }catch{ return { ts: Date.now(), items: [] }; }
-    }
-    function saveSeen(obj){ localStorage.setItem(seenKey(), JSON.stringify(obj)); }
-    function remember(tag){
-      const obj = loadSeen();
-      const max = 2600;
-      if(!obj.items.includes(tag)) obj.items.push(tag);
-      while(obj.items.length > max) obj.items.shift();
-      obj.ts = Date.now();
-      saveSeen(obj);
-    }
-    function hasSeen(tag){ return loadSeen().items.includes(tag); }
-    function hash32(s){
-      s = String(s||'');
-      let h = 2166136261;
-      for(let i=0;i<s.length;i++){
-        h ^= s.charCodeAt(i);
-        h = Math.imul(h, 16777619);
+    async function trySequence(urls){
+      for(const url of urls){
+        try { await loadScript(url); return true; } catch(e){ }
       }
-      return (h>>>0).toString(16);
+      return false;
     }
-    function pickUnique(prefix, candidates){
-      const shuffled = [...candidates].sort(()=>Math.random()-0.5);
-      for(const c of shuffled){
-        const tag = `${prefix}:${hash32(String(c).toLowerCase())}`;
-        if(!hasSeen(tag)) { remember(tag); return c; }
-      }
-      const fb = candidates[Math.floor(Math.random()*candidates.length)];
-      remember(`${prefix}:${hash32(String(fb).toLowerCase())}`);
-      return fb;
-    }
-    function resetSeen(){ localStorage.removeItem(seenKey()); }
-
-    // ===================== Fetch with timeout =====================
-    async function fetchJson(url, opts={}){
-      const ctrl = new AbortController();
-      const id = setTimeout(()=>ctrl.abort(), timeoutMs.value);
-      try{
-        const res = await fetch(url, { ...opts, signal: ctrl.signal });
-        if(!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
-      } finally { clearTimeout(id); }
-    }
-
-    // ===================== Providers =====================
-    async function datamuseRelated(seed, max=18){
-      const u = `https://api.datamuse.com/words?ml=${encodeURIComponent(seed)}&max=${max}`;
-      const data = await fetchJson(u);
-      return (data||[]).map(x=>x.word).filter(Boolean);
-    }
-
-    async function dictionaryDefine(word){
-      const u = `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`;
-      try{
-        const data = await fetchJson(u);
-        const entry = Array.isArray(data) ? data[0] : null;
-        if(!entry) return null;
-        const m = (entry.meanings||[])[0] || {};
-        const d = (m.definitions||[])[0] || {};
-        return {
-          word: entry.word || word,
-          pos: m.partOfSpeech || '',
-          definition: d.definition || '',
-          example: d.example || '',
-          synonyms: (d.synonyms||[]).slice(0,6)
-        };
-      }catch{ return null; }
-    }
-
-    async function wikipediaSearch(query, limit=5){
-      const u = new URL('https://en.wikipedia.org/w/api.php');
-      u.searchParams.set('action','opensearch');
-      u.searchParams.set('format','json');
-      u.searchParams.set('limit', String(limit));
-      u.searchParams.set('origin','*');
-      u.searchParams.set('search', query);
-      const data = await fetchJson(u.toString());
-      const titles = (data && data[1]) || [];
-      return titles;
-    }
-
-    async function wikipediaExtract(title, sentences=5){
-      const u = new URL('https://en.wikipedia.org/w/api.php');
-      u.searchParams.set('action','query');
-      u.searchParams.set('format','json');
-      u.searchParams.set('prop','extracts');
-      u.searchParams.set('explaintext','1');
-      u.searchParams.set('exsentences', String(sentences));
-      u.searchParams.set('origin','*');
-      u.searchParams.set('titles', title);
-      const data = await fetchJson(u.toString());
-      const pages = data?.query?.pages || {};
-      const first = Object.values(pages)[0];
-      return first?.extract ? String(first.extract).trim() : null;
-    }
-
-    // ===================== Local fallback pools =====================
-    const localTopics = ['work','travel','food','family','shopping','health','sports','time','safety'];
-    const localWordBank = {
-      work: ['meeting','shift','deadline','warehouse','forklift','pallet','supervisor','inventory','schedule','overtime'],
-      travel: ['ticket','station','passport','hotel','luggage','schedule','gate','platform','reservation'],
-      food: ['breakfast','spicy','recipe','ingredients','coffee','dessert','order','water','vegetables'],
-      safety: ['helmet','gloves','warning','careful','danger','safe','training','procedure','hazard'],
-      family: ['cousin','uncle','aunt','brother','sister','parents','kids','neighbors'],
-      shopping: ['price','discount','receipt','size','cash','card','expensive','cheap'],
-      health: ['doctor','medicine','pain','sleep','exercise','healthy','sick','clinic'],
-      sports: ['team','score','practice','match','coach','player','win','lose'],
-      time: ['today','tomorrow','yesterday','early','late','minutes','hours','weekend']
-    };
-    const rand = (arr) => arr[Math.floor(Math.random()*arr.length)];
-
-    // ===================== Intent Parsing =====================
-    function parseCommand(text){
-      const t = (text||'').trim();
-      if(!t.startsWith('/')) return null;
-      const [cmd, ...rest] = t.slice(1).split(/\s+/);
-      return { cmd: (cmd||'').toLowerCase(), args: rest.join(' ').trim() };
-    }
-
-    function guessTopic(text){
-      const t = (text||'').toLowerCase();
-      if(/work|trabaj|almac[eé]n|warehouse|forklift|pallet/.test(t)) return 'work';
-      if(/travel|viaj|flight|airport|hotel|bus|train/.test(t)) return 'travel';
-      if(/food|comida|coffee|restaurant|order|spicy/.test(t)) return 'food';
-      if(/safety|seguridad|ppe|helmet|gloves|hazard/.test(t)) return 'safety';
-      return rand(localTopics);
-    }
-
-    function classifyIntent(text){
-      const t = (text||'').toLowerCase();
-      const weights = {
-        define: [/\bdefine\b|\bdefin|\bsignificado\b|\bmeaning\b/],
-        wiki: [/\bwiki\b|\bwikipedia\b|\blectura\b|\breading\b|\bart[ií]culo\b|\btexto\b/],
-        quiz: [/\bquiz\b|\bejercicio\b|\btest\b|\bpracticar\b|\bactividad\b|\bexercises?\b/],
-        grammar: [/\bgram\w+|\btiempo\s*verbal\b|\bpasado\b|\bpresente\b|\bfuturo\b|\bverb\b/],
-        plan: [/\bplan\b|\brutina\b|\b7\s*d[ií]as\b|\bestudio\b/],
-        general: [/.*/]
-      };
-      for(const k of ['define','wiki','quiz','grammar','plan']){
-        if(weights[k].some(r => r.test(t))) return k;
-      }
-      return 'general';
-    }
-
-    // ===================== Python (Pyodide) Engine =====================
-    const PY_BOOT = `
-import re, math
-
-def _tok(s):
-  s=(s or '').lower()
-  s=re.sub(r"[^a-z0-9\s']"," ",s)
-  s=re.sub(r"\s+"," ",s).strip()
-  return [w for w in s.split(' ') if w]
-
-class BM25:
-  def __init__(self, docs, k1=1.5, b=0.75):
-    self.docs=[_tok(d) for d in docs]
-    self.k1=k1; self.b=b
-    self.N=len(self.docs)
-    self.df={}
-    self.avgdl=sum(len(d) for d in self.docs)/(self.N or 1)
-    for d in self.docs:
-      for w in set(d):
-        self.df[w]=self.df.get(w,0)+1
-  def idf(self,w):
-    n=self.df.get(w,0)
-    return math.log(1+(self.N-n+0.5)/(n+0.5))
-  def score(self, q, idx):
-    q=_tok(q)
-    d=self.docs[idx]
-    if not d: return 0.0
-    freqs={}
-    for w in d: freqs[w]=freqs.get(w,0)+1
-    dl=len(d)
-    s=0.0
-    for w in q:
-      if w not in freqs: continue
-      f=freqs[w]
-      idf=self.idf(w)
-      denom=f+self.k1*(1-self.b+self.b*dl/self.avgdl)
-      s += idf*(f*(self.k1+1))/denom
-    return s
-  def topk(self, q, k=3):
-    scores=[(self.score(q,i), i) for i in range(self.N)]
-    scores.sort(reverse=True)
-    return scores[:k]
-`;
-
-    async function initPython(){
-      if(pyReady.value || pyLoading.value) return;
-      pyLoading.value = true;
-      try{
-        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
-        await pyodide.runPythonAsync(PY_BOOT);
-        pyReady.value = true;
-      }catch(e){
-        console.warn('Pyodide init failed', e);
-        pyReady.value = false;
-      } finally {
-        pyLoading.value = false;
-      }
-    }
-
-    async function pyTopSentences(question, text, k=3){
-      const sents = (text||'').split(/(?<=[.!?])\s+/).filter(s => s.trim().length>20);
-      if(!pyReady.value || !pyodide || sents.length===0) return sents.slice(0,k);
-      try{
-        pyodide.globals.set('DOCS', sents);
-        pyodide.runPython('bm = BM25(DOCS)');
-        pyodide.globals.set('Q', question);
-        const top = pyodide.runPython(`bm.topk(Q, ${k})`);
-        const out = [];
-        for(const t of top){ out.push(sents[t[1]]); }
-        return out;
-      }catch(e){
-        console.warn('pyTopSentences failed', e);
-        return sents.slice(0,k);
-      }
-    }
-
-    // ===================== Notebook & Vocab =====================
-    async function loadNotebook(){
-      const data = (await localforage.getItem('notebook')) || [];
-      notebook.value = Array.isArray(data) ? data : [];
-    }
-    async function loadVocab(){
-      const data = (await localforage.getItem('vocab')) || [];
-      vocab.value = Array.isArray(data) ? data : [];
-    }
-    async function saveNotebook(){ await localforage.setItem('notebook', notebook.value); }
-    async function saveVocab(){ await localforage.setItem('vocab', vocab.value); }
-
-    function pinToNotebook(msg){
-      const title = stripForTTS(msg.text).slice(0,80) || 'Nota';
-      const preview = stripForTTS(msg.text).slice(0,160);
-      notebook.value.unshift({ id: Date.now(), title, preview, ts: Date.now() });
-      notebook.value = notebook.value.slice(0, 100);
-      saveNotebook();
-    }
-
-    function addVocab(word, note){
-      word = (word||'').trim();
-      if(!word) return;
-      const key = word.toLowerCase();
-      const existing = vocab.value.find(v=>v.word.toLowerCase()===key);
-      if(existing){ existing.note = note || existing.note; existing.ts = Date.now(); }
-      else vocab.value.unshift({ word, note: note||'', ts: Date.now() });
-      vocab.value = vocab.value.slice(0, 250);
-      saveVocab();
-    }
-
-    function clearNotebook(){ notebook.value = []; saveNotebook(); }
-    function clearVocab(){ vocab.value = []; saveVocab(); }
-
-    const filteredVocab = computed(() => {
-      const q = vocabSearch.value.trim().toLowerCase();
-      if(!q) return vocab.value;
-      try{
-        const fuse = new Fuse(vocab.value, { keys:['word','note'], threshold: 0.35 });
-        return fuse.search(q).map(r=>r.item);
-      }catch{ return vocab.value.filter(v => (v.word+" "+v.note).toLowerCase().includes(q)); }
-    });
-
-    // ===================== Content Builders =====================
-    function mdTable(rows){
-      const [h1,h2] = rows[0];
-      const lines = [];
-      lines.push(`| ${h1} | ${h2} |`);
-      lines.push(`| --- | --- |`);
-      for(let i=1;i<rows.length;i++){
-        const [a,b]=rows[i];
-        lines.push(`| ${a} | ${b} |`);
-      }
-      return lines.join('\n');
-    }
-
-    function grammarPack(tense){
-      const t = (tense||'').toLowerCase();
-      const packs = {
-        'past simple': {
-          title:'Past Simple (pasado simple)',
-          explain:`Se usa para acciones terminadas en el pasado.\n\n- Regular: play → **played**\n- Irregular: go → **went**\n\n**Marcadores**: yesterday, last week, ago.`,
-          ex:[
-            "Completa: 1) I ___ (work) yesterday. 2) She ___ (go) home. 3) They ___ (not/like) it.",
-            "Convierte: 'He visited the warehouse.' → negativa y pregunta.",
-            "Corrige: 'She go to work last Monday.'"
-          ]
-        },
-        'present perfect': {
-          title:'Present Perfect',
-          explain:`Conecta pasado con presente.\n\n- **have/has + past participle**\n- I **have worked** / She **has worked**\n\n**Marcadores**: already, yet, ever, never, since, for.`,
-          ex:[
-            "Completa: 1) I have ___ (finish) my shift. 2) She has ___ (not/see) it yet.",
-            "Elige: 'Have you ever / Did you ever' been to Mexico?",
-            "Escribe 2 oraciones con **since** y **for**."
-          ]
-        },
-        'present simple': {
-          title:'Present Simple (hábitos)',
-          explain:`Rutinas y hechos.\n\n- I/you/we/they work\n- he/she/it work**s**\n\nTip: agrega **-s** solo en he/she/it.`,
-          ex:[
-            "Completa: 1) He ___ (work) here. 2) They ___ (not/watch) TV. 3) ___ you ___ (study) English?",
-            "Convierte a pregunta: 'She works at a warehouse.'",
-            "Corrige: 'He don't like it.'"
-          ]
-        }
-      };
-      return packs[t] || packs['present simple'];
-    }
-
-    function buildQuiz(topic, words){
-      const lvl = level.value;
-      const chosen = words.slice(0,6);
-      const w1 = chosen[0] || 'work';
-      const w2 = chosen[1] || 'shift';
-      const w3 = chosen[2] || 'safety';
-
-      const mcq = [
-        { q:`(1) ¿Cuál frase suena más natural para pedir ayuda?`,
-          a:[`Can you help me with this ${w1}?`,`Can you aid me with this ${w1}?`,`Can you assistance me with this ${w1}?`],
-          ok:0
-        },
-        { q:`(2) Elige la forma correcta (nivel ${lvl}):`,
-          a:[`He work in the warehouse.`,`He works in the warehouse.`,`He working in the warehouse.`],
-          ok:1
-        },
-        { q:`(3) Traduce: “Tengo mi próximo turno mañana.”`,
-          a:[`I have my next shift tomorrow.`,`I has my next shift tomorrow.`,`I am have my next shift tomorrow.`],
-          ok:0
-        }
-      ];
-
-      const gap = `Completa (usa: **${w2}**, **${w3}**):\n\n1) My ____ starts at 7 a.m.\n2) ____ first. Wear your helmet.`;
-
-      const answerKey = [
-        `1) ${mcq[0].a[mcq[0].ok]}`,
-        `2) ${mcq[1].a[mcq[1].ok]}`,
-        `3) ${mcq[2].a[mcq[2].ok]}`,
-        `Gap: 1) ${w2}  2) Safety`
-      ].join('\n');
-
-      const table = mdTable([
-        ['Palabra','Uso rápido'],
-        [w1, `I need a **${w1}** today.`],
-        [w2, `My **${w2}** starts at 7.`],
-        [w3, `**${w3}** first.`],
+    async function loadFullCalendarGlobal(){
+      const ok = await trySequence([
+        "https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js",
+        "https://unpkg.com/fullcalendar@6.1.20/index.global.min.js"
       ]);
+      if(!ok || !window.FullCalendar) return false;
 
-      return {
-        md: `### 📝 Quiz (${topic})\n\n${table}\n\n---\n#### 1) Multiple choice\n${mcq.map(x=>`- ${x.q}\n  - A) ${x.a[0]}\n  - B) ${x.a[1]}\n  - C) ${x.a[2]}\n`).join('\n')}\n---\n#### 2) Fill in the blanks\n${gap}\n\n---\n#### ✅ Respuestas\n\n${answerKey}\n\n💡 Si quieres, responde tú primero y te corrijo.`
-      };
+      await trySequence([
+        "https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/locales-all.global.min.js",
+        "https://unpkg.com/@fullcalendar/core@6.1.20/locales-all.global.min.js"
+      ]);
+      await trySequence([
+        "https://cdn.jsdelivr.net/npm/@fullcalendar/bootstrap5@6.1.20/index.global.min.js",
+        "https://unpkg.com/@fullcalendar/bootstrap5@6.1.20/index.global.min.js"
+      ]);
+      return true;
     }
-
-    function buildDefineMD(def){
-      if(!def) return { md: "### ⚠️ No encontré definición\n\nIntenta otra palabra o activa Internet.", sources: [] };
-      const syn = def.synonyms?.length ? def.synonyms.map(s=>`\`${s}\``).join(', ') : '—';
-      const ex = def.example ? `> _${def.example}_` : '> _(sin ejemplo disponible)_';
-      addVocab(def.word, def.definition || '');
-      return {
-        md:
-`### 📘 Definición\n\n**Palabra:** \`${def.word}\`${def.pos ? ` (${def.pos})` : ''}\n\n**Meaning:** ${def.definition || '—'}\n\n**Example:**\n${ex}\n\n**Synonyms:** ${syn}\n\n---\n**Mini-práctica**\n1) Escribe 2 oraciones con \`${def.word}\`.\n2) Dime un sinónimo y en qué cambia el significado.\n\n🎧 Tip: usa "Escuchar" para oír la palabra en contexto.`,
-        sources: [{ title:'DictionaryAPI', url:'https://dictionaryapi.dev/', snippet:`${def.word}: ${def.definition || ''}` }]
-      };
+    async function loadChart(){
+      const ok = await trySequence([
+        "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+        "https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+      ]);
+      return !!(ok && window.Chart);
     }
+  </script>
 
-    async function buildWikiMD(topic){
-      const sources = [];
-      let title = topic;
-      if(useInternet.value){
-        try{
-          internetOk.value = true;
-          const sugg = await wikipediaSearch(topic, 5);
-          if(sugg && sugg.length) title = sugg[0];
-          const extract = await wikipediaExtract(title, 7);
-          sources.push({ title: `Wikipedia: ${title}`, url: `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/\s+/g,'_'))}`, snippet: (extract||'').slice(0,220) });
+  <!-- =========================
+       App principal
+       ========================= -->
+  <script>
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
 
-          const q = `What is ${title}? key facts`;
-          const highlights = extract ? await pyTopSentences(q, extract, 3) : [];
-
-          const words = (extract||'').toLowerCase().match(/[a-z]{5,}/g) || [];
-          const uniq = [...new Set(words)].slice(0, 50);
-          const picks = uniq.length ? [pickUnique('wk_vocab', uniq), pickUnique('wk_vocab', uniq), pickUnique('wk_vocab', uniq)] : ['concept','process','example'];
-          const vocabLines = picks.map(w => `- \`${w}\` — (usa /define ${w})`).join('\n');
-
-          const md = `### 📖 Lectura real (Wikipedia)\n\n**Tema:** ${title}\n\n> ${extract || 'No pude obtener el extracto. Intenta otro tema.'}\n\n---\n#### ✨ Frases clave (selección inteligente)\n${highlights.length ? highlights.map(s=>`- ${s}`).join('\n') : '_Activa Python para resaltar frases automáticamente._'}\n\n---\n#### ✅ Actividades (nuevas)\n1) Resume el texto en **1 oración en inglés**.\n2) Escribe **3 palabras nuevas** del texto y tu traducción aproximada.\n3) Escribe una pregunta (en inglés) sobre el tema.\n\n---\n#### 🧠 Vocab sugerido\n${vocabLines}`;
-          return { md, sources };
-        } catch(e){
-          internetOk.value = false;
-        }
-      }
-      internetOk.value = false;
-      const mini = [
-        `Today I want to learn about **${guessTopic(topic)}**.`,
-        `I will practice short sentences and new words.`,
-        `My goal is to speak with confidence.`
-      ].sort(()=>Math.random()-0.5).join(' ');
-      const md = `### 🟡 Lectura (Local)\n\n> ${mini}\n\n---\n#### ✅ Actividades\n1) Subraya 3 palabras clave.\n2) Escribe 1 oración en pasado.\n3) Escribe 1 pregunta en inglés.`;
-      return { md, sources: [] };
-    }
-
-    async function buildGeneralMD(userText){
-      const topic = guessTopic(userText);
-      const sources = [];
-      let word = '';
-      let def = null;
-
-      if(useInternet.value){
-        try{
-          internetOk.value = true;
-          const related = await datamuseRelated(userText.length>2 ? userText : topic, 24);
-          const pool = related.length ? related : (localWordBank[topic] || localWordBank.work);
-          word = pickUnique('word', pool);
-          def = await dictionaryDefine(word);
-          sources.push({ title: 'Datamuse', url: 'https://api.datamuse.com', snippet: `seed: ${userText} → ${word}` });
-          if(def?.definition) sources.push({ title: 'DictionaryAPI', url: 'https://dictionaryapi.dev/', snippet: `${def.word}: ${def.definition}` });
-        } catch { internetOk.value = false; }
-      }
-
-      if(!word){
-        internetOk.value = false;
-        const pool = (localWordBank[topic] || localWordBank.work);
-        word = pickUnique('local_word', pool);
-      }
-
-      const baseSentence = def?.example || `I need a ${word} today.`;
-      const phrases = [
-        [`Can you help me with this ${word}?`, `¿Me ayudas con este/esta ${word}?`],
-        [`I need to ${rand(['buy','find','use','check'])} a ${word}.`, `Necesito ${rand(['comprar','encontrar','usar','revisar'])} un/una ${word}.`],
-        [`Let's talk about ${topic}.`, `Hablemos de ${topic}.`],
-      ];
-
-      const table = mdTable([['English','Español'], ...phrases]);
-
-      const exType = pickUnique('ex_type', ['gap','translate','scramble','error','roleplay']);
-      let ex = '';
-      if(exType==='gap'){
-        ex = `**Fill in the blank:**\n\n${baseSentence.replace(new RegExp(`\\b${word}\\b`,'i'),'_____')}\n\n✅ Respuesta: **${word}**`;
-      } else if(exType==='translate'){
-        ex = `**Traduce al inglés:**\n\n> "Necesito un/una **${word}** hoy."\n\nTip: usa \`${word}\`.`;
-      } else if(exType==='scramble'){
-        const scrambled = baseSentence.split(' ').sort(()=>Math.random()-0.5).join(' / ');
-        ex = `**Ordena las palabras:**\n\n${scrambled}\n\n✅ Solución: _${baseSentence}_`;
-      } else if(exType==='roleplay'){
-        ex = `**Roleplay (2 turnos):**\n\nA) Pide ayuda para resolver un problema con **${word}**.\nB) Responde con 2 opciones y una pregunta.`;
-      } else {
-        ex = `**Detecta el error:**\n\n> He go to the ${word} yesterday.\n\n✅ Corrección: **He went to the ${word} yesterday.**`;
-      }
-
-      if(def?.definition) addVocab(def.word, def.definition);
-      else addVocab(word, `Relacionado con ${topic}`);
-
-      const md = `### 🧩 Respuesta (con fuentes y variación)\n\n**Tema detectado:** ${topic}  \n**Palabra clave:** \`${def?.word || word}\`${def?.pos ? ` (${def.pos})` : ''}\n\n${def?.definition ? `**Meaning:** ${def.definition}\n\n` : ''}${def?.example ? `**Example:**\n> _${def.example}_\n\n` : ''}---\n#### 💬 Mini-frases\n${table}\n\n---\n#### 📝 Ejercicio\n${ex}\n\n---\n🎙️ Tip: cambia al modo **Pronunciación** para practicar hablando.`;
-
-      return { md, sources };
-    }
-
-    async function buildGrammarMD(tense){
-      const pack = grammarPack(tense);
-      const ex = pack.ex.sort(()=>Math.random()-0.5);
-      const md = `### 📚 Gramática PRO: ${pack.title}\n\n${pack.explain}\n\n---\n#### 🧪 Ejercicios (variados)\n1) ${ex[0]}\n\n2) ${ex[1]}\n\n3) ${ex[2]}\n\n---\n✅ Escribe tus respuestas y te doy retroalimentación.`;
-      return { md, sources: [] };
-    }
-
-    async function buildPlanMD(){
-      const md = `### 🗓️ Plan de 7 días (inglés para trabajo)\n\n**Objetivo:** mejorar comunicación y seguridad (15–20 min/día).\n\n1) Día 1: /define warehouse, forklift, shift\n2) Día 2: preguntas útiles (Where is…? Can you…?)\n3) Día 3: /grammar past simple\n4) Día 4: /quiz safety\n5) Día 5: mini reportes + conectores (because/so/but)\n6) Día 6: modo Pronunciación (10 frases)\n7) Día 7: simulación + /export\n\nSi me dices tu área (montacargas, surtido, embarques) lo personalizo.`;
-      return { md, sources: [] };
-    }
-
-    // ===================== Orchestrator =====================
-    async function buildAI(userText){
-      const cmd = parseCommand(userText);
-      const intent = cmd ? cmd.cmd : classifyIntent(userText);
-
-      if(cmd){
-        const args = cmd.args || '';
-        if(intent==='define'){
-          const w = args || pickUnique('rand_word', localWordBank[guessTopic(userText)]);
-          if(useInternet.value){
-            try{ internetOk.value = true; return buildDefineMD(await dictionaryDefine(w)); }
-            catch{ internetOk.value = false; }
-          }
-          internetOk.value = false;
-          return { md: `### 📘 Definición (Local)\n\n**Palabra:** \`${w}\`\n\nEjemplo: _I need a ${w} today._\n\nTip: activa Internet para definición real.`, sources: [] };
-        }
-
-        if(intent==='wiki') return await buildWikiMD(args || guessTopic(userText));
-
-        if(intent==='quiz'){
-          const topic = (args || guessTopic(userText));
-          let pool = (localWordBank[topic.toLowerCase()] || localWordBank[guessTopic(topic)] || localWordBank.work);
-          if(useInternet.value){
-            try{ internetOk.value = true; const related = await datamuseRelated(topic, 22); if(related.length) pool = related; }
-            catch{ internetOk.value = false; }
-          }
-          const words = [];
-          while(words.length < Math.min(10, pool.length)){
-            const w = pickUnique('quiz_word', pool);
-            if(!words.includes(w)) words.push(w);
-          }
-          const quiz = buildQuiz(topic, words);
-          return { md: quiz.md, sources: [{ title:'Datamuse / local wordbank', url:'https://api.datamuse.com', snippet:`topic: ${topic}` }] };
-        }
-
-        if(intent==='grammar') return await buildGrammarMD(args || 'present simple');
-
-        if(intent==='plan') return await buildPlanMD();
-
-        if(intent==='export') return exportAll();
-
-        if(intent==='python'){
-          await initPython();
-          return { md: pyReady.value ? '### 🐍 Python activado\n\nListo. Lecturas resaltan frases con BM25.' : '### ⚠️ No pude iniciar Python\n\nRevisa tu conexión o bloqueadores.', sources: [] };
-        }
-
-        return { md: `### ⚠️ Comando no reconocido\n\nPrueba: /define, /wiki, /quiz, /grammar, /python, /export`, sources: [] };
-      }
-
-      if(intent==='wiki') return await buildWikiMD(userText);
-      if(intent==='grammar') return await buildGrammarMD(userText);
-      if(intent==='quiz') return await buildAI(`/quiz ${guessTopic(userText)}`);
-      if(intent==='plan') return await buildPlanMD();
-      if(intent==='define'){
-        const w = (userText.match(/[A-Za-z]{3,}$/) || [])[0] || pickUnique('rand_word', localWordBank[guessTopic(userText)]);
-        return await buildAI(`/define ${w}`);
-      }
-      return await buildGeneralMD(userText);
-    }
-
-    // ===================== Export =====================
-    function download(filename, text){
-      const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function exportAll(){
-      const payload = {
-        version: 'LinguaTutorULT-HTML-1.0',
-        ts: new Date().toISOString(),
-        sessionId: sessionId.value,
-        messages: messages.value,
-        notebook: notebook.value,
-        vocab: vocab.value,
-        settings: {
-          useInternet: useInternet.value,
-          timeoutMs: timeoutMs.value,
-          level: level.value,
-          ttsLang: ttsLang.value,
-          pronLang: pronLang.value,
-          passThreshold: passThreshold.value
-        }
-      };
-      download(`ltult_export_${Date.now()}.json`, JSON.stringify(payload, null, 2));
-      return { md: '### ✅ Exportado\n\nDescargué un archivo **.json** con tu chat, notebook y vocabulario.', sources: [] };
-    }
-
-    // ===================== Chat actions =====================
-    const send = async () => {
-      const text = input.value.trim();
-      if(!text) return;
-      input.value = '';
-      if(textarea.value) textarea.value.style.height = 'auto';
-
-      messages.value.push({ id: Date.now(), role:'user', text });
-      loading.value = true;
-      scrollToBottom();
-      await sleep(140);
-
-      let out;
-      try{
-        if(useInternet.value) internetOk.value = true;
-        out = await buildAI(text);
-      }catch(e){
-        internetOk.value = false;
-        out = { md: '### ⚠️ Error\n\nNo pude generar respuesta. Intenta de nuevo o desactiva Internet.', sources: [] };
-      }
-
-      messages.value.push({ id: Date.now()+1, role:'ai', text: out.md, sources: out.sources || [], showSources: false });
-      loading.value = false;
-      scrollToBottom();
-
-      localforage.setItem('messages', messages.value).catch(()=>{});
+    const Store = {
+      keys: {
+        profile:"dp_profile_v12",
+        plan:"dp_plan_v12",
+        calendar:"dp_calendar_v12",
+        userRecipes:"dp_user_recipes_v12"
+      },
+      get(k, fallback){ try{ const raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : fallback; } catch(e){ return fallback; } },
+      set(k, v){ localStorage.setItem(k, JSON.stringify(v)); },
+      del(k){ localStorage.removeItem(k); }
     };
 
-    const sendText = (t) => { input.value = t; send(); };
+    const App = {
+      calendar: null,
+      macroChart: null,
+      fullcalendarOk: false,
+      chartOk: false,
+      selectedEvent: null,
+      profile: null,
+      plan: null,
 
-    const regenerate = async (msg) => {
-      const idx = messages.value.findIndex(m => m.id === msg.id);
-      if(idx <= 0) return;
-      const prevUser = [...messages.value].slice(0, idx).reverse().find(m => m.role==='user');
-      if(!prevUser) return;
-      loading.value = true;
-      await sleep(120);
-      const out = await buildAI(prevUser.text + ' (varía y no repitas)');
-      messages.value.splice(idx, 1, { id: Date.now(), role:'ai', text: out.md, sources: out.sources || [], showSources:false });
-      loading.value = false;
-      scrollToBottom();
+      builtInRecipes: [],
+      userRecipes: [],
+      currentRecipeResults: [],
+      currentRecipeContext: { query:"", mealKey:"", kcalTarget:0, style:"" },
+
+      showView(id){
+        $$("section[id^='view']").forEach(s => s.classList.add("d-none"));
+        $("#"+id).classList.remove("d-none");
+        $$(".navbtn").forEach(b => b.classList.remove("active"));
+        $(`.navbtn[data-view='${id}']`).classList.add("active");
+        window.scrollTo({top:0, behavior:"smooth"});
+        if(id === "viewCalendar") setTimeout(()=> App.calendar?.updateSize?.(), 120);
+        if(id === "viewItinerary") renderItinerary();
+        if(id === "viewRecipes") renderRecipesPage();
+      }
     };
 
-    watch(input, () => {
-      if(textarea.value){
-        textarea.value.style.height = 'auto';
-        textarea.value.style.height = Math.min(textarea.value.scrollHeight, 160) + 'px';
-      }
-    });
+    function toast(msg){
+      $("#toastMsg").textContent = msg;
+      const t = bootstrap.Toast.getOrCreateInstance($("#appToast"), { delay: 1700 });
+      t.show();
+    }
 
-    // ===================== Dictation =====================
-    function toggleVoiceInput(){
-      if(!SpeechRecognition){
-        messages.value.push({ id: Date.now()+9, role:'ai', text: '### ⚠️ Dictado no disponible\n\nTu navegador no soporta SpeechRecognition para dictado.', sources: [], showSources:false });
+    function esc(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function safeNum(v, d=0){ const n = Number(v); return Number.isFinite(n) ? n : d; }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    function ymdLocal(date){
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,"0");
+      const d = String(date.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
+    function mondayOfWeek(d=new Date()){
+      const x = new Date(d);
+      x.setHours(0,0,0,0);
+      const day = (x.getDay()+6)%7;
+      x.setDate(x.getDate()-day);
+      return x;
+    }
+    function addMinutesToISO(isoStart, minutes){
+      const dt = new Date(isoStart);
+      dt.setMinutes(dt.getMinutes() + minutes);
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth()+1).padStart(2,"0");
+      const d = String(dt.getDate()).padStart(2,"0");
+      const hh = String(dt.getHours()).padStart(2,"0");
+      const mm = String(dt.getMinutes()).padStart(2,"0");
+      return `${y}-${m}-${d}T${hh}:${mm}:00`;
+    }
+
+    /* ---------- Nutrición ---------- */
+    const activityMult = { baja:1.2, ligera:1.375, moderada:1.55, alta:1.725, muy_alta:1.9 };
+
+    function mifflin(sex, age, h, w){
+      const s = String(sex).toUpperCase().startsWith("M") ? 5 : -161;
+      return (10*w) + (6.25*h) - (5*age) + s;
+    }
+    function tdee(bmr, act){ return bmr * (activityMult[act] || 1.55); }
+    function adjustGoal(cal, goal){
+      if(goal==="bajar") return cal*0.85;
+      if(goal==="subir") return cal*1.10;
+      return cal;
+    }
+    function macrosFromCalories(cal, style){
+      let carbs=0.45, prot=0.25, fat=0.30;
+      if(style==="keto"){ carbs=0.10; prot=0.25; fat=0.65; }
+      if(style==="alto_proteina"){ carbs=0.35; prot=0.35; fat=0.30; }
+      if(style==="vegetariana"){ carbs=0.50; prot=0.20; fat=0.30; }
+      cal = Math.max(1200, Math.min(4500, cal));
+      return {
+        calories: Math.round(cal),
+        protein_g: Math.round((cal*prot)/4),
+        carbs_g: Math.round((cal*carbs)/4),
+        fat_g: Math.round((cal*fat)/9)
+      };
+    }
+
+    /* ---------- Porciones ---------- */
+    function portionScale(cal){ return clamp(cal/2000, 0.75, 1.45); }
+
+    function portionsForMeal(mealText, mealKey, macros){
+      const cal = macros?.calories || 2000;
+      const f = portionScale(cal);
+      const base = {
+        protein_g: Math.round(150*f),
+        carbsCooked_g: Math.round(200*f),
+        oatsDry_g: Math.round(55*f),
+        yogurt_g: Math.round(200*f),
+        fruit_unit: (f>1.2 ? 2 : 1),
+        nuts_g: Math.round(20*f),
+        avocado_unit: (f>1.15 ? 1 : 0.5),
+        eggs: (f>1.15 ? 3 : 2),
+        veggies_cups: (f>1.2 ? 3 : 2)
+      };
+      const t = (mealText||"").toLowerCase();
+      if(t.includes("avena")) return `Avena ${base.oatsDry_g} g + yogurt ${base.yogurt_g} g + fruta ${base.fruit_unit} pza`;
+      if(t.includes("yogurt") && t.includes("granola")) return `Yogurt ${base.yogurt_g} g + granola ${Math.round(35*f)} g + frutos rojos ${base.fruit_unit} porción`;
+      if(t.includes("omelette") || t.includes("huevos")) return `${base.eggs} huevos + verduras ${base.veggies_cups} tazas + (opcional) 1 cdita aceite`;
+      if(t.includes("aguacate")) return `Aguacate ${base.avocado_unit} pza + proteína ligera`;
+      if(t.includes("pollo")) return `Pollo ${base.protein_g} g + verduras ${base.veggies_cups} tazas + carbo ${base.carbsCooked_g} g (si aplica)`;
+      if(t.includes("salmón") || t.includes("salmon")) return `Salmón ${Math.round(140*f)} g + verduras ${base.veggies_cups} tazas`;
+      if(t.includes("atún") || t.includes("atun")) return `Atún 1 lata + ensalada ${base.veggies_cups} tazas`;
+      if(mealKey==="snack1" || mealKey==="snack2") return `Snack: fruta o yogurt o nueces (porción)`;
+      return `Guía: proteína ${Math.round(150*f)} g + verduras 2 tazas + carbo (si aplica)`;
+    }
+
+    /* ---------- Plan ---------- */
+    const MEALS = {
+      balanceada:{
+        desayuno:["Avena con yogurt y fruta","Omelette con espinaca","Tostadas integrales con aguacate","Yogurt con granola y frutos rojos"],
+        comida:["Pollo con arroz integral y ensalada","Salmón con verduras","Tacos de pavo con frijoles","Bowl de arroz con frijol negro y verduras"],
+        cena:["Ensalada con atún y garbanzos","Crema de verduras + pan integral","Huevos con verduras","Ensalada grande con pollo"],
+        snack:["Manzana + almendras","Yogurt + chía","Pepino con hummus","Nueces mixtas (porción)"]
+      },
+      alto_proteina:{
+        desayuno:["Huevos + avena","Yogurt griego + fruta","Sándwich integral de pavo","Omelette + queso (moderado)"],
+        comida:["Pollo + quinoa + verduras","Atún + arroz + ensalada","Carne magra + camote","Pavo + ensalada + arroz"],
+        cena:["Ensalada con pollo","Tortilla de claras + verduras","Pavo + verduras","Atún + ensalada"],
+        snack:["Cottage + fruta","Yogurt griego","Pavo + galletas integrales","Queso fresco (porción)"]
+      },
+      keto:{
+        desayuno:["Huevos con aguacate","Omelette con queso y champiñones","Yogurt griego + nueces"],
+        comida:["Salmón con ensalada","Pollo con verduras salteadas","Carne con ensalada + aguacate"],
+        cena:["Atún con ensalada","Huevos con espinaca","Ensalada con pollo y semillas"],
+        snack:["Nueces mixtas","Queso + aceitunas","Pepino con guacamole"]
+      },
+      vegetariana:{
+        desayuno:["Avena con leche vegetal + fruta","Tostadas con aguacate y tomate","Yogurt (o vegetal) + chía"],
+        comida:["Quinoa + garbanzos + verduras","Tacos de frijoles","Lentejas guisadas + ensalada"],
+        cena:["Ensalada con tofu o garbanzos","Crema de verduras + pan integral","Omelette (si ovo) + ensalada"],
+        snack:["Fruta + nueces","Hummus + verduras","Yogurt + chía"]
+      }
+    };
+
+    const DAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+    const MEAL_TIMES = { desayuno:"08:00", snack1:"11:00", comida:"14:00", snack2:"17:00", cena:"20:00" };
+    const MEAL_COLORS = { desayuno:"#60a5fa", snack1:"#7c3aed", comida:"#22c55e", snack2:"#7c3aed", cena:"#f59e0b" };
+    const LABELS_ES = { desayuno:"🥣 Desayuno", snack1:"🍏 Snack", comida:"🍲 Comida", snack2:"🥜 Snack", cena:"🌙 Cena" };
+    const MEAL_DURATION_MIN = { desayuno:60, snack1:30, comida:75, snack2:30, cena:60 };
+
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    function normalizeList(s){ return (s||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean); }
+    function containsAny(text, list){ const t=(text||"").toLowerCase(); return list.some(x=>x && t.includes(x)); }
+    function pickSafe(arr, allergies, dislikes){
+      for(let i=0;i<12;i++){
+        const v = pick(arr);
+        if(!containsAny(v, allergies) && !containsAny(v, dislikes)) return v;
+      }
+      return pick(arr);
+    }
+
+    function generateWeekPlan(profile){
+      const style = MEALS[profile.style] ? profile.style : "balanceada";
+      const db = MEALS[style];
+      const allergies = normalizeList(profile.allergies);
+      const dislikes  = normalizeList(profile.dislikes);
+
+      return DAYS.map(d => ({
+        dia: d,
+        desayuno: pickSafe(db.desayuno, allergies, dislikes),
+        snack1:   pickSafe(db.snack, allergies, dislikes),
+        comida:   pickSafe(db.comida, allergies, dislikes),
+        snack2:   pickSafe(db.snack, allergies, dislikes),
+        cena:     pickSafe(db.cena, allergies, dislikes)
+      }));
+    }
+
+    /* ---------- Grocery ---------- */
+    function groceryFromWeekWithAmounts(plan){
+      if(!plan?.week) return [];
+      const cal = plan.macros?.calories || 2000;
+      const f = portionScale(cal);
+      const totals = new Map();
+      const add = (name, qty, unit)=>{
+        const key = name.toLowerCase();
+        const cur = totals.get(key) || { name, qty:0, unit };
+        cur.qty += qty;
+        totals.set(key, cur);
+      };
+      const eachMeal = (mealText)=>{
+        const t = (mealText||"").toLowerCase();
+        if(t.includes("avena")) add("Avena", Math.round(55*f), "g");
+        if(t.includes("yogurt")) add("Yogurt", Math.round(200*f), "g");
+        if(t.includes("manzana") || t.includes("fruta") || t.includes("frutos")) add("Fruta", 1, "pza");
+        if(t.includes("huevo")) add("Huevo", (f>1.15?3:2), "pza");
+        if(t.includes("aguacate")) add("Aguacate", (f>1.15?1:0.5), "pza");
+        if(t.includes("pollo")) add("Pollo", Math.round(150*f), "g");
+        if(t.includes("pavo")) add("Pavo", Math.round(150*f), "g");
+        if(t.includes("salmón") || t.includes("salmon")) add("Salmón", Math.round(140*f), "g");
+        if(t.includes("atún") || t.includes("atun")) add("Atún", 1, "lata");
+        if(t.includes("arroz")) add("Arroz (cocido)", Math.round(200*f), "g");
+        if(t.includes("quinoa")) add("Quinoa (cocida)", Math.round(220*f), "g");
+        if(t.includes("lentejas")) add("Lentejas (cocidas)", Math.round(260*f), "g");
+        if(t.includes("garbanzos")) add("Garbanzos (cocidos)", Math.round(240*f), "g");
+        if(t.includes("nueces") || t.includes("almendras")) add("Nueces/almendras", Math.round(20*f), "g");
+        if(t.includes("pepino")) add("Pepino", 1, "pza");
+        if(t.includes("hummus")) add("Hummus", Math.round(60*f), "g");
+        if(t.includes("ensalada") || t.includes("verduras") || t.includes("espinaca")) add("Verduras/ensalada", (f>1.2?3:2), "tazas");
+      };
+      plan.week.forEach(d=>{
+        eachMeal(d.desayuno); eachMeal(d.snack1); eachMeal(d.comida); eachMeal(d.snack2); eachMeal(d.cena);
+      });
+      return Array.from(totals.values())
+        .sort((a,b)=> a.name.localeCompare(b.name))
+        .map(x => `${x.name}: ${Math.round(x.qty*10)/10} ${x.unit}`);
+    }
+
+    /* ---------- Perfil IO ---------- */
+    function defaultProfile(){
+      return { name:"Usuario", sex:"M", age:25, height:170, weight:70, activity:"moderada", goal:"mantener", style:"balanceada", allergies:"", dislikes:"" };
+    }
+    function readProfile(){
+      return {
+        name: ($("#name").value || "Usuario").trim(),
+        sex: $("#sex").value,
+        age: safeNum($("#age").value, 25),
+        height: safeNum($("#height").value, 170),
+        weight: safeNum($("#weight").value, 70),
+        activity: $("#activity").value,
+        goal: $("#goal").value,
+        style: $("#style").value,
+        allergies: ($("#allergies").value || "").trim(),
+        dislikes: ($("#dislikes").value || "").trim()
+      };
+    }
+    function writeProfile(p){
+      $("#name").value = p.name;
+      $("#sex").value = p.sex;
+      $("#age").value = p.age;
+      $("#height").value = p.height;
+      $("#weight").value = p.weight;
+      $("#activity").value = p.activity;
+      $("#goal").value = p.goal;
+      $("#style").value = p.style;
+      $("#allergies").value = p.allergies || "";
+      $("#dislikes").value = p.dislikes || "";
+      $("#pillUser").textContent = p.name || "Usuario";
+    }
+
+    function updateKPIs(){
+      const p = readProfile();
+      const b = mifflin(p.sex, p.age, p.height, p.weight);
+      const t = tdee(b, p.activity);
+      const c = adjustGoal(t, p.goal);
+      const m = macrosFromCalories(c, p.style);
+
+      $("#kBMR").textContent = `${Math.round(b)} kcal`;
+      $("#kTDEE").textContent = `${Math.round(t)} kcal`;
+      $("#kCAL").textContent = `${m.calories} kcal`;
+      $("#mProt").textContent = m.protein_g;
+      $("#mCarb").textContent = m.carbs_g;
+      $("#mFat").textContent = m.fat_g;
+
+      renderMacroChart(m);
+      return { bmr:Math.round(b), tdee:Math.round(t), calories:m.calories, macros:m };
+    }
+
+    function renderMacroChart(m){
+      const canvas = document.getElementById("macroChart");
+      if(!canvas || !window.Chart){
+        $("#chartHint").textContent = "Gráfica no disponible (Chart.js no cargó).";
         return;
       }
-      isVoiceInput.value = !isVoiceInput.value;
-      if(isVoiceInput.value){
-        voiceRec = new SpeechRecognition();
-        voiceRec.lang = 'es-MX';
-        voiceRec.continuous = true;
-        voiceRec.interimResults = true;
-        voiceRec.onresult = (ev) => {
-          let transcript = '';
-          for(let i=ev.resultIndex;i<ev.results.length;i++) transcript += ev.results[i][0].transcript;
-          input.value = transcript;
-        };
-        voiceRec.onerror = () => { isVoiceInput.value = false; };
-        voiceRec.onend = () => { if(isVoiceInput.value) voiceRec.start(); };
-        try{ voiceRec.start(); }catch{ isVoiceInput.value=false; }
+      $("#chartHint").textContent = "";
+      const ctx = canvas.getContext("2d");
+      if(App.macroChart) App.macroChart.destroy();
+      App.macroChart = new Chart(ctx, {
+        type:"doughnut",
+        data:{
+          labels:["Proteína (g)","Carbos (g)","Grasas (g)"],
+          datasets:[{ data:[m.protein_g,m.carbs_g,m.fat_g], backgroundColor:["#22c55e","#60a5fa","#f59e0b"] }]
+        },
+        options:{ plugins:{ legend:{ position:"bottom" } } }
+      });
+    }
+
+    /* ---------- Plan render (con botón Recetas) ---------- */
+    function mealRow(time, label, mealKey, mealText, portion){
+      return `
+        <div class="mb-2 d-flex justify-content-between gap-2 flex-wrap align-items-start">
+          <div style="min-width: 64px;"><span class="badge-soft">${esc(time)}</span></div>
+          <div style="flex:1;">
+            <b>${esc(label)}:</b> ${esc(mealText)}
+            <div class="muted">🍽️ ${esc(portion)}</div>
+          </div>
+          <div>
+            <button class="btn btn-sm btn-lite"
+              data-recipe-q="${esc(mealText)}"
+              data-meal-key="${esc(mealKey)}">
+              <i class="bi bi-journal-text"></i> Recetas
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPlan(plan){
+      if(!plan){
+        $("#planOut").innerHTML = `<div class="muted">Genera un plan para verlo aquí.</div>`;
+        $("#groceryOut").innerHTML = `<span class="muted">—</span>`;
+        $("#pillStatus").textContent = "Sin plan";
+        return;
+      }
+      $("#pillStatus").textContent = "Plan activo";
+
+      const grocery = groceryFromWeekWithAmounts(plan);
+      $("#groceryOut").innerHTML = grocery.length
+        ? `<ul class="m-0 ps-3 small">${grocery.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`
+        : `<span class="muted">—</span>`;
+
+      const m = plan.macros;
+      const html = plan.week.map(d => {
+        const bPor  = portionsForMeal(d.desayuno,"desayuno",m);
+        const s1Por = portionsForMeal(d.snack1,"snack1",m);
+        const cPor  = portionsForMeal(d.comida,"comida",m);
+        const s2Por = portionsForMeal(d.snack2,"snack2",m);
+        const cePor = portionsForMeal(d.cena,"cena",m);
+
+        return `
+          <div class="kpi mb-2">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div style="font-weight:900">${esc(d.dia)}</div>
+              <span class="badge-soft">${esc(m.calories)} kcal/día</span>
+            </div>
+            <div class="hr"></div>
+            <div class="small">
+              ${mealRow("08:00","Desayuno","desayuno",d.desayuno,bPor)}
+              ${mealRow("11:00","Snack","snack1",d.snack1,s1Por)}
+              ${mealRow("14:00","Comida","comida",d.comida,cPor)}
+              ${mealRow("17:00","Snack","snack2",d.snack2,s2Por)}
+              ${mealRow("20:00","Cena","cena",d.cena,cePor)}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      $("#planOut").innerHTML = html;
+
+      $$("#planOut button[data-recipe-q]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const q = btn.getAttribute("data-recipe-q") || "";
+          const mk = btn.getAttribute("data-meal-key") || "";
+          openRecipesModal({ query:q, mealKey:mk });
+        });
+      });
+    }
+
+    /* ---------- Calendario ---------- */
+    function getCurrentEvents(){
+      if(App.fullcalendarOk && App.calendar){
+        return App.calendar.getEvents().map(e => ({
+          id: e.id || crypto.randomUUID(),
+          title: e.title,
+          start: e.startStr,
+          end: e.endStr || "",
+          backgroundColor: e.backgroundColor || "",
+          borderColor: e.borderColor || "",
+          extendedProps: e.extendedProps || {}
+        }));
+      }
+      return Store.get(Store.keys.calendar, []);
+    }
+    function persistCalendar(){ Store.set(Store.keys.calendar, getCurrentEvents()); }
+
+    function buildEventsFromPlan(plan){
+      const start = mondayOfWeek(new Date());
+      const events = [];
+      plan.week.forEach((d, idx) => {
+        const date = new Date(start);
+        date.setDate(start.getDate()+idx);
+        const base = ymdLocal(date);
+
+        ["desayuno","snack1","comida","snack2","cena"].forEach(key => {
+          const portion = portionsForMeal(d[key], key, plan.macros);
+          const startISO = `${base}T${MEAL_TIMES[key]}:00`;
+          const endISO = addMinutesToISO(startISO, MEAL_DURATION_MIN[key] || 45);
+          events.push({
+            id: crypto.randomUUID(),
+            title: d[key],
+            start: startISO,
+            end: endISO,
+            backgroundColor: MEAL_COLORS[key],
+            borderColor: "transparent",
+            extendedProps: { mealKey:key, portion, rawMeal:d[key] }
+          });
+        });
+      });
+      return events;
+    }
+
+    function loadCalendarFromStorage(){
+      const events = Store.get(Store.keys.calendar, []);
+      if(App.fullcalendarOk && App.calendar){
+        App.calendar.removeAllEvents();
+        events.forEach(ev => App.calendar.addEvent(ev));
       } else {
-        try{ voiceRec && voiceRec.stop(); }catch{}
+        renderMiniCalendar();
       }
     }
 
-    // ===================== Config =====================
-    function saveConfig(){
-      localStorage.setItem('ltult_name', displayName.value || '');
-      localStorage.setItem('ltult_session', sessionId.value || 'anon');
-      localStorage.setItem('ltult_use_internet', useInternet.value ? '1' : '0');
-      localStorage.setItem('ltult_timeout', String(timeoutMs.value || 9000));
-      localStorage.setItem('ltult_level', level.value || 'B1');
-      localStorage.setItem('ltult_tts_lang', ttsLang.value || 'en-US');
-      localStorage.setItem('ltult_pron_lang', pronLang.value || 'en-US');
-      localStorage.setItem('ltult_pass_threshold', String(passThreshold.value || 78));
-      showConfig.value = false;
+    function loadCalendarFromPlan(plan){
+      const events = buildEventsFromPlan(plan);
+      Store.set(Store.keys.calendar, events);
+      if(App.fullcalendarOk && App.calendar){
+        App.calendar.removeAllEvents();
+        events.forEach(ev => App.calendar.addEvent(ev));
+      } else {
+        renderMiniCalendar();
+      }
+      persistCalendar();
     }
 
-    async function resetAll(){
-      for(const k of ['ltult_name','ltult_session','ltult_use_internet','ltult_timeout','ltult_level','ltult_tts_lang','ltult_pron_lang','ltult_pass_threshold']) localStorage.removeItem(k);
-      resetSeen();
-      messages.value = [];
-      notebook.value = [];
-      vocab.value = [];
-      await localforage.clear();
-      showConfig.value = false;
+    function setDetailFromEvent(fcEvent){
+      if(!fcEvent) return;
+      App.selectedEvent = fcEvent;
+
+      const key = fcEvent.extendedProps?.mealKey || "";
+      const label = LABELS_ES[key] || "🍽️ Evento";
+      const portion = fcEvent.extendedProps?.portion || "";
+      const start = fcEvent.start;
+      const date = start ? ymdLocal(start) : "—";
+      const time = start ? String(fcEvent.startStr).slice(11,16) : "—";
+
+      $("#detailDate").textContent = date;
+      $("#detailType").textContent = label;
+      $("#detailTime").textContent = time;
+      $("#detailMeal").textContent = fcEvent.title || "—";
+      $("#detailPortion").textContent = portion || "—";
+
+      $("#sheetDate").textContent = date;
+      $("#sheetType").textContent = label;
+      $("#sheetTime").textContent = time;
+      $("#sheetMeal").textContent = fcEvent.title || "—";
+      $("#sheetPortion").textContent = portion || "—";
     }
 
-    async function togglePython(){
-      if(pyReady.value){ pyReady.value = false; pyodide = null; return; }
-      await initPython();
-    }
+    function initCalendarIfAvailable(){
+      if(!window.FullCalendar){
+        App.fullcalendarOk = false;
+        $("#calendarWarning").classList.remove("d-none");
+        $("#calendarSubtitle").textContent = "Modo básico activo (sin FullCalendar).";
+        $("#calendar").style.display = "none";
+        $("#miniCalendar").classList.remove("d-none");
+        renderMiniCalendar();
+        return;
+      }
 
-    // ===================== Pronunciation Engine =====================
-    const speechSupported = ref(!!SpeechRecognition);
-    const practiceTopic = ref(localStorage.getItem('ltult_pron_topic') || 'work');
-    const practiceList = ref([]);
-    const currentIndex = ref(0);
+      App.fullcalendarOk = true;
+      $("#calendarWarning").classList.add("d-none");
+      $("#calendar").style.display = "";
+      $("#miniCalendar").classList.add("d-none");
 
-    const isRecording = ref(false);
-    const recBusy = ref(false);
-    const lastAudioUrl = ref('');
-    const lastTranscript = ref('');
-    const recStateLabel = ref('Listo');
+      const hasBootstrapTheme = !!window.FullCalendarBootstrap5;
 
-    let mediaStream = null;
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let recognition = null;
+      App.calendar = new FullCalendar.Calendar($("#calendar"), {
+        initialView: isMobile() ? "timeGridDay" : "timeGridWeek",
+        height: "auto",
+        nowIndicator: true,
+        editable: true,
+        eventDurationEditable: true,
+        allDaySlot: false,
+        slotMinTime: "06:00:00",
+        slotMaxTime: "22:00:00",
 
-    const currentItem = computed(() => practiceList.value[currentIndex.value] || { text:'', score:null, passed:false, transcript:'' });
+        locale: "es",
+        firstDay: 1,
+        themeSystem: hasBootstrapTheme ? "bootstrap5" : "standard",
 
-    const doneCount = computed(() => practiceList.value.filter(x => x.score !== null).length);
-    const overallScore = computed(() => {
-      const done = practiceList.value.filter(x => x.score !== null);
-      if(!done.length) return 0;
-      return Math.round(done.reduce((a,b)=>a + b.score, 0) / done.length);
-    });
-    const overallScoreColor = computed(() => {
-      const s = overallScore.value;
-      if(s >= passThreshold.value) return 'text-emerald-300';
-      if(s >= Math.max(60, passThreshold.value - 10)) return 'text-yellow-300';
-      return 'text-red-400';
-    });
+        headerToolbar: isMobile()
+          ? { left:"prev,next today", center:"title", right:"timeGridDay,listWeek" }
+          : { left:"prev,next today", center:"title", right:"timeGridWeek,dayGridMonth,listWeek" },
 
-    function scoreColor(score){
-      if(score === null || score === undefined) return 'text-gray-500';
-      if(score >= passThreshold.value) return 'text-emerald-300';
-      if(score >= Math.max(60, passThreshold.value - 10)) return 'text-yellow-300';
-      return 'text-red-400';
-    }
+        dayHeaderFormat: { weekday:"short", day:"2-digit" },
+        slotLabelFormat: { hour:"2-digit", minute:"2-digit", hour12:false },
+        eventTimeFormat: { hour:"2-digit", minute:"2-digit", hour12:false },
 
-    function rowClass(it, idx){
-      const base = idx === currentIndex.value ? 'border-brand-500/40 bg-brand-600/10' : 'border-ink-700/50 bg-ink-950/30';
-      if(it.score === null) return base;
-      if(it.passed) return (idx === currentIndex.value) ? 'border-emerald-500/50 bg-emerald-600/10' : 'border-emerald-500/25 bg-emerald-600/5';
-      return (idx === currentIndex.value) ? 'border-red-500/50 bg-red-600/10' : 'border-red-500/25 bg-red-600/5';
-    }
+        eventContent(arg){
+          const ek = arg.event.extendedProps?.mealKey || "";
+          const label = ek ? (LABELS_ES[ek] || "🍽️") : "🍽️";
+          const portion = arg.event.extendedProps?.portion || "";
 
-    const nextPractice = () => { if(currentIndex.value < practiceList.value.length - 1) { currentIndex.value++; clearRecording(); } };
-    const prevPractice = () => { if(currentIndex.value > 0) { currentIndex.value--; clearRecording(); } };
+          const wrap = document.createElement("div");
+          wrap.className = "evWrap";
+          wrap.innerHTML = `
+            <div class="evTop">
+              <span class="evBadge">${esc(label)}</span>
+              <span class="evTime">${esc(String(arg.timeText || ""))}</span>
+            </div>
+            <div class="evTitle">${esc(arg.event.title)}</div>
+            ${portion ? `<div class="evPortion">🍽️ ${esc(portion)}</div>` : ``}
+          `;
+          return { domNodes: [wrap] };
+        },
 
-    const resetPracticeScores = () => {
-      practiceList.value = practiceList.value.map(x => ({ ...x, score:null, passed:false, transcript:'' }));
-      clearRecording();
-    };
+        eventClick(info){
+          setDetailFromEvent(info.event);
+          if(isMobile()){
+            bootstrap.Offcanvas.getOrCreateInstance($("#eventSheet")).show();
+          }
+          toast("Detalles ✅");
+        },
 
-    // Text normalization + Levenshtein on tokens
-    const normalize = (s) => (s||'')
-      .toLowerCase()
-      .replace(/[\u2019']/g, "'")
-      .replace(/[^a-z0-9\s']/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const tokenize = (s) => normalize(s).split(' ').filter(Boolean);
+        eventDrop(){ persistCalendar(); toast("Evento movido ✅"); },
+        eventResize(){ persistCalendar(); toast("Duración actualizada ✅"); }
+      });
 
-    function levenshtein(a, b){
-      const m=a.length, n=b.length;
-      const dp = Array.from({length:m+1}, ()=> new Array(n+1).fill(0));
-      for(let i=0;i<=m;i++) dp[i][0]=i;
-      for(let j=0;j<=n;j++) dp[0][j]=j;
-      for(let i=1;i<=m;i++){
-        for(let j=1;j<=n;j++){
-          const cost = a[i-1]===b[j-1] ? 0 : 1;
-          dp[i][j] = Math.min(
-            dp[i-1][j] + 1,
-            dp[i][j-1] + 1,
-            dp[i-1][j-1] + cost
+      App.calendar.render();
+      loadCalendarFromStorage();
+
+      let last = isMobile();
+      window.addEventListener("resize", ()=>{
+        if(!App.calendar) return;
+        const now = isMobile();
+        if(now !== last){
+          last = now;
+          App.calendar.changeView(now ? "timeGridDay" : "timeGridWeek");
+          App.calendar.setOption("headerToolbar",
+            now
+              ? { left:"prev,next today", center:"title", right:"timeGridDay,listWeek" }
+              : { left:"prev,next today", center:"title", right:"timeGridWeek,dayGridMonth,listWeek" }
           );
+          App.calendar.updateSize();
         }
-      }
-      return dp[m][n];
+      });
+
+      const ev = App.calendar.getEvents();
+      if(ev && ev[0]) setDetailFromEvent(ev[0]);
+      $("#calendarSubtitle").textContent = "";
     }
 
-    function similarityPercent(target, spoken){
-      const ta = tokenize(target);
-      const sa = tokenize(spoken);
-      if(!ta.length && !sa.length) return 100;
-      if(!ta.length || !sa.length) return 0;
-      const dist = levenshtein(ta, sa);
-      const denom = Math.max(ta.length, sa.length);
-      const sim = Math.max(0, 1 - (dist/denom));
-      return Math.round(sim*100);
-    }
+    function renderMiniCalendar(){
+      const container = $("#miniCalendar");
+      if(!container) return;
 
-    async function generatePracticeSentences(topic, count=8){
-      const t = (topic||'').trim() || rand(localTopics);
-      const base = t.toLowerCase();
-      if(useInternet.value){
-        try{
-          internetOk.value = true;
-          const related = await datamuseRelated(base, 40);
-          const pool = related.length ? related : (localWordBank[base] || localWordBank.work);
-          const words = [];
-          while(words.length < Math.min(12, pool.length)){
-            const w = pickUnique('pron_word', pool);
-            if(!words.includes(w)) words.push(w);
-          }
-          const templates = [
-            (w)=>`I need a ${w} right now.`,
-            (w)=>`Can you help me with the ${w}?`,
-            (w)=>`Please speak slowly and clearly.`,
-            (w)=>`I am ready for my next shift.`,
-            (w)=>`Safety first. Wear your ${w}.`,
-            (w)=>`Could you repeat that, please?`,
-            (w)=>`Where is the nearest ${w}?`,
-            (w)=>`I will practice English every day.`
-          ];
-          const sentences = [];
-          for(let i=0;i<count;i++){
-            const w = rand(words) || rand(pool);
-            let sent = '';
-            if(Math.random() < 0.35){
-              const def = await dictionaryDefine(w);
-              if(def?.example && def.example.length <= 90) sent = def.example;
-            }
-            if(!sent) sent = rand(templates)(w);
-            const tag = `pron_sent:${hash32(normalize(sent))}`;
-            if(hasSeen(tag)) { i--; continue; }
-            remember(tag);
-            sentences.push(sent);
-          }
-          return sentences;
-        }catch{ internetOk.value = false; }
+      let events = Store.get(Store.keys.calendar, []);
+      if((!events || !events.length) && App.plan){
+        events = buildEventsFromPlan(App.plan);
+        Store.set(Store.keys.calendar, events);
       }
 
-      internetOk.value = false;
-      const pool = localWordBank[base] || localWordBank.work;
-      const templates = [
-        (w)=>`I need a ${w} today.`,
-        (w)=>`Please be careful and stay safe.`,
-        (w)=>`Can you repeat that, please?`,
-        (w)=>`I will practice my pronunciation.`,
-        (w)=>`I am ready to start my shift.`,
-        (w)=>`Let's work as a team.`,
-        (w)=>`Where can I find the ${w}?`,
-        (w)=>`Thank you for your help.`
-      ];
-      const sentences = [];
-      for(let i=0;i<count;i++){
-        const w = pickUnique('pron_word_local', pool);
-        const sent = rand(templates)(w);
-        const tag = `pron_sent:${hash32(normalize(sent))}`;
-        if(hasSeen(tag)) { i--; continue; }
-        remember(tag);
-        sentences.push(sent);
+      const ev = (events || [])
+        .map(x => ({...x, _date: (x.start||"").slice(0,10), _time: (x.start||"").slice(11,16) }))
+        .filter(x => x._date && x._time)
+        .sort((a,b)=> (a.start||"").localeCompare(b.start||""));
+
+      const start = mondayOfWeek(new Date());
+      const days = Array.from({length:7}).map((_,i)=>{
+        const d = new Date(start); d.setDate(start.getDate()+i);
+        return { key: ymdLocal(d), name: d.toLocaleDateString("es-MX",{weekday:"long", day:"2-digit", month:"short"}) };
+      });
+
+      const byDay = {}; days.forEach(d=> byDay[d.key]=[]);
+      ev.forEach(e=>{ if(byDay[e._date]) byDay[e._date].push(e); });
+
+      container.innerHTML = `
+        <div class="d-grid gap-2">
+          ${days.map(d=>`
+            <div class="kpi">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div style="font-weight:900">${esc(d.name)}</div>
+                <span class="badge-soft">${esc(d.key)}</span>
+              </div>
+              <div class="hr"></div>
+              ${(byDay[d.key]||[]).map((e)=>`
+                <div class="mb-2">
+                  <span class="badge-soft">${esc(e._time)}</span>
+                  <b class="ms-1">${esc(e.title)}</b>
+                  ${e.extendedProps?.portion ? `<div class="muted small mt-1">🍽️ ${esc(e.extendedProps.portion)}</div>` : ""}
+                </div>
+              `).join("") || `<div class="muted small">Sin eventos</div>`}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    /* ---------- Itinerario ---------- */
+    function renderItinerary(){
+      const events = Store.get(Store.keys.calendar, []);
+      const plan = App.plan;
+
+      if((!events || !events.length) && plan){
+        const m = plan.macros;
+        const out = plan.week.map(d => `
+          <div class="kpi mb-2">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <div style="font-weight:900">${esc(d.dia)}</div>
+              <span class="badge-soft">${esc(m.calories)} kcal/día</span>
+            </div>
+            <div class="hr"></div>
+            <div class="small">
+              <div class="mb-2"><span class="badge-soft">08:00</span> <b>DESAYUNO:</b> ${esc(d.desayuno)}<div class="muted">🍽️ ${esc(portionsForMeal(d.desayuno,"desayuno",m))}</div></div>
+              <div class="mb-2"><span class="badge-soft">11:00</span> <b>SNACK:</b> ${esc(d.snack1)}<div class="muted">🍽️ ${esc(portionsForMeal(d.snack1,"snack1",m))}</div></div>
+              <div class="mb-2"><span class="badge-soft">14:00</span> <b>COMIDA:</b> ${esc(d.comida)}<div class="muted">🍽️ ${esc(portionsForMeal(d.comida,"comida",m))}</div></div>
+              <div class="mb-2"><span class="badge-soft">17:00</span> <b>SNACK:</b> ${esc(d.snack2)}<div class="muted">🍽️ ${esc(portionsForMeal(d.snack2,"snack2",m))}</div></div>
+              <div><span class="badge-soft">20:00</span> <b>CENA:</b> ${esc(d.cena)}<div class="muted">🍽️ ${esc(portionsForMeal(d.cena,"cena",m))}</div></div>
+            </div>
+          </div>
+        `).join("");
+        $("#itineraryOut").innerHTML = out;
+        return;
       }
-      return sentences;
-    }
 
-    const generatePracticeSet = async () => {
-      const sents = await generatePracticeSentences(practiceTopic.value, 8);
-      practiceList.value = sents.map((t, i) => ({ id: Date.now()+i, text: t, score:null, passed:false, transcript:'' }));
-      currentIndex.value = 0;
-      clearRecording();
-      localStorage.setItem('ltult_pron_topic', practiceTopic.value || '');
-    };
-
-    async function ensureMic(){
-      if(!mediaStream){ mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true }); }
-      return mediaStream;
-    }
-
-    function pickMimeType(){
-      const preferred = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
-      for(const t of preferred){
-        if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) return t;
+      if(!events || !events.length){
+        $("#itineraryOut").innerHTML = `<div class="muted">No hay eventos. Genera un plan o recarga del plan.</div>`;
+        return;
       }
-      return '';
+
+      const ev = events
+        .map(e => ({ title:e.title, start:e.start, portion:e.extendedProps?.portion || "" }))
+        .filter(x => x.start)
+        .sort((a,b)=> String(a.start).localeCompare(String(b.start)));
+
+      const byDay = {};
+      ev.forEach(x => {
+        const d = String(x.start).slice(0,10);
+        (byDay[d] ||= []).push(x);
+      });
+
+      const days = Object.keys(byDay).sort();
+      const out = days.map(date => {
+        const human = new Date(date+"T00:00:00");
+        const name = human.toLocaleDateString("es-MX", { weekday:"long", day:"2-digit", month:"short" });
+
+        const rows = byDay[date].map(x => {
+          const time = String(x.start).slice(11,16);
+          return `
+            <div class="d-flex gap-2 align-items-start mb-2">
+              <span class="badge-soft">${esc(time)}</span>
+              <div>
+                <div style="font-weight:900">${esc(x.title)}</div>
+                ${x.portion ? `<div class="muted small">🍽️ ${esc(x.portion)}</div>` : ``}
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        return `<div class="kpi mb-2">
+          <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div style="font-weight:900">${esc(name)}</div>
+            <span class="badge-soft">${esc(date)}</span>
+          </div>
+          <div class="hr"></div>
+          ${rows}
+        </div>`;
+      }).join("");
+
+      $("#itineraryOut").innerHTML = out;
     }
 
-    function stopRecorderSafe(){
-      if(mediaRecorder && mediaRecorder.state !== 'inactive'){ try{ mediaRecorder.stop(); }catch{} }
+    /* ---------- Recetas Offline ---------- */
+    function prettyMeal(k){
+      return ({desayuno:"Desayuno", snack1:"Snack", snack2:"Snack", comida:"Comida", cena:"Cena"})[k] || k;
+    }
+    function prettyDiet(d){
+      return ({balanceada:"Balanceada", alto_proteina:"Alta proteína", keto:"Keto", vegetariana:"Vegetariana"})[d] || d;
     }
 
-    function startSpeechRecognition(){
-      lastTranscript.value = '';
-      if(!speechSupported.value) return;
-      recognition = new SpeechRecognition();
-      recognition.lang = pronLang.value;
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.onresult = (event) => {
-        const text = event.results?.[0]?.[0]?.transcript || '';
-        lastTranscript.value = text;
+    function seedBuiltInRecipes(){
+      const R = [];
+      let id = 1;
+      const add = (o)=> R.push({ id:id++, ...o, source:"Catálogo" });
+
+      // Desayuno
+      add({ name:"Avena con plátano y canela", mealKey:"desayuno", diets:["balanceada","vegetariana"], kcal:380,
+        tags:["avena","rápido"], ingredients:["60 g avena","250 ml leche o bebida vegetal","1 plátano","canela"],
+        steps:["Cocina la avena con la leche","Agrega plátano","Espolvorea canela"]});
+      add({ name:"Omelette de espinaca", mealKey:"desayuno", diets:["balanceada","alto_proteina","keto"], kcal:420,
+        tags:["huevo"], ingredients:["2-3 huevos","1 taza espinaca","sal y pimienta","1 cdita aceite"],
+        steps:["Bate huevos","Saltea espinaca","Cocina omelette"]});
+      add({ name:"Yogurt con granola y frutos rojos", mealKey:"desayuno", diets:["balanceada"], kcal:390,
+        tags:["yogurt"], ingredients:["200 g yogurt","35 g granola","frutos rojos"],
+        steps:["Sirve yogurt","Agrega granola","Añade frutos rojos"]});
+      add({ name:"Huevos con aguacate", mealKey:"desayuno", diets:["keto","alto_proteina"], kcal:460,
+        tags:["aguacate"], ingredients:["2-3 huevos","1/2 aguacate","sal"],
+        steps:["Cocina huevos","Acompaña con aguacate"]});
+
+      // Snacks
+      add({ name:"Manzana con almendras", mealKey:"snack1", diets:["balanceada","alto_proteina","vegetariana"], kcal:220,
+        tags:["fruta","nueces"], ingredients:["1 manzana","20 g almendras"],
+        steps:["Lava manzana","Acompaña con almendras"]});
+      add({ name:"Pepino con hummus", mealKey:"snack1", diets:["balanceada","vegetariana"], kcal:180,
+        tags:["pepino","hummus"], ingredients:["1 pepino","60 g hummus"],
+        steps:["Corta pepino","Dipea con hummus"]});
+      add({ name:"Nueces mixtas (porción)", mealKey:"snack2", diets:["keto","balanceada","vegetariana"], kcal:240,
+        tags:["nueces"], ingredients:["25 g nueces mixtas"],
+        steps:["Sirve porción","Listo"]});
+
+      // Comida
+      add({ name:"Pollo a la plancha con ensalada", mealKey:"comida", diets:["balanceada","alto_proteina","keto"], kcal:520,
+        tags:["pollo","ensalada"], ingredients:["180 g pollo","2 tazas ensalada","1 cda aceite de oliva"],
+        steps:["Cocina pollo","Mezcla ensalada","Sirve"]});
+      add({ name:"Salmón al horno con verduras", mealKey:"comida", diets:["balanceada","alto_proteina","keto"], kcal:590,
+        tags:["salmón"], ingredients:["160 g salmón","verduras","limón"],
+        steps:["Hornea salmón 15-20 min","Acompaña con verduras"]});
+      add({ name:"Quinoa con garbanzos y verduras", mealKey:"comida", diets:["balanceada","vegetariana"], kcal:610,
+        tags:["quinoa","garbanzo"], ingredients:["220 g quinoa cocida","240 g garbanzos","verduras"],
+        steps:["Mezcla quinoa y garbanzos","Agrega verduras","Aliña"]});
+      add({ name:"Atún con ensalada", mealKey:"comida", diets:["keto","alto_proteina","balanceada"], kcal:480,
+        tags:["atún"], ingredients:["1 lata atún","ensalada","1 cda aceite"],
+        steps:["Drena atún","Mezcla con ensalada","Añade aceite"]});
+
+      // Cena
+      add({ name:"Crema de verduras (ligera)", mealKey:"cena", diets:["balanceada","vegetariana"], kcal:360,
+        tags:["verduras"], ingredients:["verduras mixtas","caldo","sal"],
+        steps:["Hierve verduras","Licúa","Calienta y sirve"]});
+      add({ name:"Huevos con espinaca", mealKey:"cena", diets:["keto","alto_proteina","balanceada"], kcal:420,
+        tags:["huevo"], ingredients:["2 huevos","espinaca","sal"],
+        steps:["Saltea espinaca","Agrega huevos","Cocina"]});
+      add({ name:"Ensalada grande con pollo", mealKey:"cena", diets:["balanceada","alto_proteina"], kcal:480,
+        tags:["ensalada","pollo"], ingredients:["150 g pollo","ensalada","aderezo ligero"],
+        steps:["Cocina pollo","Mezcla ensalada","Sirve"]});
+
+      return R;
+    }
+
+    function loadRecipes(){
+      App.builtInRecipes = seedBuiltInRecipes();
+      App.userRecipes = Store.get(Store.keys.userRecipes, []);
+    }
+    function saveUserRecipes(){ Store.set(Store.keys.userRecipes, App.userRecipes); }
+
+    function recipeAll(){ return [...App.builtInRecipes, ...App.userRecipes]; }
+    function profileExclusions(profile){
+      return [...normalizeList(profile.allergies), ...normalizeList(profile.dislikes)];
+    }
+    function recipeMatchesExclusions(recipe, exclusions){
+      if(!exclusions.length) return true;
+      const hay = [recipe.name, ...(recipe.tags||[]), ...(recipe.ingredients||[]), ...(recipe.steps||[])].join(" ").toLowerCase();
+      return !exclusions.some(x => x && hay.includes(x));
+    }
+    function mealKcalTarget(plan, mealKey){
+      const day = plan?.macros?.calories || 2000;
+      const w = { desayuno:0.25, snack1:0.10, comida:0.30, snack2:0.10, cena:0.25 };
+      const pct = w[mealKey] ?? 0.20;
+      return Math.round(day * pct);
+    }
+    function scoreRecipe(recipe, ctx){
+      let score = 0;
+      if(recipe.diets?.includes(ctx.style)) score += 50;
+      if(!ctx.mealKey || recipe.mealKey === ctx.mealKey) score += 20;
+      const q = (ctx.query||"").toLowerCase().trim();
+      if(q){
+        const hay = [recipe.name, ...(recipe.tags||[]), ...(recipe.ingredients||[])].join(" ").toLowerCase();
+        if(hay.includes(q)) score += 20;
+        const toks = q.split(/\s+/).filter(Boolean);
+        score += toks.reduce((acc,t)=> acc + (hay.includes(t)?4:0), 0);
+      }
+      if(ctx.kcalTarget && recipe.kcal){
+        const diff = Math.abs(recipe.kcal - ctx.kcalTarget);
+        score += Math.max(0, 25 - diff/20);
+      }
+      if(recipe.source === "Catálogo") score += 2;
+      return score;
+    }
+    function findRecipes(ctx){
+      const profile = App.profile || defaultProfile();
+      const exclusions = profileExclusions(profile);
+      const all = recipeAll();
+
+      const filtered = all
+        .filter(r => !ctx.mealKey || r.mealKey === ctx.mealKey)
+        .filter(r => !ctx.style || (r.diets||[]).includes(ctx.style))
+        .filter(r => recipeMatchesExclusions(r, exclusions))
+        .filter(r => !ctx.maxKcal || (r.kcal || 0) <= ctx.maxKcal);
+
+      return filtered
+        .map(r => ({ r, s: scoreRecipe(r, ctx) }))
+        .sort((a,b)=> b.s - a.s)
+        .map(x=>x.r);
+    }
+
+    function renderRecipeDetail(recipe){
+      $("#recipeDetailTag").textContent = recipe.source || "—";
+      const diets = (recipe.diets||[]).map(d => `<span class="badge-soft">${esc(prettyDiet(d))}</span>`).join(" ");
+      const tags = (recipe.tags||[]).slice(0,6).map(t => `<span class="badge-soft">#${esc(t)}</span>`).join(" ");
+
+      $("#recipeDetailOut").innerHTML = `
+        <div style="font-weight:900; font-size:1.05rem;">${esc(recipe.name)}</div>
+        <div class="muted small mt-1">
+          ${recipe.kcal ? `≈ <b>${esc(recipe.kcal)}</b> kcal` : ""}
+          ${recipe.mealKey ? ` · ${esc(prettyMeal(recipe.mealKey))}` : ""}
+        </div>
+        <div class="mt-2 d-flex flex-wrap gap-2">${diets || ""}</div>
+        <div class="mt-2 d-flex flex-wrap gap-2">${tags || ""}</div>
+        <div class="hr"></div>
+        <div style="font-weight:900">Ingredientes</div>
+        ${recipe.ingredients?.length ? `<ul class="m-0 ps-3 small">${recipe.ingredients.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>` : `<div class="muted small">—</div>`}
+        <div class="hr"></div>
+        <div style="font-weight:900">Preparación</div>
+        ${recipe.steps?.length ? `<ol class="m-0 ps-3 small">${recipe.steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>` : `<div class="muted small">—</div>`}
+      `;
+    }
+
+    function renderRecipesResultsModal(results){
+      $("#recipesCount").textContent = String(results.length);
+      if(!results.length){
+        $("#recipesOutModal").innerHTML = `<div class="muted small">No hay recetas que cumplan filtros (prueba quitar alergias/dislikes o cambiar estilo).</div>`;
+        $("#recipeDetailOut").innerHTML = `<div class="muted small">—</div>`;
+        $("#recipeDetailTag").textContent = "—";
+        return;
+      }
+
+      $("#recipesOutModal").innerHTML = `
+        <div class="recipeGrid">
+          ${results.slice(0,12).map(r=>`
+            <div class="recipeCard" data-rid="${esc(String(r.id))}">
+              <div class="recipeTitle">${esc(r.name)}</div>
+              <div class="recipeMeta">
+                ${r.kcal ? `<span class="badge-soft">${esc(r.kcal)} kcal</span>` : ""}
+                <span class="badge-soft">${esc(prettyMeal(r.mealKey))}</span>
+                <span class="badge-soft">${esc(prettyDiet((r.diets||[])[0] || "—"))}</span>
+                <span class="badge-soft">${esc(r.source || "—")}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      $$("#recipesOutModal .recipeCard").forEach(card=>{
+        card.addEventListener("click", ()=>{
+          const id = card.getAttribute("data-rid");
+          const r = results.find(x => String(x.id) === String(id));
+          if(r) renderRecipeDetail(r);
+        });
+      });
+    }
+
+    function openRecipesModal({query="", mealKey=""} = {}){
+      const plan = App.plan || Store.get(Store.keys.plan, null);
+      const profile = App.profile || readProfile();
+      const kcalTarget = plan ? mealKcalTarget(plan, mealKey || "comida") : 0;
+
+      App.currentRecipeContext = { query, mealKey, kcalTarget, style: profile.style };
+
+      $("#recipesModalTitle").textContent = mealKey
+        ? `🍳 Recetas para ${prettyMeal(mealKey)}`
+        : `🍳 Recetas Offline`;
+
+      $("#recipeQuery").value = query || "";
+      $("#recipeQueryMeal").value = mealKey || "";
+
+      const results = findRecipes({ query, mealKey, style: profile.style, kcalTarget });
+      App.currentRecipeResults = results;
+
+      renderRecipesResultsModal(results);
+      if(results[0]) renderRecipeDetail(results[0]);
+
+      bootstrap.Modal.getOrCreateInstance($("#recipesModal")).show();
+    }
+
+    function renderRecipesPage(){
+      const profile = App.profile || readProfile();
+      const search = ($("#recipeSearch").value || "").trim().toLowerCase();
+      const mealKey = $("#recipeMealKey").value || "";
+      const diet = $("#recipeDiet").value || "";
+      const maxKcal = safeNum($("#recipeMaxKcal").value, 0);
+
+      const results = findRecipes({
+        query: search,
+        mealKey,
+        style: diet || "",
+        maxKcal: maxKcal>0 ? maxKcal : 0,
+        kcalTarget: 0
+      });
+
+      $("#recipeCount").textContent = String(results.length);
+
+      $("#recipesOut").innerHTML = results.length ? `
+        <div class="recipeGrid">
+          ${results.slice(0,24).map(r=>`
+            <div class="recipeCard">
+              <div class="recipeTitle">${esc(r.name)}</div>
+              <div class="recipeMeta">
+                ${r.kcal ? `<span class="badge-soft">${esc(r.kcal)} kcal</span>` : ""}
+                <span class="badge-soft">${esc(prettyMeal(r.mealKey))}</span>
+                <span class="badge-soft">${esc((r.diets||[]).map(prettyDiet).join(" / "))}</span>
+                <span class="badge-soft">${esc(r.source || "—")}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+        <div class="muted small mt-2">Tip: Desde Plan/Calendario abre el modal con detalle completo.</div>
+      ` : `<div class="muted small">Sin resultados. Cambia filtros o agrega “Mis recetas”.</div>`;
+    }
+
+    function openAddRecipeModal(){
+      $("#newR_name").value = "";
+      $("#newR_kcal").value = "";
+      $("#newR_mealKey").value = "comida";
+      $("#newR_ingredients").value = "";
+      $("#newR_steps").value = "";
+      $("#newR_tags").value = "";
+      $$(".dietChk").forEach(ch => ch.checked = (ch.value === "balanceada"));
+      bootstrap.Modal.getOrCreateInstance($("#addRecipeModal")).show();
+    }
+
+    function saveNewRecipe(){
+      const name = ($("#newR_name").value || "").trim();
+      const kcal = safeNum($("#newR_kcal").value, 0);
+      const mealKey = $("#newR_mealKey").value;
+      const tags = ($("#newR_tags").value || "").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
+      const ingredients = ($("#newR_ingredients").value || "").split("\n").map(x=>x.trim()).filter(Boolean);
+      const steps = ($("#newR_steps").value || "").split("\n").map(x=>x.trim()).filter(Boolean);
+      const diets = $$(".dietChk").filter(x=>x.checked).map(x=>x.value);
+
+      if(!name) return toast("Pon un nombre a la receta.");
+      if(!diets.length) return toast("Selecciona al menos una dieta compatible.");
+      if(!ingredients.length) return toast("Agrega ingredientes.");
+      if(!steps.length) return toast("Agrega pasos.");
+
+      const rec = {
+        id: crypto.randomUUID(),
+        name,
+        kcal: kcal>0 ? kcal : null,
+        mealKey,
+        diets,
+        tags,
+        ingredients,
+        steps,
+        source: "Mis recetas"
       };
-      recognition.onerror = () => {};
-      recognition.onend = () => {};
-      try{ recognition.start(); }catch{}
+
+      App.userRecipes.unshift(rec);
+      saveUserRecipes();
+      bootstrap.Modal.getOrCreateInstance($("#addRecipeModal")).hide();
+      toast("Receta guardada ✅");
+      renderRecipesPage();
     }
 
-    function stopSpeechRecognition(){
-      if(recognition){ try{ recognition.stop(); }catch{} }
+    function resetUserRecipes(){
+      if(!confirm("¿Borrar tus recetas guardadas?")) return;
+      App.userRecipes = [];
+      saveUserRecipes();
+      toast("Mis recetas reseteadas ✅");
+      renderRecipesPage();
     }
 
-    function evaluatePronunciation(){
-      const target = currentItem.value.text || '';
-      const spoken = lastTranscript.value || '';
-      const score = speechSupported.value ? similarityPercent(target, spoken) : null;
-      const passed = (score !== null) ? (score >= passThreshold.value) : false;
-      const it = practiceList.value[currentIndex.value];
-      if(it){ it.transcript = spoken; it.score = score; it.passed = passed; }
+    /* ---------- Export/Import ---------- */
+    function downloadJSON(obj, filename){
+      const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
+    function exportAll(){
+      const payload = {
+        profile: Store.get(Store.keys.profile, null),
+        plan: Store.get(Store.keys.plan, null),
+        calendar: Store.get(Store.keys.calendar, []),
+        userRecipes: Store.get(Store.keys.userRecipes, []),
+        exported_at: new Date().toISOString()
+      };
+      downloadJSON(payload, "dietas_definitivo_export.json");
+      toast("Exportado ✅");
+    }
+    function exportPlanOnly(){
+      const plan = Store.get(Store.keys.plan, null);
+      if(!plan) return toast("No hay plan para exportar");
+      downloadJSON(plan, "plan_dietas_definitivo.json");
+      toast("Plan exportado ✅");
+    }
+    function importAll(file){
+      const r = new FileReader();
+      r.onload = () => {
+        try{
+          const data = JSON.parse(r.result);
+          if(data.profile && typeof data.profile==="object") Store.set(Store.keys.profile, data.profile);
+          if(data.plan && typeof data.plan==="object") Store.set(Store.keys.plan, data.plan);
+          if(Array.isArray(data.calendar)) Store.set(Store.keys.calendar, data.calendar);
+          if(Array.isArray(data.userRecipes)) Store.set(Store.keys.userRecipes, data.userRecipes);
 
-    const clearRecording = () => {
-      if(lastAudioUrl.value) URL.revokeObjectURL(lastAudioUrl.value);
-      lastAudioUrl.value = '';
-      lastTranscript.value = '';
-      recStateLabel.value = 'Listo';
-    };
+          App.profile = Store.get(Store.keys.profile, defaultProfile());
+          writeProfile(App.profile);
+          updateKPIs();
 
-    const toggleRecord = async () => {
-      if(recBusy.value) return;
-      recBusy.value = true;
-      try{
-        if(!isRecording.value){
-          clearRecording();
-          recStateLabel.value = 'Solicitando micrófono...';
-          const stream = await ensureMic();
-          recordedChunks = [];
-          const mimeType = pickMimeType();
-          mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-          mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size>0) recordedChunks.push(e.data); };
-          mediaRecorder.onstart = () => { recStateLabel.value = 'Grabando...'; };
-          mediaRecorder.onerror = () => { recStateLabel.value = 'Error al grabar'; };
-          mediaRecorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: mimeType || 'audio/webm' });
-            lastAudioUrl.value = URL.createObjectURL(blob);
-            recStateLabel.value = 'Grabación lista';
-          };
+          loadRecipes();
 
-          startSpeechRecognition();
-          mediaRecorder.start();
-          isRecording.value = true;
-        } else {
-          recStateLabel.value = 'Procesando...';
-          stopRecorderSafe();
-          stopSpeechRecognition();
-          isRecording.value = false;
-          await sleep(550);
-          evaluatePronunciation();
+          App.plan = Store.get(Store.keys.plan, null);
+          renderPlan(App.plan);
+
+          loadCalendarFromStorage();
+          renderItinerary();
+          renderRecipesPage();
+          toast("Importado ✅");
+        }catch(e){
+          alert("JSON inválido: " + e.message);
         }
-      } catch(e){
-        recStateLabel.value = 'Permiso denegado o error';
-      } finally {
-        recBusy.value = false;
+      };
+      r.readAsText(file);
+    }
+    function hardReset(){
+      if(!confirm("¿Reset TOTAL? (perfil + plan + calendario + mis recetas)")) return;
+      Store.del(Store.keys.profile);
+      Store.del(Store.keys.plan);
+      Store.del(Store.keys.calendar);
+      Store.del(Store.keys.userRecipes);
+      location.reload();
+    }
+
+    /* ---------- Plan flow ---------- */
+    function generatePlanFlow(){
+      App.profile = readProfile();
+      Store.set(Store.keys.profile, App.profile);
+      $("#pillUser").textContent = App.profile.name || "Usuario";
+
+      const calc = updateKPIs();
+      const week = generateWeekPlan(App.profile);
+
+      App.plan = {
+        profile: App.profile,
+        calc,
+        macros: calc.macros,
+        week,
+        created_at: new Date().toISOString()
+      };
+      Store.set(Store.keys.plan, App.plan);
+
+      renderPlan(App.plan);
+      loadCalendarFromPlan(App.plan);
+      renderItinerary();
+      toast("Plan generado ✅");
+    }
+
+    /* ---------- Event modal ---------- */
+    function openEventModal(mode){
+      if(!App.selectedEvent) return toast("Selecciona un evento.");
+      const modal = bootstrap.Modal.getOrCreateInstance($("#eventModal"));
+
+      const curDate = ymdLocal(App.selectedEvent.start);
+      const curTime = String(App.selectedEvent.startStr).slice(11,16);
+
+      $("#modalTitleInput").value = App.selectedEvent.title || "";
+      $("#modalDateInput").value = curDate;
+      $("#modalTimeInput").value = curTime;
+
+      if(mode === "edit"){
+        $("#eventModalTitle").textContent = "Editar evento";
+        $("#modalTitleRow").style.display = "";
+        $("#modalDateTimeRow").style.display = "none";
+      } else {
+        $("#eventModalTitle").textContent = "Mover evento";
+        $("#modalTitleRow").style.display = "none";
+        $("#modalDateTimeRow").style.display = "";
       }
-    };
 
-    // ===================== Init =====================
-    onMounted(async () => {
-      // load chat
-      const savedMsgs = await localforage.getItem('messages');
-      if(Array.isArray(savedMsgs) && savedMsgs.length){ messages.value = savedMsgs; }
-      await loadNotebook();
-      await loadVocab();
+      $("#modalSaveBtn").onclick = ()=>{
+        if(!App.selectedEvent) return;
 
-      setupInputPaddingObserver();
+        if(mode === "edit"){
+          const t = ($("#modalTitleInput").value || "").trim();
+          if(t) App.selectedEvent.setProp("title", t);
+        } else {
+          const date = $("#modalDateInput").value;
+          const time = $("#modalTimeInput").value;
+          if(!date || !time) return;
 
-      // create practice set first time
-      if(!practiceList.value.length) generatePracticeSet();
+          const newStart = `${date}T${time}:00`;
+          const dur = (MEAL_DURATION_MIN[App.selectedEvent.extendedProps?.mealKey] || 45);
+          const newEnd = addMinutesToISO(newStart, dur);
 
-      // ensure scroll bottom if restored
-      if(messages.value.length) scrollToBottom();
+          App.selectedEvent.setStart(newStart);
+          App.selectedEvent.setEnd(newEnd);
+        }
+
+        persistCalendar();
+        setDetailFromEvent(App.selectedEvent);
+        modal.hide();
+        toast("Guardado ✅");
+      };
+
+      modal.show();
+    }
+
+    function deleteSelectedEvent(){
+      if(!App.selectedEvent) return toast("Selecciona un evento.");
+      if(!confirm("¿Borrar este evento?")) return;
+      App.selectedEvent.remove();
+      App.selectedEvent = null;
+      persistCalendar();
+      ["detailDate","detailType","detailTime","detailMeal","detailPortion","sheetDate","sheetType","sheetTime","sheetMeal","sheetPortion"]
+        .forEach(id => $("#"+id).textContent = "—");
+      toast("Borrado ✅");
+    }
+
+    /* ---------- Init ---------- */
+    document.addEventListener("DOMContentLoaded", async ()=>{
+      // nav
+      $$(".navbtn").forEach(btn => btn.addEventListener("click", ()=> App.showView(btn.dataset.view)));
+
+      // profile
+      App.profile = Store.get(Store.keys.profile, defaultProfile());
+      writeProfile(App.profile);
+      updateKPIs();
+
+      ["name","sex","age","height","weight","activity","goal","style","allergies","dislikes"].forEach(id=>{
+        $("#"+id).addEventListener("input", ()=>{
+          updateKPIs();
+          $("#pillUser").textContent = ($("#name").value || "Usuario").trim();
+        });
+        $("#"+id).addEventListener("change", ()=>{
+          updateKPIs();
+          $("#pillUser").textContent = ($("#name").value || "Usuario").trim();
+        });
+      });
+
+      $("#btnSaveProfile").addEventListener("click", ()=>{
+        App.profile = readProfile();
+        Store.set(Store.keys.profile, App.profile);
+        updateKPIs();
+        toast("Perfil guardado ✅");
+      });
+
+      $("#btnResetProfile").addEventListener("click", ()=>{
+        App.profile = defaultProfile();
+        Store.set(Store.keys.profile, App.profile);
+        writeProfile(App.profile);
+        updateKPIs();
+        toast("Perfil reseteado ✅");
+      });
+
+      // plan
+      $("#btnGeneratePlan").addEventListener("click", generatePlanFlow);
+      $("#btnQuickPlan").addEventListener("click", ()=>{
+        App.showView("viewPlan");
+        $("#btnGeneratePlan").click();
+      });
+
+      $("#btnClearPlan").addEventListener("click", ()=>{
+        if(!confirm("¿Limpiar plan y calendario?")) return;
+        Store.del(Store.keys.plan);
+        Store.del(Store.keys.calendar);
+        App.plan = null;
+        renderPlan(null);
+        if(App.fullcalendarOk && App.calendar) App.calendar.removeAllEvents();
+        renderMiniCalendar();
+        renderItinerary();
+        toast("Plan limpiado 🧹");
+      });
+
+      // export/import/reset
+      $("#btnExport").addEventListener("click", exportAll);
+      $("#btnExportPlan").addEventListener("click", exportPlanOnly);
+      $("#fileImport").addEventListener("change", function(){
+        const f = this.files && this.files[0];
+        if(f) importAll(f);
+        this.value = "";
+      });
+      $("#btnHardReset").addEventListener("click", hardReset);
+
+      // calendar buttons
+      $("#btnToday").addEventListener("click", ()=>{ if(App.fullcalendarOk && App.calendar) App.calendar.today(); toast("Hoy ✅"); });
+      $("#btnReloadFromPlan").addEventListener("click", ()=>{
+        if(!App.plan) return toast("No hay plan. Genera uno primero.");
+        loadCalendarFromPlan(App.plan);
+        renderItinerary();
+        toast("Recargado ✅");
+      });
+
+      // detail buttons
+      $("#btnEditEvent").addEventListener("click", ()=> openEventModal("edit"));
+      $("#btnMoveEvent").addEventListener("click", ()=> openEventModal("move"));
+      $("#btnDeleteEvent").addEventListener("click", deleteSelectedEvent);
+
+      $("#btnEditEventM").addEventListener("click", ()=> openEventModal("edit"));
+      $("#btnMoveEventM").addEventListener("click", ()=> openEventModal("move"));
+      $("#btnDeleteEventM").addEventListener("click", deleteSelectedEvent);
+
+      // detail recipes
+      $("#btnDetailRecipes").addEventListener("click", ()=>{
+        if(!App.selectedEvent) return toast("Selecciona un evento.");
+        openRecipesModal({ query: App.selectedEvent.title || "", mealKey: App.selectedEvent.extendedProps?.mealKey || "" });
+      });
+      $("#btnDetailRecipesM").addEventListener("click", ()=>{
+        if(!App.selectedEvent) return toast("Selecciona un evento.");
+        openRecipesModal({ query: App.selectedEvent.title || "", mealKey: App.selectedEvent.extendedProps?.mealKey || "" });
+      });
+
+      // print itinerary
+      $("#btnPrint").addEventListener("click", ()=> window.print());
+
+      // recipes page actions
+      $("#btnApplyRecipeFilter").addEventListener("click", renderRecipesPage);
+      $("#btnAddRecipe").addEventListener("click", openAddRecipeModal);
+      $("#btnSaveNewRecipe").addEventListener("click", saveNewRecipe);
+      $("#btnResetRecipes").addEventListener("click", resetUserRecipes);
+      $("#btnOpenRecipesFromPlan").addEventListener("click", ()=> openRecipesModal({query:"", mealKey:""}));
+
+      // recipes modal search
+      $("#btnSearchRecipes").addEventListener("click", ()=>{
+        const query = ($("#recipeQuery").value || "").trim();
+        const mk = $("#recipeQueryMeal").value || "";
+        const profile = App.profile || readProfile();
+        const plan = App.plan || Store.get(Store.keys.plan, null);
+        const kcalTarget = plan ? mealKcalTarget(plan, mk || "comida") : 0;
+
+        const results = findRecipes({ query, mealKey: mk, style: profile.style, kcalTarget });
+        App.currentRecipeResults = results;
+        renderRecipesResultsModal(results);
+        if(results[0]) renderRecipeDetail(results[0]);
+      });
+
+      // load libs
+      const [fcOk, chartOk] = await Promise.all([loadFullCalendarGlobal(), loadChart()]);
+      App.fullcalendarOk = !!fcOk;
+      App.chartOk = !!chartOk;
+
+      // init calendar
+      initCalendarIfAvailable();
+
+      // load recipes
+      loadRecipes();
+
+      // load plan
+      App.plan = Store.get(Store.keys.plan, null);
+      renderPlan(App.plan);
+
+      // load calendar
+      const existing = Store.get(Store.keys.calendar, []);
+      if(App.plan && (!existing || !existing.length)){
+        loadCalendarFromPlan(App.plan);
+      } else {
+        loadCalendarFromStorage();
+      }
+
+      renderItinerary();
+      renderRecipesPage();
+      toast("Listo ✅");
     });
-
-    // cleanup
-    window.addEventListener('beforeunload', () => {
-      try{ voiceRec && voiceRec.stop(); }catch{}
-      try{ stopRecorderSafe(); stopSpeechRecognition(); }catch{}
-      if(lastAudioUrl.value) URL.revokeObjectURL(lastAudioUrl.value);
-      localforage.setItem('messages', messages.value).catch(()=>{});
-    });
-
-    return {
-      // core
-      displayName, mode, modeLabel,
-      messages, input, loading, showConfig, textarea,
-      sessionId, useInternet, timeoutMs, internetOk,
-      level, ttsLang,
-      pronLang, passThreshold,
-      notebook, vocab, vocabSearch, filteredVocab,
-      sideOpen, sideTab,
-      pyReady, pyLoading,
-      isVoiceInput,
-
-      // ui
-      renderMD, statusLine,
-      toggleSide, send, sendText, regenerate,
-      tts, copy,
-      toggleVoiceInput,
-
-      // notebook/vocab
-      pinToNotebook, clearNotebook, clearVocab,
-
-      // config
-      saveConfig, resetAll,
-
-      // memory
-      resetSeen,
-
-      // python
-      togglePython,
-
-      // pronunciation
-      speechSupported,
-      practiceTopic, practiceList, currentIndex, currentItem,
-      generatePracticeSet, nextPractice, prevPractice,
-      resetPracticeScores,
-      doneCount, overallScore, overallScoreColor,
-      scoreColor, rowClass,
-      ttsPractice,
-      isRecording, recBusy, lastAudioUrl, lastTranscript,
-      recStateLabel, toggleRecord, clearRecording
-    };
-  }
-}).mount('#app');
-</script>
-
+  </script>
 </body>
 </html>
